@@ -15,7 +15,7 @@ const NgoRegistration = () => {
           />
         </div>
 
-        <div className="flex md:mx-10 mx-5 my-5  md:my-10 flex-col items-start md:px-20 md:py-10 md:shadow-2xl">
+        <div className="flex md:mx-10 mx-5 my-5 md:my-10 flex-col items-start md:px-20 md:py-10 md:shadow-2xl">
           {!image && (
             <p className="text-lg  text-gray-600">Upload Organization Image</p>
           )}
@@ -175,7 +175,9 @@ const NgoRegistration = () => {
             </label>
           </div>
 
-          <button className="p-2 cursor-pointer text-lg text-center w-full rounded-xl bg-[#ef4f5f] text-white font-semibold mt-5 md:mt-10 mb-2">
+          <button onClick={()=>{
+            navigate("/NgoDashboard");
+          }} className="p-2 cursor-pointer text-lg text-center w-full rounded-xl bg-[#ef4f5f] text-white font-semibold mt-5 md:mt-10 mb-2">
             Register as Organization
           </button>
 
