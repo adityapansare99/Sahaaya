@@ -33,7 +33,7 @@ const RiderRegistration = () => {
               />
               <img
                 className="w-10 absolute bottom-12 right-12"
-                src={image ? null : ""}
+                src={image ? null : "null"}
                 alt=""
               />
             </div>
@@ -172,7 +172,7 @@ const RiderRegistration = () => {
           </div>
 
           <button className="p-2 cursor-pointer text-lg text-center w-full rounded-xl bg-[#ef4f5f] text-white font-semibold mt-5 md:mt-10 mb-2">
-            Register as Delivery Rider Partner
+            Register as Delivery Partner
           </button>
 
           <p className="text-sm md:text-lg mt-2">

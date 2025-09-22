@@ -71,7 +71,7 @@ const DonorRegistration = () => {
                     />
                     <img
                       className="w-10 absolute bottom-12 right-12"
-                      src={image ? null : ""}
+                      src={image ? null : "null"}
                       alt=""
                     />
                   </div>
@@ -205,7 +205,7 @@ const DonorRegistration = () => {
                     />
                     <img
                       className="w-10 absolute bottom-12 right-12"
-                      src={image ? null : ""}
+                      src={image ? null : "null"}
                       alt=""
                     />
                   </div>
