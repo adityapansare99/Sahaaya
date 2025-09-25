@@ -34,7 +34,7 @@ const Sidebar = ({ activeTab, setActiveTab, isMobileOpen, setIsMobileOpen }) => 
         <div className="p-6">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-8 mt-8 lg:mt-0">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#ef4f5f] to-[#d63447] rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
               <Heart className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -54,7 +54,7 @@ const Sidebar = ({ activeTab, setActiveTab, isMobileOpen, setIsMobileOpen }) => 
                 }}
                 className={`w-full flex items-center gap-4 mt-4 px-4 py-3 rounded-xl transition-all duration-200 ${
                   activeTab === item.id
-                    ? 'bg-[#ef4f5f] text-white shadow-lg'
+                    ? 'bg-red-500 text-white shadow-lg'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >

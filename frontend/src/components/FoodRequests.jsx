@@ -134,7 +134,7 @@ const FoodRequests = () => {
                   </button>
                   <button
                     onClick={() => handleAccept(request.id)}
-                    className="px-6 py-2 bg-[#ef4f5f] text-white rounded-xl hover:bg-[#d63447] transition-colors duration-200 flex items-center gap-2 shadow-lg"
+                    className="px-6 py-2 bg-red-500 text-white rounded-xl hover:bg-[#d63447] transition-colors duration-200 flex items-center gap-2 shadow-lg"
                   >
                     <Check className="w-4 h-4" />
                     Accept

@@ -59,7 +59,7 @@ const CreateDonation = ({ onDonationCreate }) => {
             <select
               value={formData.foodType}
               onChange={(e) => handleInputChange("foodType", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
               required
             >
               <option value="">Select food type</option>
@@ -81,7 +81,7 @@ const CreateDonation = ({ onDonationCreate }) => {
               value={formData.quantity}
               onChange={(e) => handleInputChange("quantity", e.target.value)}
               placeholder="e.g., 50 meals, 10 kg, 20 packets"
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
               required
             />
           </div>
@@ -99,7 +99,7 @@ const CreateDonation = ({ onDonationCreate }) => {
                 handleInputChange("pickupLocation", e.target.value)
               }
               placeholder="Enter complete address"
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
               required
             />
           </div>
@@ -118,7 +118,7 @@ const CreateDonation = ({ onDonationCreate }) => {
                   handleInputChange("expiryDate", e.target.value)
                 }
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                 required
               />
             </div>
@@ -132,7 +132,7 @@ const CreateDonation = ({ onDonationCreate }) => {
                 onChange={(e) =>
                   handleInputChange("expiryTime", e.target.value)
                 }
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                 required
               />
             </div>
@@ -141,7 +141,7 @@ const CreateDonation = ({ onDonationCreate }) => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-[#ef4f5f] text-white py-4 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+            className="w-full bg-red-500 text-white py-4 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
           >
             <Plus className="w-5 h-5" />
             <span>Donate Now</span>

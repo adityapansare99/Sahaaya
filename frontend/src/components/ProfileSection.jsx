@@ -79,8 +79,8 @@ const ProfileSection = () => {
               onClick={() => setIsEditing(!isEditing)}
               className="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-xl font-medium transition-colors flex items-center space-x-2"
             >
-              <Edit3 className="w-4 h-4  text-[#ef4f5f]" />
-              <span className="text-[#ef4f5f]">{isEditing ? "Cancel" : "Edit Profile"}</span>
+              <Edit3 className="w-4 h-4  text-red-500" />
+              <span className="text-red-500">{isEditing ? "Cancel" : "Edit Profile"}</span>
             </button>
           </div>
         </div>

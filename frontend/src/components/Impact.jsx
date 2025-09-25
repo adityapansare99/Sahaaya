@@ -82,7 +82,7 @@ const Impact = ({ stats }) => {
                 <span className="font-semibold text-gray-800">47 / 50</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
-                <div className="bg-[#ef4f5f] h-3 rounded-full transition-all duration-300" style={{ width: '94%' }}></div>
+                <div className="bg-red-500 h-3 rounded-full transition-all duration-300" style={{ width: '94%' }}></div>
               </div>
             </div>
             <div>

@@ -38,7 +38,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'border-[#ef4f5f] text-[#ef4f5f]'
+                      ? 'border-red-500 text-red-500'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
@@ -63,7 +63,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                     required
                   />
                 </div>
@@ -77,7 +77,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                     required
                   />
                 </div>
@@ -91,7 +91,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                     required
                   />
                 </div>
@@ -105,7 +105,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
                     type="text"
                     value={formData.address}
                     onChange={(e) => handleInputChange('address', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                     required
                   />
                 </div>
@@ -114,7 +114,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
               <div className="flex justify-end pt-6">
                 <button
                   type="submit"
-                  className="bg-[#ef4f5f] text-white px-8 py-3 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                  className="bg-red-500 text-white px-8 py-3 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
                 >
                   <Save className="w-4 h-4" />
                   <span>Save Changes</span>
@@ -134,7 +134,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
                     </label>
                     <input
                       type="password"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                     />
                   </div>
                   <div>
@@ -143,7 +143,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
                     </label>
                     <input
                       type="password"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                     />
                   </div>
                   <div>
@@ -152,12 +152,12 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
                     </label>
                     <input
                       type="password"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ef4f5f] focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="bg-[#ef4f5f] text-white px-6 py-3 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200"
+                    className="bg-red-500 text-white px-6 py-3 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200"
                   >
                     Update Password
                   </button>

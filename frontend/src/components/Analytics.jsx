@@ -25,7 +25,7 @@ const Analytics = () => {
       change: '+25%',
       changeType: 'increase',
       icon: Heart,
-      color: 'bg-[#ef4f5f]'
+      color: 'bg-red-500'
     },
     {
       title: 'Food Waste Prevented',
@@ -59,7 +59,7 @@ const Analytics = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Reports & Analytics</h2>
         <div className="flex items-center gap-2">
-          <Award className="w-5 h-5 text-[#ef4f5f]" />
+          <Award className="w-5 h-5 text-red-500" />
           <span className="text-sm text-gray-600">Impact Dashboard</span>
         </div>
       </div>
@@ -96,7 +96,7 @@ const Analytics = () => {
                     <span className="text-sm text-gray-900 w-20">Collections</span>
                     <div className="flex-1 bg-gray-100 rounded-full h-2">
                       <div 
-                        className="bg-[#ef4f5f] h-2 rounded-full transition-all duration-500"
+                        className="bg-red-500 h-2 rounded-full transition-all duration-500"
                         style={{ width: `${(data.donations / 150) * 100}%` }}
                       ></div>
                     </div>
@@ -124,7 +124,7 @@ const Analytics = () => {
           <div className="space-y-4">
             {topDonors.map((donor, index) => (
               <div key={index} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                <div className="w-8 h-8 bg-gradient-to-br from-[#ef4f5f] to-[#d63447] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                   {index + 1}
                 </div>
                 <div className="flex-1">
@@ -132,7 +132,7 @@ const Analytics = () => {
                   <div className="text-sm text-gray-500">{donor.donations} donations • {donor.meals} meals</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-semibold text-[#ef4f5f]">{donor.donations}</div>
+                  <div className="text-sm font-semibold text-red-500">{donor.donations}</div>
                   <div className="text-xs text-gray-500">donations</div>
                 </div>
               </div>
@@ -142,7 +142,7 @@ const Analytics = () => {
       </div>
 
       {/* Impact Summary */}
-      <div className="bg-gradient-to-r from-[#ef4f5f] to-[#d63447] rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-6 text-white">
         <div className="flex items-center gap-3 mb-4">
           <Heart className="w-6 h-6" />
           <h3 className="text-xl font-bold">Monthly Impact Summary</h3>

@@ -45,7 +45,7 @@ const Home = () => {
                 navigate("/Role");
               }}
               type="button"
-              className="cursor-pointer text-base md:text-lg py-2 md:py-3 px-4 md:px-6 mt-4 bg-[#EF4F5F] text-white rounded-lg"
+              className="cursor-pointer text-base md:text-lg py-2 md:py-3 px-4 md:px-6 mt-4 bg-red-500 text-white rounded-lg"
             >
               JOIN US
             </button>
@@ -104,7 +104,7 @@ const Home = () => {
         <div className="mt-8 md:mt-15 bg-[#f8f8f8] h-24 md:h-40 rounded-lg px-4 md:px-10 flex flex-col justify-center items-center tracking-wider">
           <p className="text-xl md:text-4xl font-semibold">
             Total meals served:{" "}
-            <span className="text-[#EF4F5F]">20 crores</span> and counting....
+            <span className="text-red-500">20 crores</span> and counting....
           </p>
         </div>
       </div>

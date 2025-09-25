@@ -171,7 +171,7 @@ const RiderRegistration = () => {
             </label>
           </div>
 
-          <button className="p-2 cursor-pointer text-lg text-center w-full rounded-xl bg-[#ef4f5f] text-white font-semibold mt-5 md:mt-10 mb-2">
+          <button className="p-2 cursor-pointer text-lg text-center w-full rounded-xl bg-red-500 text-white font-semibold mt-5 md:mt-10 mb-2">
             Register as Delivery Partner
           </button>
 
@@ -181,7 +181,7 @@ const RiderRegistration = () => {
               onClick={() => {
                 navigate("/Login");
               }}
-              className="text-decoration-underline text-[#ef4f5f] cursor-pointer"
+              className="text-decoration-underline text-red-500 cursor-pointer"
             >
               Login here
             </span>

@@ -38,7 +38,7 @@ const Login = () => {
           </select>
         </div>
 
-        <button className="p-3 mt-10 cursor-pointer text-xl text-center w-full rounded-xl bg-[#ef4f5f] text-white font-semibold mb-2">
+        <button className="p-3 mt-10 cursor-pointer text-xl text-center w-full rounded-xl bg-red-500 text-white font-semibold mb-2">
           Sign in to Continue
         </button>
 
@@ -48,7 +48,7 @@ const Login = () => {
             onClick={() => {
               navigate("/Role");
             }}
-            className="text-decoration-underline text-[#ef4f5f] cursor-pointer"
+            className="text-decoration-underline text-red-500 cursor-pointer"
           >
             Register here
           </span>

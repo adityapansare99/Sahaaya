@@ -43,7 +43,7 @@ const Navbar = (props) => {
               navigate("/Role");
             }}
             type="button"
-            className="cursor-pointer text-base md:text-lg py-2 hidden md:block md:py-3 px-4 md:px-6 bg-[#EF4F5F] text-white rounded-lg"
+            className="cursor-pointer text-base md:text-lg py-2 hidden md:block md:py-3 px-4 md:px-6 bg-red-500 text-white rounded-lg"
           >
             JOIN US
           </button>

@@ -35,7 +35,7 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
         <div className="p-6">
           {/* Logo */}
           <div className="flex items-center space-x-2 mb-8">
-            <Heart className="w-8 h-8 text-[#ef4f5f]" />
+            <Heart className="w-8 h-8 text-red-500" />
             <h1 className="text-2xl font-bold text-gray-800">Sahaaya</h1>
           </div>
 
@@ -54,7 +54,7 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
                   }}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 ${
                     isActive
-                      ? "bg-[#ef4f5f] text-white shadow-lg"
+                      ? "bg-red-500 text-white shadow-lg"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                   }`}
                 >
@@ -67,7 +67,7 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
 
           {/* Support Button */}
           <div className="mt-8 pt-8 border-t border-gray-200">
-            <button className="w-full flex items-center space-x-3 px-4 py-3 text-[#ef4f5f] hover:bg-red-50 rounded-2xl transition-all duration-200">
+            <button className="w-full flex items-center space-x-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-2xl transition-all duration-200">
               <HelpCircle className="w-5 h-5" />
               <span className="font-medium">Contact Support</span>
             </button>
