@@ -7,6 +7,7 @@ import {
   Settings,
   HelpCircle,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
   const menuItems = [
@@ -15,6 +16,8 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
     { id: "impact", label: "Impact", icon: TrendingUp },
     { id: "settings", label: "Settings", icon: Settings },
   ];
+
+  const navigate=useNavigate();
 
   return (
     <>
@@ -36,7 +39,9 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
           {/* Logo */}
           <div className="flex items-center space-x-2 mb-8">
             <Heart className="w-8 h-8 text-red-500" />
-            <h1 className="text-2xl font-bold text-gray-800">Sahaaya</h1>
+            <h1 onClick={()=>{
+              navigate('/')
+            }} className="text-2xl font-bold text-gray-800 cursor-pointer">Sahaaya</h1>
           </div>
 
           {/* Menu Items */}
@@ -52,7 +57,7 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
                     onSectionChange(item.id);
                     if (window.innerWidth < 1024) onToggle();
                   }}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 ${
+                  className={`w-full cursor-pointer flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 ${
                     isActive
                       ? "bg-red-500 text-white shadow-lg"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
@@ -69,7 +74,7 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
           <div className="mt-8 pt-8 border-t border-gray-200">
             <button className="w-full flex items-center space-x-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-2xl transition-all duration-200">
               <HelpCircle className="w-5 h-5" />
-              <span className="font-medium">Contact Support</span>
+              <span className="font-medium cursor-pointer">Contact Support</span>
             </button>
           </div>
         </div>

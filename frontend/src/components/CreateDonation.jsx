@@ -141,7 +141,7 @@ const CreateDonation = ({ onDonationCreate }) => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-red-500 text-white py-4 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+            className="cursor-pointer w-full bg-red-500 text-white py-4 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
           >
             <Plus className="w-5 h-5" />
             <span>Donate Now</span>

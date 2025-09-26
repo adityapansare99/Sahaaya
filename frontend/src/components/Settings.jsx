@@ -33,7 +33,7 @@ const Settings = () => {
     <div className="space-y-6 md:ml-2">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Account & Settings</h2>
-        <button className="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors duration-200 flex items-center gap-2">
+        <button className="px-4 py-2 cursor-pointer bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors duration-200 flex items-center gap-2">
           <Save className="w-4 h-4" />
           Save Changes
         </button>
@@ -173,7 +173,7 @@ const Settings = () => {
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full p-3 text-left rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200 flex items-center gap-3">
+              <button className="w-full p-3 cursor-pointer text-left rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200 flex items-center gap-3">
                 <User className="w-5 h-5 text-gray-400" />
                 <div>
                   <div className="font-medium text-gray-900">Change Password</div>
@@ -181,7 +181,7 @@ const Settings = () => {
                 </div>
               </button>
               
-              <button className="w-full p-3 text-left rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200 flex items-center gap-3">
+              <button className="w-full cursor-pointer p-3 text-left rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200 flex items-center gap-3">
                 <Shield className="w-5 h-5 text-gray-400" />
                 <div>
                   <div className="font-medium text-gray-900">Privacy Settings</div>
@@ -189,7 +189,7 @@ const Settings = () => {
                 </div>
               </button>
               
-              <button className="w-full p-3 text-left rounded-lg border border-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-200 flex items-center gap-3">
+              <button className="w-full p-3 cursor-pointer text-left rounded-lg border border-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-200 flex items-center gap-3">
                 <HelpCircle className="w-5 h-5 text-red-500" />
                 <div>
                   <div className="font-medium text-red-500">Contact Support</div>

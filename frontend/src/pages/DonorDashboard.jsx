@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { Menu, X } from "lucide-react";
 import SidebarD from "../components/SidebarD";
 import CreateDonation from "../components/CreateDonation";
 import MyDonations from "../components/MyDonations";
 import Impact from "../components/Impact";
 import SettingsD from "../components/SettingsD";
+import { useNavigate } from "react-router-dom";
 
 const DonorDashboard = () => {
   const [activeSection, setActiveSection] = useState("create");
@@ -80,6 +81,8 @@ const DonorDashboard = () => {
       totalMealsDonated: prev.totalMealsDonated + 1,
     }));
   };
+
+  const navigate=useNavigate();
 
   const handleDonationEdit = (donation) => {
     // In a real app, this would open an edit modal

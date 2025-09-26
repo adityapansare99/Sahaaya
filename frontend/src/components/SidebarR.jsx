@@ -1,5 +1,6 @@
 import React from "react";
 import { Truck, MapPin, Clock, Award, User, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const SidebarR = ({
   activeSection,
@@ -14,6 +15,8 @@ const SidebarR = ({
     { id: "rewards", label: "Rewards & Impact", icon: Award },
     { id: "profile", label: "Profile & Settings", icon: User },
   ];
+
+  const navigate=useNavigate();
 
   return (
     <>
@@ -39,7 +42,9 @@ const SidebarR = ({
                 <Truck className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-xl text-gray-900">Sahaaya</h2>
+                <h2 onClick={()=>{
+                  navigate('/');
+                }} className="font-bold cursor-pointer text-xl text-gray-900">Sahaaya</h2>
                 <p className="text-sm text-gray-500">Rider Dashboard</p>
               </div>
             </div>
@@ -63,7 +68,7 @@ const SidebarR = ({
                   setSidebarOpen(false);
                 }}
                 className={`
-                  w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-left transition-all duration-200
+                  w-full cursor-pointer flex items-center space-x-3 px-4 py-3 rounded-2xl text-left transition-all duration-200
                   ${
                     activeSection === item.id
                       ? "bg-red-50 text-red-600 border-l-4 border-red-500"
@@ -84,7 +89,7 @@ const SidebarR = ({
             <p className="text-sm text-red-100 mb-3">
               Contact our support team
             </p>
-            <button className="bg-white text-red-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-red-50 transition-colors">
+            <button className="bg-white cursor-pointer text-red-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-red-50 transition-colors">
               Get Support
             </button>
           </div>

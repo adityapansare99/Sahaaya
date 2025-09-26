@@ -15,7 +15,7 @@ const RiderDashboard = () => {
       case 'deliveries':
         return <AvailableDeliveries />;
       case 'active':
-        return <ActiveDelivery />;
+        return <ActiveDelivery setActiveSection={setActiveSection} />;
       case 'history':
         return <DeliveryHistory />;
       case 'rewards':

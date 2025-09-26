@@ -1,5 +1,6 @@
 import React from 'react';
 import { Package, History, BarChart3, Settings, Heart, Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ activeTab, setActiveTab, isMobileOpen, setIsMobileOpen }) => {
   const menuItems = [
@@ -9,6 +10,7 @@ const Sidebar = ({ activeTab, setActiveTab, isMobileOpen, setIsMobileOpen }) => 
     { id: 'settings', label: 'Account & Settings', icon: Settings },
   ];
 
+  const navigate=useNavigate();
   return (
     <>
       {/* Mobile menu button */}
@@ -38,7 +40,9 @@ const Sidebar = ({ activeTab, setActiveTab, isMobileOpen, setIsMobileOpen }) => 
               <Heart className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Sahaaya</h1>
+              <h1 onClick={(()=>{
+                navigate('/');
+              })} className="text-xl cursor-pointer font-bold text-gray-900">Sahaaya</h1>
               <p className="text-sm text-gray-500">NGO Dashboard</p>
             </div>
           </div>
@@ -52,7 +56,7 @@ const Sidebar = ({ activeTab, setActiveTab, isMobileOpen, setIsMobileOpen }) => 
                   setActiveTab(item.id);
                   setIsMobileOpen(false);
                 }}
-                className={`w-full flex items-center gap-4 mt-4 px-4 py-3 rounded-xl transition-all duration-200 ${
+                className={`w-full cursor-pointer flex items-center gap-4 mt-4 px-4 py-3 rounded-xl transition-all duration-200 ${
                   activeTab === item.id
                     ? 'bg-red-500 text-white shadow-lg'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'

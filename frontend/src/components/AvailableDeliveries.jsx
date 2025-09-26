@@ -148,7 +148,7 @@ const AvailableDeliveries = () => {
                     <div className="flex space-x-3">
                       <button
                         onClick={() => handleAcceptDelivery(delivery.id)}
-                        className="flex-1 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 hover:shadow-lg"
+                        className="flex-1 cursor-pointer bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 hover:shadow-lg"
                       >
                         <CheckCircle className="w-5 h-5" />
                         <span>Accept Delivery</span>
@@ -156,7 +156,7 @@ const AvailableDeliveries = () => {
 
                       <button
                         onClick={() => handleRejectDelivery(delivery.id)}
-                        className="px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 text-gray-600 hover:text-red-500 hover:bg-red-50 border border-gray-200 hover:border-red-200"
+                        className="px-6 py-3 cursor-pointer rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 text-gray-600 hover:text-red-500 hover:bg-red-50 border border-gray-200 hover:border-red-200"
                       >
                         <XCircle className="w-5 h-5" />
                         <span>Reject</span>

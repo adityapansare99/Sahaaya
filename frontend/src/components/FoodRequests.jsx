@@ -127,14 +127,14 @@ const FoodRequests = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleReject(request.id)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-200 flex items-center gap-2"
+                    className="px-4 cursor-pointer py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-200 flex items-center gap-2"
                   >
                     <X className="w-4 h-4" />
                     Reject
                   </button>
                   <button
                     onClick={() => handleAccept(request.id)}
-                    className="px-6 py-2 bg-red-500 text-white rounded-xl hover:bg-[#d63447] transition-colors duration-200 flex items-center gap-2 shadow-lg"
+                    className="px-6 cursor-pointer py-2 bg-red-500 text-white rounded-xl hover:bg-[#d63447] transition-colors duration-200 flex items-center gap-2 shadow-lg"
                   >
                     <Check className="w-4 h-4" />
                     Accept

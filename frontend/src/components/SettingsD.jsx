@@ -36,7 +36,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-all duration-200 ${
+                  className={`flex cursor-pointer items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-all duration-200 ${
                     activeTab === tab.id
                       ? 'border-red-500 text-red-500'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -114,7 +114,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
               <div className="flex justify-end pt-6">
                 <button
                   type="submit"
-                  className="bg-red-500 text-white px-8 py-3 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                  className="bg-red-500 cursor-pointer text-white px-8 py-3 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
                 >
                   <Save className="w-4 h-4" />
                   <span>Save Changes</span>
@@ -157,7 +157,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
                   </div>
                   <button
                     type="submit"
-                    className="bg-red-500 text-white px-6 py-3 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200"
+                    className="bg-red-500 cursor-pointer text-white px-6 py-3 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200"
                   >
                     Update Password
                   </button>
@@ -167,7 +167,7 @@ const SettingsD = ({ profile, onProfileUpdate }) => {
               <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Account Actions</h3>
                 <div className="space-y-3">
-                  <button className="text-red-600 hover:bg-red-50 px-4 py-2 rounded-2xl transition-all duration-200">
+                  <button className="text-red-600 cursor-pointer hover:bg-red-50 px-4 py-2 rounded-2xl transition-all duration-200">
                     Delete Account
                   </button>
                   <p className="text-sm text-gray-500">

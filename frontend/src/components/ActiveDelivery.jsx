@@ -9,7 +9,7 @@ import {
   Truck,
 } from "lucide-react";
 
-const ActiveDelivery = () => {
+const ActiveDelivery = (props) => {
   const [activeDelivery, setActiveDelivery] = useState({
     id: 1,
     donorName: "Rajesh Kumar",
@@ -81,7 +81,9 @@ const ActiveDelivery = () => {
             No active delivery
           </h3>
           <p className="text-gray-400 mb-6">Ready to accept a new delivery?</p>
-          <button className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
+          <button onClick={()=>{
+            props.setActiveSection('deliveries');
+          }} className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
             Browse Available Deliveries
           </button>
         </div>
@@ -207,7 +209,7 @@ const ActiveDelivery = () => {
           <div className="mt-8 pt-6 border-t">
             <button
               onClick={handleStatusUpdate}
-              className={`w-full ${statusConfig.buttonColor} text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-200 flex items-center justify-center space-x-3 hover:shadow-lg`}
+              className={`w-full ${statusConfig.buttonColor} text-white cursor-pointer px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-200 flex items-center justify-center space-x-3 hover:shadow-lg`}
             >
               <CheckCircle2 className="w-6 h-6" />
               <span>{statusConfig.buttonText}</span>

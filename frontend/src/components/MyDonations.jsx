@@ -100,14 +100,14 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                   <div className="flex space-x-3 lg:ml-6">
                     <button
                       onClick={() => onEdit(donation)}
-                      className="flex items-center space-x-2 px-4 py-2 text-blue-600 border border-blue-300 rounded-2xl hover:bg-blue-50 transition-all duration-200"
+                      className="flex cursor-pointer items-center space-x-2 px-4 py-2 text-blue-600 border border-blue-300 rounded-2xl hover:bg-blue-50 transition-all duration-200"
                     >
                       <Edit3 className="w-4 h-4" />
                       <span>Edit</span>
                     </button>
                     <button
                       onClick={() => onCancel(donation.id)}
-                      className="flex items-center space-x-2 px-4 py-2 text-red-600 border border-red-300 rounded-2xl hover:bg-red-50 transition-all duration-200"
+                      className="flex cursor-pointer items-center space-x-2 px-4 py-2 text-red-600 border border-red-300 rounded-2xl hover:bg-red-50 transition-all duration-200"
                     >
                       <X className="w-4 h-4" />
                       <span>Cancel</span>
