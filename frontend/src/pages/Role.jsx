@@ -52,7 +52,7 @@ const Role = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         {/* Header Section */}
         <div className="text-center mb-10">
@@ -60,7 +60,9 @@ const Role = () => {
             <UserCheck className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-            Join <span className="bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">Sahaaya</span>
+            Join <span onClick={()=>{
+              navigate("/");
+            }} className="bg-gradient-to-r from-red-500 to-red-600 cursor-pointer bg-clip-text text-transparent">Sahaaya</span>
           </h1>
           <p className="text-lg text-gray-600 max-w-md mx-auto leading-relaxed">
             Choose your role and become part of a community dedicated to reducing food waste and fighting hunger
@@ -122,7 +124,7 @@ const Role = () => {
         <div className="space-y-4">
           <button
             onClick={submitHandler}
-            className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2 text-lg"
+            className="w-full bg-gradient-to-r from-red-500 to-red-600 cursor-pointer text-white font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2 text-lg"
           >
             <span>Start Your Journey</span>
             <ChevronRight className="w-5 h-5" />
@@ -132,7 +134,7 @@ const Role = () => {
             <p className="text-gray-600 mb-2">Already have an account?</p>
             <button
               onClick={() => navigate("/Login")}
-              className="text-red-500 font-semibold hover:text-red-600 transition-colors duration-200 underline decoration-2 underline-offset-4"
+              className="text-red-500 cursor-pointer font-semibold hover:text-red-600 transition-colors duration-200 underline decoration-2 underline-offset-4"
             >
               Sign in here
             </button>

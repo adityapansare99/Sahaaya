@@ -1,58 +1,216 @@
-import React from "react";
+import React, { useState } from "react";
+import { Mail, Lock, Users, Heart, Star, Sparkles, ArrowRight, LogIn, UserCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+// Mock navigate function for demo
+const navigate = (path) => console.log('Navigate to:', path);
+
 const Login = () => {
-  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    loginAs: 'Donor'
+  });
+
+  const navigate=useNavigate();
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const loginOptions = [
+    { value: 'Donor', label: 'Food Donor' },
+    { value: 'Receiver', label: 'Food Receiver' },
+    { value: 'Rider', label: 'Delivery Partner' }
+  ];
+
+  const formFields = [
+    {
+      key: 'email',
+      label: 'Email Address',
+      placeholder: 'example@gmail.com',
+      type: 'email',
+      icon: Mail,
+      required: true
+    },
+    {
+      key: 'password',
+      label: 'Password',
+      placeholder: '••••••••',
+      type: 'password',
+      icon: Lock,
+      required: true
+    }
+  ];
+
   return (
-    <div className="flex justify-center items-center h-screen w-screen flex-col gap-5">
-      <div className="mx-10 flex flex-col items-start px-10 py-10 shadow-2xl rounded-2xl">
-        <h1 className="md:text-3xl text-2xl mb-4">Welcome Back to Sahaaya</h1>
-
-        <div className="mt-5 w-full flex flex-col md:flex-row items-start md:items-center md:justify-between h-full">
-          <p className="text-lg text-gray-600">Email Address</p>
-          <input
-            className="w-full md:w-3/4 md:-ml-6 text-lg font-semibold px-3 py-2 bg-gray-100 h-10"
-            placeholder="Example@gmail.com"
-            type="email"
-          />
+    <div className="bg-white min-h-screen relative overflow-hidden">
+      {/* Elegant Background Elements */}
+      <div className="absolute inset-0 bg-gradient-to-br from-red-50/20 via-white to-red-50/10"></div>
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-red-200 to-transparent"></div>
+      <div className="absolute bottom-0 right-0 w-full h-px bg-gradient-to-l from-transparent via-red-200 to-transparent"></div>
+      
+      {/* Floating Decorative Elements */}
+      <div className="absolute top-20 left-10 opacity-10">
+        <Heart className="w-8 h-8 text-red-500 animate-pulse" />
+      </div>
+      <div className="absolute top-40 right-20 opacity-10">
+        <Star className="w-6 h-6 text-red-500 animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
+      <div className="absolute bottom-40 left-20 opacity-10">
+        <Sparkles className="w-7 h-7 text-red-500 animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      
+      <div className="relative md:grid md:grid-cols-7 md:w-full md:min-h-screen">
+        {/* Left Side - Elegant Logo Section */}
+        <div className="w-full md:col-span-3 md:flex items-center justify-center min-h-[50vh] md:min-h-screen hidden bg-gradient-to-br from-red-50/30 via-white to-red-50/20 relative">
+          {/* Subtle Geometric Patterns */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-red-300 rounded-full"></div>
+            <div className="absolute top-1/2 right-1/3 w-24 h-24 border border-red-200 rounded-full"></div>
+            <div className="absolute bottom-1/3 left-1/2 w-16 h-16 border border-red-400 rounded-full"></div>
+          </div>
+          
+          <div className="text-center fixed top-[40vh] h-screen z-10 px-8">
+            <div onClick={()=>{
+              navigate("/");
+            }} className="relative cursor-pointer">
+              <img
+                className="w-64 mx-auto drop-shadow-xl hover:scale-105 transition-all duration-700 ease-out filter brightness-110"
+                src="https://res.cloudinary.com/dvdwjzjvf/image/upload/v1758366445/project/Sahaaya/Minimalistic_Sahaaya_Logo_Design_cxghbe_skvums.png"
+                alt="Sahaaya Logo"
+              />
+              <div className="absolute -inset-4 bg-gradient-to-r from-red-500/10 via-transparent to-red-500/10 rounded-full blur-xl opacity-0 hover:opacity-100 transition-opacity duration-700"></div>
+            </div>
+            <div className="mt-8 space-y-3">
+              <h2 className="text-2xl font-light text-gray-800 tracking-wide">Welcome back to <span className="font-bold text-red-500">Sahaaya</span></h2>
+              <p className="text-gray-600 font-light leading-relaxed max-w-sm mx-auto">Continue your journey of generous giving</p>
+              <div className="flex justify-center space-x-2 mt-4">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                <div className="w-2 h-2 bg-red-300 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-5 w-full flex flex-col md:flex-row items-start md:items-center md:justify-between h-full">
-          <p className="text-lg text-gray-600">Password</p>
-          <input
-            className="md:w-3/4 w-full text-lg font-semibold px-3 py-2 bg-gray-100 h-10"
-            placeholder="********"
-            type="password"
-          />
-        </div>
-        <div className="mt-5 w-full flex flex-col md:flex-row items-start md:items-center md:justify-between h-full">
-          <p className="text-lg text-gray-600">Login as</p>
-          <select
-            className="cursor-pointer md:w-3/4 w-full text-lg font-semibold px-3 py-2 bg-gray-100 h-10"
-            name=""
-            id=""
-          >
-            <option value="Donor">Food Donor</option>
-            <option value="Receiver">Food Receiver</option>
-            <option value="Rider">Delivery Partner</option>
-          </select>
-        </div>
+        {/* Right Side - Login Content */}
+        <div className="flex md:mx-10 md:px-10 mx-4 md:col-span-4 my-6 md:my-8 flex-col items-center justify-center relative">
+          <div className="w-full bg-white/95 max-w-2xl backdrop-blur-sm md:px-15 px-6 md:py-12 py-8 shadow-2xl rounded-3xl border border-gray-100/80 relative overflow-hidden">
+            {/* Elegant Header Accent */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500/80 via-red-400 to-red-500/80"></div>
+            <div className="absolute top-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+            
+            {/* Login Header */}
+            <div className="text-center mb-8">
+              <div className="flex justify-center mb-4">
+                <div className="p-4 bg-gradient-to-r from-red-50 to-red-100 rounded-2xl">
+                  <LogIn className="w-12 h-12 text-red-500" />
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold text-red-500 mb-2 tracking-tight">Welcome Back</h1>
+              <div className="w-20 h-1 bg-gradient-to-r from-red-500 to-red-400 mx-auto rounded-full mb-3"></div>
+              <p className="text-gray-700 font-light leading-relaxed">Sign in to continue your generous journey</p>
+            </div>
 
-        <button className="p-3 mt-10 cursor-pointer text-xl text-center w-full rounded-xl bg-red-500 text-white font-semibold mb-2">
-          Sign in to Continue
-        </button>
+            {/* Elegant Form Fields */}
+            <div className="space-y-5 mb-6">
+              {formFields.map((field, index) => {
+                const Icon = field.icon;
+                return (
+                  <div key={field.key} className="group" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <div className="flex items-center mb-2">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                          <Icon className="w-4 h-4 text-red-500" />
+                        </div>
+                        <label className="font-semibold text-gray-700 tracking-wide">
+                          {field.label}
+                          {field.required && <span className="text-red-500 ml-1">*</span>}
+                        </label>
+                      </div>
+                    </div>
+                    <input
+                      className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                      placeholder={field.placeholder}
+                      type={field.type}
+                      value={formData[field.key]}
+                      onChange={(e) => handleInputChange(field.key, e.target.value)}
+                    />
+                  </div>
+                );
+              })}
 
-        <p className="text-sm md:text-lg mt-2">
-          Does not have an account?{" "}
-          <span
-            onClick={() => {
-              navigate("/Role");
-            }}
-            className="text-decoration-underline text-red-500 cursor-pointer"
-          >
-            Register here
-          </span>
-        </p>
+              {/* Login As Selection */}
+              <div className="group">
+                <div className="flex items-center mb-2">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                      <Users className="w-4 h-4 text-red-500" />
+                    </div>
+                    <label className="font-semibold text-gray-700 tracking-wide">
+                      Login as <span className="text-red-500 ml-1">*</span>
+                    </label>
+                  </div>
+                </div>
+                <select
+                  value={formData.loginAs}
+                  onChange={(e) => handleInputChange('loginAs', e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 cursor-pointer font-medium"
+                >
+                  {loginOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Forgot Password Link */}
+            <div className="text-right mb-6">
+              <span className="text-red-500 cursor-pointer font-medium hover:text-red-600 hover:underline transition-all duration-200">
+                Forgot Password?
+              </span>
+            </div>
+
+            {/* Elegant Submit Button */}
+            <button 
+              onClick={() => {
+                console.log('Sign in with:', formData);
+                // Navigate based on login type
+                if (formData.loginAs === 'Donor') {
+                  navigate('/DonorDashboard');
+                } else if (formData.loginAs === 'Receiver') {
+                  navigate('/NgoDashboard');
+                } else if (formData.loginAs === 'Rider') {
+                  navigate('/RiderDashboard');
+                }
+              }} 
+              className="relative w-full p-4 cursor-pointer text-lg text-center rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold mb-6 shadow-xl hover:shadow-2xl hover:scale-[1.02] transform transition-all duration-300 hover:from-red-600 hover:to-red-700 group overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              <span className="relative flex items-center justify-center space-x-3">
+                <UserCheck className="w-6 h-6" />
+                <span className="tracking-wide">Sign in to Continue</span>
+              </span>
+            </button>
+
+            {/* Elegant Registration Link */}
+            <div className="text-center">
+              <p className="text-gray-700 font-light">
+                Don't have an account?{" "}
+                <span
+                  onClick={() => navigate("/Role")}
+                  className="text-red-500 cursor-pointer font-semibold hover:text-red-600 hover:underline transition-all duration-200 inline-flex items-center group"
+                >
+                  Register here
+                  <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">→</span>
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
