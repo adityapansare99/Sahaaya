@@ -21,17 +21,7 @@ import { useNavigate } from "react-router-dom";
 const DonorRegistration = () => {
   const [typeOfDonor, setTypeOfDonor] = useState("");
   const [image, setImage] = useState(null);
-  const [formData, setFormData] = useState({
-    orgName: "",
-    fullName: "",
-    address: "",
-    pincode: "",
-    phone: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    agreeTerms: false,
-  });
+  const [formData, setFormData] = useState({});
 
   const navigate = useNavigate();
 

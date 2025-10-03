@@ -3,7 +3,7 @@ import { dbname } from "../constant.js";
 
 const connectdb = async () => {
   try {
-    const response = await mongoose.connect(`${process.env.dblink}/${dbname}`);
+    const response = await mongoose.connect(`${process.env.dblink}${dbname}`);
     console.log("Database connected successfully");
   } catch (err) {
     console.log("Unable to connect to database"+err);

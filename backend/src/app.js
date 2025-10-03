@@ -14,4 +14,7 @@ app.use(cookieParser());
 import healthcheckRoute from './route/healtcheck.route.js';
 app.use('/', healthcheckRoute);
 
+import donorrouter from './route/donor.route.js';
+app.use('/donor', donorrouter);
+
 export default app;

@@ -13,9 +13,9 @@ const DonorDashboard = () => {
   const [donations, setDonations] = useState([]);
   const [profile, setProfile] = useState({
     name: "Amit Sharma",
-    email: "amit.sharma@email.com",
+    address: "123 MG Road, Bangalore, Karnataka ",
     phone: "+91 98765 43210",
-    address: "123 MG Road, Bangalore, Karnataka 560001",
+    pincode: "560001",
   });
 
   const [impactStats, setImpactStats] = useState({
@@ -97,8 +97,6 @@ const DonorDashboard = () => {
 
   const handleProfileUpdate = (updatedProfile) => {
     setProfile(updatedProfile);
-    // Show success message
-    alert("Profile updated successfully!");
   };
 
   const renderContent = () => {

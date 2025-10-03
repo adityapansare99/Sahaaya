@@ -17,3 +17,5 @@ Thumbs.db
 # Build/output folders
 dist/
 build/
+
+public
