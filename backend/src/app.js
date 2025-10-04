@@ -17,4 +17,7 @@ app.use('/', healthcheckRoute);
 import donorrouter from './route/donor.route.js';
 app.use('/donor', donorrouter);
 
+import NgoRoute from './route/ngo.route.js';
+app.use('/ngo', NgoRoute);
+
 export default app;

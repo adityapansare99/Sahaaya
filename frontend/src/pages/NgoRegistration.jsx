@@ -30,24 +30,24 @@ const NgoRegistration = () => {
   const inputFields = [
     { 
       key: 'orgName', 
-      label: 'Organization Name', 
-      placeholder: 'Enter your organization name', 
+      label: 'NGO Name', 
+      placeholder: 'Sahaaya Foundation', 
       type: 'text', 
       icon: Building2,
       required: true 
     },
     { 
       key: 'address', 
-      label: 'Organization Address', 
-      placeholder: 'Complete address with city and state', 
+      label: 'Address', 
+      placeholder: 'Sector 15, Phase 2, Gurgaon, Haryana - 122001', 
       type: 'text', 
       icon: MapPin,
       required: true 
     },
     { 
-      key: 'pincode', 
-      label: 'Pincode', 
-      placeholder: '000000', 
+      key: 'contact', 
+      label: 'Contact Person', 
+      placeholder: 'Mrs. Priya Sharma', 
       type: 'text', 
       icon: Hash,
       required: true 
@@ -55,15 +55,15 @@ const NgoRegistration = () => {
     { 
       key: 'phone', 
       label: 'Phone Number', 
-      placeholder: '+91 00000 00000', 
+      placeholder: '+91 98765 43210', 
       type: 'tel', 
       icon: Phone,
       required: true 
     },
     { 
       key: 'email', 
-      label: 'Email Address', 
-      placeholder: 'organization@example.com', 
+      label: 'Email', 
+      placeholder: 'contact@sahaayafoundation.org', 
       type: 'email', 
       icon: Mail,
       required: true 
@@ -86,16 +86,16 @@ const NgoRegistration = () => {
     },
     { 
       key: 'capacity', 
-      label: 'Organization Capacity', 
-      placeholder: 'Number of beneficiaries', 
+      label: 'Daily Capacity', 
+      placeholder: '500', 
       type: 'number', 
       icon: Users,
       required: true 
     },
     { 
       key: 'licenseId', 
-      label: 'License ID', 
-      placeholder: 'Registration/License number', 
+      label: 'Registration Number', 
+      placeholder: 'NGO/2018/0045789', 
       type: 'text', 
       icon: FileText,
       required: true 
@@ -256,7 +256,7 @@ const NgoRegistration = () => {
                       <Shield className="w-4 h-4 text-red-500" />
                     </div>
                     <label className="font-semibold text-gray-700 tracking-wide">
-                      Type of Organization <span className="text-red-500">*</span>
+                      Type of NGO <span className="text-red-500">*</span>
                     </label>
                   </div>
                 </div>

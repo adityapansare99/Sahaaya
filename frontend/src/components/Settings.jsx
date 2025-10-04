@@ -6,7 +6,7 @@ const Settings = () => {
     ngoName: 'Sahaaya Foundation',
     registrationNo: 'NGO/2018/0045789',
     contactPerson: 'Mrs. Priya Sharma',
-    email: 'contact@sahaayafoundation.org',
+    orgType: 'Other',
     phone: '+91 98765 43210',
     address: 'Sector 15, Phase 2, Gurgaon, Haryana - 122001',
     capacity: '500',
@@ -80,13 +80,20 @@ const Settings = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type of NGO</label>
+                <select
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
+                  value={formData.orgType}
+                  onChange={(e) => handleInputChange('orgType', e.target.value)}
+                >
+                  <option value="trust">Trust (Registered under the Indian Trusts Act)</option>
+                  <option value="society">Society (Registered under the Societies Registration Act, 1860)</option>
+                  <option value="company">Section 8 Company (Non-Profit Company) (Under Companies Act, 2013)</option>
+                  <option value="shg">Co-operative Society / Self-Help Group (SHG) (if applicable)</option>
+                  <option value="charitable">Charitable Foundation</option>
+                  <option value="community">Religious / Community Organization</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               
               <div>
@@ -122,7 +129,7 @@ const Settings = () => {
             </div>
             
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Organization Description</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">NGO Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
