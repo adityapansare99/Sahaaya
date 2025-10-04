@@ -20,10 +20,12 @@ const ProfileSection = () => {
     phone: "+91 9876543210",
     address: "Jubilee Hills, Hyderabad",
     vehicleType: "motorcycle",
-    licenseNumber: "TS09AB1234",
+    licenseNumber: "ABCD/436152",
     emergencyContact: "+91 9876543211",
     rating: "4.9",
     totalDeliveries: "124",
+    vehicleNumber: "TS09AB1234",
+    vehicleCapacity: "50",
   });
 
   const vehicleOptions = [
@@ -80,7 +82,9 @@ const ProfileSection = () => {
               className="bg-white cursor-pointer bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-xl font-medium transition-colors flex items-center space-x-2"
             >
               <Edit3 className="w-4 h-4  text-red-500" />
-              <span className="text-red-500">{isEditing ? "Cancel" : "Edit Profile"}</span>
+              <span className="text-red-500">
+                {isEditing ? "Cancel" : "Edit Profile"}
+              </span>
             </button>
           </div>
         </div>
@@ -114,26 +118,17 @@ const ProfileSection = () => {
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      value={profile.email}
-                      onChange={(e) =>
-                        setProfile({ ...profile, email: e.target.value })
-                      }
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    />
-                  ) : (
+                {!isEditing && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
                       <Mail className="w-5 h-5 text-gray-400" />
                       <span className="text-gray-900">{profile.email}</span>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -173,6 +168,32 @@ const ProfileSection = () => {
                     <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-xl">
                       <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                       <span className="text-gray-900">{profile.address}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Emergency Contact
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      value={profile.emergencyContact}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          emergencyContact: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                      <Phone className="w-5 h-5 text-gray-400" />
+                      <span className="text-gray-900">
+                        {profile.emergencyContact}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -241,16 +262,42 @@ const ProfileSection = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Emergency Contact
+                    Vehicle Number
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={profile.vehicleNumber}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          vehicleNumber: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                      <Shield className="w-5 h-5 text-gray-400" />
+                      <span className="text-gray-900">
+                        {profile.vehicleNumber}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Vehicle Capacity
                   </label>
                   {isEditing ? (
                     <input
                       type="tel"
-                      value={profile.emergencyContact}
+                      value={profile.vehicleCapacity}
                       onChange={(e) =>
                         setProfile({
                           ...profile,
-                          emergencyContact: e.target.value,
+                          vehicleCapacity: e.target.value,
                         })
                       }
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -259,7 +306,7 @@ const ProfileSection = () => {
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
                       <Phone className="w-5 h-5 text-gray-400" />
                       <span className="text-gray-900">
-                        {profile.emergencyContact}
+                        {profile.vehicleCapacity}
                       </span>
                     </div>
                   )}

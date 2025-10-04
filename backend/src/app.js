@@ -20,4 +20,7 @@ app.use('/donor', donorrouter);
 import NgoRoute from './route/ngo.route.js';
 app.use('/ngo', NgoRoute);
 
+import deliveryRoute from './route/Delivery.route.js';
+app.use('/delivery', deliveryRoute);
+
 export default app;

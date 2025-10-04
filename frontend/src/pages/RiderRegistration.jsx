@@ -44,14 +44,6 @@ const RiderRegistration = () => {
       required: true 
     },
     { 
-      key: 'pincode', 
-      label: 'Pincode', 
-      placeholder: '000000', 
-      type: 'text', 
-      icon: Hash,
-      required: true 
-    },
-    { 
       key: 'phone', 
       label: 'Phone Number', 
       placeholder: '+91 00000 00000', 
@@ -65,6 +57,14 @@ const RiderRegistration = () => {
       placeholder: 'example@gmail.com', 
       type: 'email', 
       icon: Mail,
+      required: true 
+    },
+    { 
+      key: 'EmergencyContact', 
+      label: 'Emergency Contact', 
+      placeholder: '+91 00000 11111', 
+      type: 'tel', 
+      icon: Phone,
       required: true 
     },
     { 
