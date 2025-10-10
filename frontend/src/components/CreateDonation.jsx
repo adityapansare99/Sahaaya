@@ -21,6 +21,8 @@ const CreateDonation = ({ onDonationCreate }) => {
     "Other",
   ];
 
+  const donorTypes = ["Restaurant", "Individual", "Store", "Event"];
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (Object.values(formData).every((value) => value.trim())) {
@@ -40,7 +42,7 @@ const CreateDonation = ({ onDonationCreate }) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto md:mt-15">
+    <div className="max-w-2xl mx-auto">
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-2">
           Create Donation
@@ -50,6 +52,27 @@ const CreateDonation = ({ onDonationCreate }) => {
 
       <div className="bg-white rounded-2xl shadow-lg p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Donor Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Package className="w-4 h-4 inline mr-2" />
+              Donor Type
+            </label>
+            <select
+              value={formData.foodType}
+              onChange={(e) => handleInputChange("donorType", e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+              required
+            >
+              <option value="">Select donor type</option>
+              {donorTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Food Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -69,6 +92,21 @@ const CreateDonation = ({ onDonationCreate }) => {
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Food Description
+            </label>
+            <input
+              type="text"
+              value={formData.quantity}
+              onChange={(e) => handleInputChange("quantity", e.target.value)}
+              placeholder="e.g., Fresh prepared rice, dal, vegetables, and roti"
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+              required
+            />
           </div>
 
           {/* Quantity */}

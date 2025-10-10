@@ -12,8 +12,7 @@ const DonationHistory = () => {
       donorType: 'Restaurant',
       foodType: 'Cooked Meals',
       quantity: '75 portions',
-      status: 'Completed',
-      value: '₹15,000'
+      status: 'Completed'
     },
     {
       id: '2',
@@ -22,8 +21,7 @@ const DonationHistory = () => {
       donorType: 'Event',
       foodType: 'Mixed Items',
       quantity: '150 portions',
-      status: 'Completed',
-      value: '₹30,000'
+      status: 'Completed'
     },
     {
       id: '3',
@@ -32,8 +30,7 @@ const DonationHistory = () => {
       donorType: 'Grocery Store',
       foodType: 'Fresh Produce',
       quantity: '40 kg',
-      status: 'Completed',
-      value: '₹8,000'
+      status: 'Completed'
     },
     {
       id: '4',
@@ -42,8 +39,7 @@ const DonationHistory = () => {
       donorType: 'Restaurant',
       foodType: 'Baked Items',
       quantity: '50 items',
-      status: 'Cancelled',
-      value: '₹5,000'
+      status: 'Cancelled'
     },
     {
       id: '5',
@@ -52,8 +48,7 @@ const DonationHistory = () => {
       donorType: 'Event',
       foodType: 'Cooked Meals',
       quantity: '200 portions',
-      status: 'Pending Pickup',
-      value: '₹40,000'
+      status: 'Pending Pickup'
     }
   ];
 
@@ -127,7 +122,6 @@ const DonationHistory = () => {
                 <th className="text-left p-4 font-semibold text-gray-900">Donor</th>
                 <th className="text-left p-4 font-semibold text-gray-900">Food Type</th>
                 <th className="text-left p-4 font-semibold text-gray-900">Quantity</th>
-                <th className="text-left p-4 font-semibold text-gray-900">Value</th>
                 <th className="text-left p-4 font-semibold text-gray-900">Status</th>
               </tr>
             </thead>
@@ -161,9 +155,7 @@ const DonationHistory = () => {
                   <td className="p-4">
                     <span className="font-medium text-gray-900">{donation.quantity}</span>
                   </td>
-                  <td className="p-4">
-                    <span className="font-semibold text-green-600">{donation.value}</span>
-                  </td>
+                 
                   <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(donation.status)}`}>
                       {donation.status}
