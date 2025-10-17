@@ -26,4 +26,7 @@ app.use('/delivery', deliveryRoute);
 import donationRouter from './route/Donation.route.js';
 app.use('/donation', donationRouter);
 
+import receiverRouter from './route/Receiver.route.js';
+app.use('/receiver', receiverRouter);
+
 export default app;
