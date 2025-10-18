@@ -29,4 +29,7 @@ app.use('/donation', donationRouter);
 import receiverRouter from './route/Receiver.route.js';
 app.use('/receiver', receiverRouter);
 
+import riderRouter from './route/Rider.route.js';
+app.use('/rider', riderRouter);
+
 export default app;
