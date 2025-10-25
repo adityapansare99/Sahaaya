@@ -122,7 +122,7 @@ const loginDonor=asynchandler(async(req,res)=>{
         secure:process.env.NODE_ENV==="production",
     }
 
-    res.status(200).cookie("refreshtoken",token,options).json(new ApiResponse(200,donor,"Login successful"));
+    res.status(200).cookie("refreshtoken",token,options).json(new ApiResponse(200,{donor,token},"Login successful"));
 })
 
 const getDonorProfile=asynchandler(async(req,res)=>{

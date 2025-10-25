@@ -77,7 +77,7 @@ const DonorRegistration = () => {
       localStorage.setItem("token",response.data.data.token);
       toast.success("Donor registered successfully");
       navigate("/DonorDashboard");
-      console.log(response.data.data.token);
+      // console.log(response.data.data.token);
       // console.log(response.data);
     }
 

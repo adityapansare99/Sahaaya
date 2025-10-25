@@ -174,7 +174,7 @@ const loginPartner = asynchandler(async (req, res) => {
   res
     .status(200)
     .cookie("refreshtoken", token, options)
-    .json(new ApiResponse(200, partner, "Login successful"));
+    .json(new ApiResponse(200, {partner,token}, "Login successful"));
 });
 
 const getPartnerProfile = asynchandler(async (req, res) => {

@@ -158,7 +158,7 @@ const loginNgo = asynchandler(async (req, res) => {
   res
     .status(200)
     .cookie("refreshtoken", token, options)
-    .json(new ApiResponse(200, Ngo, "Login successful"));
+    .json(new ApiResponse(200, {Ngo,token}, "Login successful"));
 });
 
 const getNgoProfile = asynchandler(async (req, res) => {
