@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, Heart, Truck, ChevronRight, UserCheck } from "lucide-react";
+import { AppContext } from "../context/AppContext";
 
 const Role = () => {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState("Donor");
+
+  const { Role, setRole } = useContext(AppContext);
 
   const roles = [
     {
@@ -19,7 +22,7 @@ const Role = () => {
     },
     {
       id: "Receiver",
-      title: "Food Receiver", 
+      title: "Food Receiver",
       description: "Connect with donors and receive fresh food donations",
       icon: Users,
       color: "from-blue-400 to-indigo-500",
@@ -60,12 +63,19 @@ const Role = () => {
             <UserCheck className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-            Join <span onClick={()=>{
-              navigate("/");
-            }} className="bg-gradient-to-r from-red-500 to-red-600 cursor-pointer bg-clip-text text-transparent">Sahaaya</span>
+            Join{" "}
+            <span
+              onClick={() => {
+                navigate("/");
+              }}
+              className="bg-gradient-to-r from-red-500 to-red-600 cursor-pointer bg-clip-text text-transparent"
+            >
+              Sahaaya
+            </span>
           </h1>
           <p className="text-lg text-gray-600 max-w-md mx-auto leading-relaxed">
-            Choose your role and become part of a community dedicated to reducing food waste and fighting hunger
+            Choose your role and become part of a community dedicated to
+            reducing food waste and fighting hunger
           </p>
         </div>
 
@@ -74,24 +84,31 @@ const Role = () => {
           {roles.map((role) => {
             const Icon = role.icon;
             const isSelected = selectedRole === role.id;
-            
+
             return (
               <div
                 key={role.id}
-                onClick={() => setSelectedRole(role.id)}
+                onClick={() => {
+                  setRole(role.id);
+                  setSelectedRole(role.id);
+                  localStorage.setItem("role", role.id);
+                }}
                 className={`
                   relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl
-                  ${isSelected 
-                    ? `${role.bgColor} ${role.selectedBorder} shadow-lg scale-[1.02]` 
-                    : `bg-white ${role.borderColor} hover:${role.bgColor} shadow-md`
+                  ${
+                    isSelected
+                      ? `${role.bgColor} ${role.selectedBorder} shadow-lg scale-[1.02]`
+                      : `bg-white ${role.borderColor} hover:${role.bgColor} shadow-md`
                   }
                 `}
               >
                 <div className="flex items-center space-x-4">
-                  <div className={`flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br ${role.color} flex items-center justify-center shadow-md`}>
+                  <div
+                    className={`flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br ${role.color} flex items-center justify-center shadow-md`}
+                  >
                     <Icon className="w-7 h-7 text-white" />
                   </div>
-                  
+
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold text-gray-800 mb-1">
                       {role.title}
@@ -100,18 +117,23 @@ const Role = () => {
                       {role.description}
                     </p>
                   </div>
-                  
-                  <div className={`
+
+                  <div
+                    className={`
                     w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200
-                    ${isSelected 
-                      ? `bg-gradient-to-br ${role.color} border-transparent` 
-                      : 'border-gray-300 bg-white'
+                    ${
+                      isSelected
+                        ? `bg-gradient-to-br ${role.color} border-transparent`
+                        : "border-gray-300 bg-white"
                     }
-                  `}>
-                    {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
+                  `}
+                  >
+                    {isSelected && (
+                      <div className="w-2 h-2 bg-white rounded-full" />
+                    )}
                   </div>
                 </div>
-                
+
                 {isSelected && (
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse pointer-events-none" />
                 )}
@@ -129,7 +151,7 @@ const Role = () => {
             <span>Start Your Journey</span>
             <ChevronRight className="w-5 h-5" />
           </button>
-          
+
           <div className="text-center">
             <p className="text-gray-600 mb-2">Already have an account?</p>
             <button
@@ -143,7 +165,9 @@ const Role = () => {
 
         {/* Footer */}
         <div className="text-center mt-10 text-gray-500 text-sm">
-          <p>By continuing, you agree to our Terms of Service and Privacy Policy</p>
+          <p>
+            By continuing, you agree to our Terms of Service and Privacy Policy
+          </p>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Upload,
   Building2,
@@ -17,138 +17,69 @@ import {
   Gift,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { AppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
 
 const DonorRegistration = () => {
+  const { backendurl, setToken } = useContext(AppContext);
   const [typeOfDonor, setTypeOfDonor] = useState("");
   const [image, setImage] = useState(null);
-  const [formData, setFormData] = useState({});
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [checked, setChecked] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+    const submitHandler=async()=>{
+      if(!checked){
+        toast.error("Please accept the terms and conditions");
+        return;
+      }
 
-  const organizationFields = [
-    {
-      key: "orgName",
-      label: "Organization Name",
-      placeholder: "Enter your organization name",
-      type: "text",
-      icon: Building2,
-      required: true,
-    },
-    {
-      key: "address",
-      label: "Organization Address",
-      placeholder: "Complete address with city and state",
-      type: "text",
-      icon: MapPin,
-      required: true,
-    },
-    {
-      key: "pincode",
-      label: "Organization Pincode",
-      placeholder: "000000",
-      type: "text",
-      icon: Hash,
-      required: true,
-    },
-    {
-      key: "phone",
-      label: "Phone Number",
-      placeholder: "+91 00000 00000",
-      type: "tel",
-      icon: Phone,
-      required: true,
-    },
-    {
-      key: "email",
-      label: "Email Address",
-      placeholder: "organization@example.com",
-      type: "email",
-      icon: Mail,
-      required: true,
-    },
-    {
-      key: "password",
-      label: "Password",
-      placeholder: "Create a strong password",
-      type: "password",
-      icon: Lock,
-      required: true,
-    },
-    {
-      key: "confirmPassword",
-      label: "Confirm Password",
-      placeholder: "Re-enter your password",
-      type: "password",
-      icon: Lock,
-      required: true,
-    },
-  ];
+      if(password !== confirmPassword){
+        toast.error("Passwords do not match");
+        return;
+      }
 
-  const individualFields = [
-    {
-      key: "fullName",
-      label: "Full Name",
-      placeholder: "Enter your full name",
-      type: "text",
-      icon: User,
-      required: true,
-    },
-    {
-      key: "address",
-      label: "Your Address",
-      placeholder: "Complete address with city and state",
-      type: "text",
-      icon: MapPin,
-      required: true,
-    },
-    {
-      key: "pincode",
-      label: "Your Pincode",
-      placeholder: "000000",
-      type: "text",
-      icon: Hash,
-      required: true,
-    },
-    {
-      key: "phone",
-      label: "Phone Number",
-      placeholder: "+91 00000 00000",
-      type: "tel",
-      icon: Phone,
-      required: true,
-    },
-    {
-      key: "email",
-      label: "Email Address",
-      placeholder: "example@gmail.com",
-      type: "email",
-      icon: Mail,
-      required: true,
-    },
-    {
-      key: "password",
-      label: "Password",
-      placeholder: "Create a strong password",
-      type: "password",
-      icon: Lock,
-      required: true,
-    },
-    {
-      key: "confirmPassword",
-      label: "Confirm Password",
-      placeholder: "Re-enter your password",
-      type: "password",
-      icon: Lock,
-      required: true,
-    },
-  ];
+      const data={
+        name,
+        address,
+        pincode,
+        phone,
+        email,
+        password,
+      }
 
-  const currentFields =
-    typeOfDonor === "Organization" ? organizationFields : individualFields;
+      // console.log(data);
+
+      const formData=new FormData();
+      formData.append("data",JSON.stringify(data));
+      
+      if(image){
+        formData.append("image",image);
+      }
+
+      const response=await axios.post(`${backendurl}donor/register`,formData);
+
+      if(!response.data.success){
+        toast.error(response.data.message || "Error in donor registration");
+        return ;
+      }
+
+      setToken(response.data.data.token);
+      localStorage.setItem("token",response.data.data.token);
+      toast.success("Donor registered successfully");
+      navigate("/DonorDashboard");
+      console.log(response.data.data.token);
+      // console.log(response.data);
+    }
 
   return (
     <div className="bg-white min-h-screen relative overflow-hidden">
@@ -381,62 +312,372 @@ const DonorRegistration = () => {
 
               {/* Elegant Form Fields */}
               <div className="space-y-5">
-                {currentFields.map((field, index) => {
-                  const Icon = field.icon;
-                  return (
+                {typeOfDonor === "Organization" ? (
+                  <div className="space-y-5">
                     <div
-                      key={field.key}
                       className="group"
-                      style={{ animationDelay: `${index * 0.1}s` }}
+                      style={{ animationDelay: `${1 * 0.1}s` }}
                     >
                       <div className="flex items-center mb-2">
                         <div className="flex items-center space-x-3">
                           <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
-                            <Icon className="w-4 h-4 text-red-500" />
+                            <Building2 className="w-4 h-4 text-red-500" />
                           </div>
                           <label className="font-semibold text-gray-700 tracking-wide">
-                            {field.label}
-                            {field.required && (
-                              <span className="text-red-500 ml-1">*</span>
-                            )}
+                            Organization Name
+                            <span className="text-red-500 ml-1">*</span>
                           </label>
                         </div>
                       </div>
                       <input
                         className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
-                        placeholder={field.placeholder}
-                        type={field.type}
-                        value={formData[field.key]}
-                        onChange={(e) =>
-                          handleInputChange(field.key, e.target.value)
-                        }
+                        placeholder="Enter your organization name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                       />
                     </div>
-                  );
-                })}
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <MapPin className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Organization Address
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="Complete address with city and state"
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <Hash className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Organization Pincode
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="000000"
+                        type="text"
+                        value={pincode}
+                        onChange={(e) => setPincode(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <Phone className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Phone Number
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="+91 00000 00000"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <Mail className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Email Address
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="organization@example.com"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <Lock className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Password
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="Create a strong password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <Lock className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Confirm Password
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="Re-enter your password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-5">
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <User className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Full Name
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="Enter your full name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <MapPin className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Your Address
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="Complete address with city and state"
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <Hash className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Your Pincode
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="000000"
+                        type="text"
+                        value={pincode}
+                        onChange={(e) => setPincode(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <Phone className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Phone Number
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="+91 00000 00000"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <Mail className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Email Address
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="example@gmail.com"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <Lock className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Password
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="Create a strong password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </div>
+
+                    <div
+                      className="group"
+                      style={{ animationDelay: `${1 * 0.1}s` }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
+                            <Lock className="w-4 h-4 text-red-500" />
+                          </div>
+                          <label className="font-semibold text-gray-700 tracking-wide">
+                            Confirm Password
+                            <span className="text-red-500 ml-1">*</span>
+                          </label>
+                        </div>
+                      </div>
+                      <input
+                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+                        placeholder="Re-enter your password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Elegant Terms and Conditions */}
-              <div className="flex items-start mt-8 p-6 bg-gradient-to-r from-gray-50/80 to-red-50/30 rounded-2xl border border-gray-200/60 group hover:shadow-md transition-all duration-300">
+              <div
+                onClick={() => setChecked(!checked)}
+                className="flex items-start mt-8 p-6 bg-gradient-to-r from-gray-50/80 to-red-50/30 rounded-2xl border border-gray-200/60 group hover:shadow-md transition-all duration-300 cursor-pointer"
+              >
                 <div className="relative mt-1">
                   <input
                     type="checkbox"
                     id="terms"
+                    checked={checked}
+                    readOnly 
                     className="w-6 h-6 cursor-pointer accent-red-500 focus:ring-2 focus:ring-red-500 rounded-lg transition-all duration-200 opacity-0"
-                    checked={formData.agreeTerms}
-                    onChange={(e) =>
-                      handleInputChange("agreeTerms", e.target.checked)
-                    }
                   />
                   <div className="absolute top-0 left-0 w-6 h-6 border-2 border-gray-300 rounded-lg bg-white transition-all duration-200 group-hover:border-red-400">
-                    {formData.agreeTerms && (
+                    {checked && (
                       <CheckCircle className="w-6 h-6 text-red-500 absolute -top-0.5 -left-0.5" />
                     )}
                   </div>
                 </div>
+
                 <label
                   htmlFor="terms"
-                  className="ml-4 text-gray-700 cursor-pointer font-medium leading-relaxed"
+                  className="ml-4 text-gray-700 font-medium leading-relaxed select-none"
                 >
                   I agree to the{" "}
                   <span className="text-red-500 hover:text-red-600 underline font-semibold transition-colors duration-200">
@@ -452,7 +693,7 @@ const DonorRegistration = () => {
               {/* Elegant Submit Button */}
               <button
                 onClick={() => {
-                  navigate("/DonorDashboard");
+                  submitHandler();
                 }}
                 className="relative w-full p-4 cursor-pointer text-lg text-center rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold mt-8 mb-6 shadow-xl hover:shadow-2xl hover:scale-[1.02] transform transition-all duration-300 hover:from-red-600 hover:to-red-700 group overflow-hidden"
               >
@@ -461,7 +702,7 @@ const DonorRegistration = () => {
                   <Gift className="w-6 h-6" />
                   <span className="tracking-wide">
                     Register as{" "}
-                    {typeOfDonor === "Organization" ? "Organization" : "Donor"}
+                    {typeOfDonor === "Organization" ? "Organization" : "Individual"}
                   </span>
                 </span>
               </button>

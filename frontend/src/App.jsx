@@ -13,10 +13,9 @@ import NgoDashboard from "./pages/NgoDashboard";
 import RiderDashboard from "./pages/RiderDashboard";
 
 const App = () => {
-  const notify = () => toast("Wow so easy!");
-
   return (
     <>
+    <ToastContainer/>
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />

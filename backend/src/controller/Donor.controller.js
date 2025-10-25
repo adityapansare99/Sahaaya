@@ -5,7 +5,9 @@ import { uploadoncloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 
 const registerDonor = asynchandler(async (req, res) => {
-  const { name, email, phone, address, pincode, password } = req.body;
+  const data=JSON.parse(req.body.data);
+
+  const { name, email, phone, address, pincode, password } = data;
   const image = req.file;
 
   if ([name, email, password].some((item) => item.trim().length === 0)) {
@@ -80,7 +82,7 @@ const registerDonor = asynchandler(async (req, res) => {
     res
       .status(201)
       .cookie("refreshtoken", token, options)
-      .json(new ApiResponse(201, finaldonor, "Donor registered successfully"));
+      .json(new ApiResponse(201, {finaldonor,token}, "Donor registered successfully"));
   } catch (error) {
     console.log(error);
     res

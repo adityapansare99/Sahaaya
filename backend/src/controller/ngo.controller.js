@@ -5,6 +5,8 @@ import { uploadoncloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 
 const registerNgo = asynchandler(async (req, res) => {
+  const data=JSON.parse(req.body.data);
+
   const {
     name,
     email,
@@ -15,7 +17,7 @@ const registerNgo = asynchandler(async (req, res) => {
     password,
     RegistrationNumber,
     typeofNgo,
-  } = req.body;
+  } = data;
 
   const image = req.file;
 
@@ -107,7 +109,7 @@ const registerNgo = asynchandler(async (req, res) => {
     res
       .status(201)
       .cookie("refreshtoken", token, options)
-      .json(new ApiResponse(201, finalNgo, "Ngo registered successfully"));
+      .json(new ApiResponse(201, {finalNgo,token}, "Ngo registered successfully"));
   } catch (error) {
     console.log(error);
     res.status(500).json(new ApiResponse(500, {}, "Error in Ngo registration"));

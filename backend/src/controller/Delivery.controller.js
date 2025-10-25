@@ -5,6 +5,8 @@ import { uploadoncloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 
 const registerPartner = asynchandler(async (req, res) => {
+  const data=JSON.parse(req.body.data);
+
   const {
     name,
     address,
@@ -16,7 +18,7 @@ const registerPartner = asynchandler(async (req, res) => {
     licenseNumber,
     vehicleNumber,
     typeOfVehicle,
-  } = req.body;
+  } = data;
 
   const image = req.file;
 
@@ -119,7 +121,7 @@ const registerPartner = asynchandler(async (req, res) => {
       .json(
         new ApiResponse(
           201,
-          finalpartner,
+          {finalpartner,token},
           "Delivery partner registered successfully"
         )
       );
