@@ -37,49 +37,49 @@ const DonorRegistration = () => {
 
   const navigate = useNavigate();
 
-    const submitHandler=async()=>{
-      if(!checked){
-        toast.error("Please accept the terms and conditions");
-        return;
-      }
-
-      if(password !== confirmPassword){
-        toast.error("Passwords do not match");
-        return;
-      }
-
-      const data={
-        name,
-        address,
-        pincode,
-        phone,
-        email,
-        password,
-      }
-
-      // console.log(data);
-
-      const formData=new FormData();
-      formData.append("data",JSON.stringify(data));
-      
-      if(image){
-        formData.append("image",image);
-      }
-
-      const response=await axios.post(`${backendurl}donor/register`,formData);
-
-      if(!response.data.success){
-        toast.error(response.data.message || "Error in donor registration");
-        return ;
-      }
-
-      setToken(response.data.data.token);
-      localStorage.setItem("token",response.data.data.token);
-      toast.success("Donor registered successfully");
-      navigate("/DonorDashboard");
-      // console.log(response.data.data.token);
-      // console.log(response.data);
+  const submitHandler = async () => {
+    if (!checked) {
+      toast.error("Please accept the terms and conditions");
+      return;
     }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    const data = {
+      name,
+      address,
+      pincode,
+      phone,
+      email,
+      password,
+    };
+
+    // console.log(data);
+
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(data));
+
+    if (image) {
+      formData.append("image", image);
+    }
+
+    const response = await axios.post(`${backendurl}donor/register`, formData);
+
+    if (!response.data.success) {
+      toast.error(response.data.message || "Error in donor registration");
+      return;
+    }
+
+    setToken(response.data.data.token);
+    localStorage.setItem("token", response.data.data.token);
+    toast.success("Donor registered successfully");
+    navigate("/DonorDashboard");
+    // console.log(response.data.data.token);
+    // console.log(response.data);
+  };
 
   return (
     <div className="bg-white min-h-screen relative overflow-hidden">
@@ -665,7 +665,7 @@ const DonorRegistration = () => {
                     type="checkbox"
                     id="terms"
                     checked={checked}
-                    readOnly 
+                    readOnly
                     className="w-6 h-6 cursor-pointer accent-red-500 focus:ring-2 focus:ring-red-500 rounded-lg transition-all duration-200 opacity-0"
                   />
                   <div className="absolute top-0 left-0 w-6 h-6 border-2 border-gray-300 rounded-lg bg-white transition-all duration-200 group-hover:border-red-400">
@@ -702,7 +702,9 @@ const DonorRegistration = () => {
                   <Gift className="w-6 h-6" />
                   <span className="tracking-wide">
                     Register as{" "}
-                    {typeOfDonor === "Organization" ? "Organization" : "Individual"}
+                    {typeOfDonor === "Organization"
+                      ? "Organization"
+                      : "Individual"}
                   </span>
                 </span>
               </button>

@@ -54,7 +54,7 @@ const registerNgo = asynchandler(async (req, res) => {
   }
 
   try {
-    const newNgo = NGO.create({
+    const newNgo =await NGO.create({
       name: name,
       email: email,
       phone: phone,

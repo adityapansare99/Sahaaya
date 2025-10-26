@@ -31,7 +31,7 @@ const registerDonor = asynchandler(async (req, res) => {
   }
 
   try {
-    const newdonor = Donor.create({
+    const newdonor =await Donor.create({
       name: name,
       email: email,
       phone: phone,

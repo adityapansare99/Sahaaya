@@ -56,7 +56,7 @@ const registerPartner = asynchandler(async (req, res) => {
   }
 
   try {
-    const newpartner = Delivery.create({
+    const newpartner =await Delivery.create({
       name: name,
       email: email,
       phone: phone,
