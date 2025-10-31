@@ -69,7 +69,7 @@ const authNgo = asynchandler(async (req, res, next) => {
         console.log(error);
         return res.status(401).json(new ApiResponse(401,{},"Invalid Token"));
     }
-});
+}); 
 
 const authPartner = asynchandler(async (req, res, next) => {
   const token =

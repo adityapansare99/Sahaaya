@@ -6,17 +6,18 @@ import MyDonations from "../components/MyDonations";
 import Impact from "../components/Impact";
 import SettingsD from "../components/SettingsD";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useContext } from "react";
+import { AppContext } from "../context/AppContext";
+import Swal from "sweetalert2";
 
 const DonorDashboard = () => {
+  const { backendurl, token } = useContext(AppContext);
   const [activeSection, setActiveSection] = useState("create");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [donations, setDonations] = useState([]);
-  const [profile, setProfile] = useState({
-    name: "Amit Sharma",
-    address: "123 MG Road, Bangalore, Karnataka ",
-    phone: "+91 98765 43210",
-    pincode: "560001",
-  });
+  const [profile, setProfile] = useState({});
 
   const [impactStats, setImpactStats] = useState({
     totalMealsDonated: 247,
@@ -25,78 +26,215 @@ const DonorDashboard = () => {
     wasteReduced: 78,
   });
 
-  // Initialize with some sample donations
   useEffect(() => {
-    const sampleDonations = [
-      {
-        id: "1",
-        foodType: "Cooked Meals",
-        quantity: "50 meals",
-        pickupLocation: "123 MG Road, Bangalore",
-        expiryDate: "2025-01-15",
-        expiryTime: "18:00",
-        status: "completed",
-        createdAt: "2025-01-10",
-        acceptedBy: "Akshaya Patra Foundation",
-      },
-      {
-        id: "2",
-        foodType: "Fresh Vegetables",
-        quantity: "25 kg",
-        pickupLocation: "456 Brigade Road, Bangalore",
-        expiryDate: "2025-01-14",
-        expiryTime: "20:00",
-        status: "accepted",
-        createdAt: "2025-01-12",
-        acceptedBy: "Feeding India",
-      },
-      {
-        id: "3",
-        foodType: "Packaged Food",
-        quantity: "100 packets",
-        pickupLocation: "789 Commercial Street, Bangalore",
-        expiryDate: "2025-01-16",
-        expiryTime: "19:30",
-        status: "pending",
-        createdAt: "2025-01-13",
-      },
-    ];
-    setDonations(sampleDonations);
+    getAllDonations();
+    getProfile();
   }, []);
 
-  const handleDonationCreate = (newDonation) => {
-    const donation = {
-      ...newDonation,
-      id: Date.now().toString(),
-      status: "pending",
-      createdAt: new Date().toISOString().split("T")[0],
-    };
-
-    setDonations((prev) => [donation, ...prev]);
-    setActiveSection("donations");
-
-    // Update impact stats
-    setImpactStats((prev) => ({
-      ...prev,
-      totalMealsDonated: prev.totalMealsDonated + 1,
-    }));
-  };
-
-  const navigate=useNavigate();
-
-  const handleDonationEdit = (donation) => {
-    // In a real app, this would open an edit modal
-    console.log("Edit donation:", donation);
-  };
-
-  const handleDonationCancel = (donationId) => {
-    setDonations((prev) =>
-      prev.map((d) => (d.id === donationId ? { ...d, status: "cancelled" } : d))
+  const handleDonationCreate = async (newDonation) => {
+    const response = await axios.post(
+      `${backendurl}donation/createDonation`,
+      newDonation,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
+
+    if (!response.data.success) {
+      toast.error("Donation creation failed");
+      return;
+    }
+
+    toast.success(response.data.message);
+    setDonations((prevDonations) => [...prevDonations, response.data.data]);
   };
 
-  const handleProfileUpdate = (updatedProfile) => {
-    setProfile(updatedProfile);
+  const getAllDonations = async () => {
+    try {
+      const response = await axios.get(
+        `${backendurl}donation/getAllDonations`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.data.success) {
+        toast.error("Donation creation failed");
+        return;
+      }
+
+      toast.success(response.data.message);
+      setDonations(response.data.data);
+
+      console.log(response.data.data);
+    } catch (error) {}
+  };
+
+  const navigate = useNavigate();
+
+  const handleDonationEdit = async (donation) => {
+    try {
+      const response = await axios.put(
+        `${backendurl}donation/editDonation`,
+        donation,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.data.success) {
+        toast.error("Donation edit failed");
+        return;
+      }
+
+      toast.success(response.data.message);
+      getAllDonations();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error Editing donation");
+    }
+  };
+
+  const handleDonationCancel = async (donationId) => {
+    try {
+      const response = await axios.delete(
+        `${backendurl}donation/deleteDonation`,
+        {
+          data: { donationId },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.data.success) {
+        toast.error("Donation cancellation failed");
+        return;
+      }
+
+      toast.success(response.data.message);
+      getAllDonations();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error deleting donation");
+    }
+  };
+
+  const getProfile = async () => {
+    try {
+      const response = await axios.get(`${backendurl}donor/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.data.success) {
+        toast.error("Could not fetch profile");
+        return;
+      }
+
+      setProfile(response.data.data);
+      console.log(response.data.data);
+    } catch (error) {
+      toast.error("Error fetching profile");
+    }
+  };
+
+  const handleProfileUpdate = async (updatedProfile) => {
+    console.log(updatedProfile);
+    try {
+      const response = await axios.post(
+        `${backendurl}donor/updateprofile`,
+        updatedProfile,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.data.success) {
+        toast.error("Could not update profile");
+        return;
+      }
+
+      setProfile(response.data.data);
+      toast.success("Profile updated successfully");
+    } catch (error) {
+      toast.error("Error updating profile");
+    }
+  };
+
+  const changePasswordHandler = async (passwordData) => {
+    try {
+      if (passwordData.newpassword !== passwordData.confirmNewPassword) {
+        toast.error("New passwords do not match");
+        return;
+      }
+
+      const data = {
+        oldpassword: passwordData.oldpassword,
+        newpassword: passwordData.newpassword,
+      };
+      const response = await axios.post(
+        `${backendurl}donor/updatepassword`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.data.success) {
+        toast.error(response.data.message || "Could not change password");
+        return;
+      }
+
+      toast.success("Password changed successfully");
+    } catch (error) {
+      toast.error("Error in changing password. Please check old password.");
+    }
+  };
+
+  const deleteAccountHandler = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action will permanently delete your account.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) {
+      toast.info("Account deletion cancelled");
+      return;
+    }
+
+    try {
+      const response = await axios.delete(`${backendurl}donor/deleteaccount`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.data.success) {
+        toast.error(response.data.message || "Could not delete account");
+        return;
+      }
+      toast.success("Account deleted successfully");
+      navigate("/login");
+    } catch (error) {
+      toast.error("Error in deleting account.");
+    }
   };
 
   const renderContent = () => {
@@ -115,7 +253,12 @@ const DonorDashboard = () => {
         return <Impact stats={impactStats} />;
       case "settings":
         return (
-          <SettingsD profile={profile} onProfileUpdate={handleProfileUpdate} />
+          <SettingsD
+            profile={profile}
+            onProfileUpdate={handleProfileUpdate}
+            changePasswordHandler={changePasswordHandler}
+            deleteAccountHandler={deleteAccountHandler}
+          />
         );
       default:
         return <CreateDonation onDonationCreate={handleDonationCreate} />;

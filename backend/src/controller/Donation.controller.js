@@ -17,19 +17,12 @@ const createDonation = asynchandler(async (req, res) => {
 
   const donation = await Donation.create({
     Donor: donor._id,
-
     FoodType: foodType,
-
     FoodDescription: description,
-
     Quantity: quantity,
-
     PickupLocation: pickup,
-
     ExpiryDate: expiryDate,
-
     ExpiryTime: expiryTime,
-
     typeOfDonor: donorType,
   });
 
@@ -132,37 +125,43 @@ const editDonation = asynchandler(async (req, res) => {
     .populate("Ngo")
     .populate("Donor");
 
-    if (!updatedDonation) {
-      return res
-        .status(400)
-        .json(new ApiResponse(400, {}, "Donation creation failed"));
-    }
-
+  if (!updatedDonation) {
     return res
-      .status(200)
-      .json(new ApiResponse(200, updatedDonation, "Donation updated successfully"));
+      .status(400)
+      .json(new ApiResponse(400, {}, "Donation creation failed"));
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, updatedDonation, "Donation updated successfully")
+    );
 });
 
 //delete the donation
 const deleteDonation = asynchandler(async (req, res) => {
-    const donor=req.donor;
-    const {donationId}=req.body;
+  const donor = req.donor;
+  const { donationId } = req.body;
 
-    if(!donor){
-        return res.status(401).json(new ApiResponse(401,{},"Please login to continue"));
-    }
+  if (!donor) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
+  }
 
-    if(!donationId || donationId.trim().length===0){
-        return res.status(400).json(new ApiResponse(400,{},"Donation not found"));
-    }
+  if (!donationId || donationId.trim().length === 0) {
+    return res.status(400).json(new ApiResponse(400, {}, "Donation not found"));
+  }
 
-    const donation=await Donation.findByIdAndDelete(donationId);
+  const donation = await Donation.findByIdAndDelete(donationId);
 
-    if(!donation){
-        return res.status(400).json(new ApiResponse(400,{},"Donation not found"));
-    }
+  if (!donation) {
+    return res.status(400).json(new ApiResponse(400, {}, "Donation not found"));
+  }
 
-    return res.status(200).json(new ApiResponse(200,donation,"Donation deleted successfully"));
-})
+  return res
+    .status(200)
+    .json(new ApiResponse(200, donation, "Donation deleted successfully"));
+});
 
-export { createDonation, getAllDonations,editDonation,deleteDonation };
+export { createDonation, getAllDonations, editDonation, deleteDonation };

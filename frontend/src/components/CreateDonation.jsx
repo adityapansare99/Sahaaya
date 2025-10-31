@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { Plus, MapPin, Clock, Package } from "lucide-react";
 
 const CreateDonation = ({ onDonationCreate }) => {
-  const [formData, setFormData] = useState({
-    foodType: "",
-    quantity: "",
-    pickupLocation: "",
-    expiryDate: "",
-    expiryTime: "",
-  });
+  const [donorType, setDonorType] = useState("");
+  const [foodType, setFoodType] = useState("");
+  const [description, setDescription] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [pickupLocation, setPickupLocation] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [expiryTime, setExpiryTime] = useState("");
 
   const foodTypes = [
     "Cooked Meals",
@@ -25,20 +25,26 @@ const CreateDonation = ({ onDonationCreate }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (Object.values(formData).every((value) => value.trim())) {
-      onDonationCreate(formData);
-      setFormData({
-        foodType: "",
-        quantity: "",
-        pickupLocation: "",
-        expiryDate: "",
-        expiryTime: "",
-      });
-    }
-  };
 
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    const data = {
+      donorType,
+      foodType,
+      description,
+      quantity,
+      pickup:pickupLocation,
+      expiryDate,
+      expiryTime,
+    };
+
+    onDonationCreate(data);
+
+    setDonorType("");
+    setFoodType("");
+    setDescription("");
+    setQuantity("");
+    setPickupLocation("");
+    setExpiryDate("");
+    setExpiryTime("");
   };
 
   return (
@@ -59,8 +65,8 @@ const CreateDonation = ({ onDonationCreate }) => {
               Donor Type
             </label>
             <select
-              value={formData.foodType}
-              onChange={(e) => handleInputChange("donorType", e.target.value)}
+              value={donorType}
+              onChange={(e) => setDonorType(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
               required
             >
@@ -80,8 +86,8 @@ const CreateDonation = ({ onDonationCreate }) => {
               Food Type
             </label>
             <select
-              value={formData.foodType}
-              onChange={(e) => handleInputChange("foodType", e.target.value)}
+              value={foodType}
+              onChange={(e) => setFoodType(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
               required
             >
@@ -101,8 +107,8 @@ const CreateDonation = ({ onDonationCreate }) => {
             </label>
             <input
               type="text"
-              value={formData.quantity}
-              onChange={(e) => handleInputChange("quantity", e.target.value)}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g., Fresh prepared rice, dal, vegetables, and roti"
               className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
               required
@@ -116,8 +122,8 @@ const CreateDonation = ({ onDonationCreate }) => {
             </label>
             <input
               type="text"
-              value={formData.quantity}
-              onChange={(e) => handleInputChange("quantity", e.target.value)}
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
               placeholder="e.g., 50 meals, 10 kg, 20 packets"
               className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
               required
@@ -132,10 +138,8 @@ const CreateDonation = ({ onDonationCreate }) => {
             </label>
             <input
               type="text"
-              value={formData.pickupLocation}
-              onChange={(e) =>
-                handleInputChange("pickupLocation", e.target.value)
-              }
+              value={pickupLocation}
+              onChange={(e) => setPickupLocation(e.target.value)}
               placeholder="Enter complete address"
               className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
               required
@@ -151,10 +155,8 @@ const CreateDonation = ({ onDonationCreate }) => {
               </label>
               <input
                 type="date"
-                value={formData.expiryDate}
-                onChange={(e) =>
-                  handleInputChange("expiryDate", e.target.value)
-                }
+                value={expiryDate}
+                onChange={(e) => setExpiryDate(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
                 className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                 required
@@ -166,10 +168,8 @@ const CreateDonation = ({ onDonationCreate }) => {
               </label>
               <input
                 type="time"
-                value={formData.expiryTime}
-                onChange={(e) =>
-                  handleInputChange("expiryTime", e.target.value)
-                }
+                value={expiryTime}
+                onChange={(e) => setExpiryTime(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
                 required
               />
