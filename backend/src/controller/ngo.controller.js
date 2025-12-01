@@ -203,7 +203,7 @@ const updateNgoProfile = asynchandler(async (req, res) => {
       contactPerson,
       DailyCapacity,
       Description,
-    ].some((item) => item.trim().length === 0)
+    ].some((item) => String(item).trim().length === 0)
   ) {
     return res
       .status(400)
