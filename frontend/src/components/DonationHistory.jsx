@@ -5,12 +5,12 @@ const DonationHistory = ({acceptedOrder,filtered,setFiltered }) => {
   const [filter, setFilter] = useState("all");
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case "Completed":
+    switch (status.toLowerCase()) {
+      case "completed":
         return "bg-green-100 text-green-800";
-      case "Accepted":
+      case "accepted":
         return "bg-yellow-100 text-yellow-800";
-      case "Cancelled":
+      case "cancelled":
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -107,7 +107,7 @@ const DonationHistory = ({acceptedOrder,filtered,setFiltered }) => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((donation, index) => (
+              {filtered?.map((donation, index) => (
                 <tr
                   key={donation._id}
                   className={index % 2 === 0 ? "bg-white" : "bg-gray-25"}

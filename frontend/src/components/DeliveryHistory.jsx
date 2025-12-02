@@ -8,68 +8,18 @@ import {
   Package,
 } from "lucide-react";
 
-const DeliveryHistory = () => {
+const DeliveryHistory = ({ history }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const deliveryHistory = [
-    {
-      id: 1,
-      date: "2025-01-15",
-      time: "14:30",
-      donor: "Rajesh Kumar",
-      ngo: "Hope Foundation",
-      foodType: "Fresh Meals",
-      status: "Delivered",
-      earnings: 50,
-    },
-    {
-      id: 2,
-      date: "2025-01-14",
-      time: "11:15",
-      donor: "Priya's Kitchen",
-      ngo: "Children's Care Center",
-      foodType: "Homemade Food",
-      status: "Delivered",
-      earnings: 40,
-    },
-    {
-      id: 3,
-      date: "2025-01-14",
-      time: "16:45",
-      donor: "Mumbai Darbar",
-      ngo: "Elderly Care Home",
-      foodType: "North Indian Cuisine",
-      status: "Cancelled",
-      earnings: 0,
-    },
-    {
-      id: 4,
-      date: "2025-01-13",
-      time: "13:20",
-      donor: "South Spice",
-      ngo: "Street Children NGO",
-      foodType: "South Indian Meals",
-      status: "Delivered",
-      earnings: 60,
-    },
-    {
-      id: 5,
-      date: "2025-01-12",
-      time: "12:00",
-      donor: "Healthy Bites",
-      ngo: "Senior Citizen Home",
-      foodType: "Healthy Salads",
-      status: "Delivered",
-      earnings: 35,
-    },
-  ];
 
-  const filteredHistory = deliveryHistory.filter((delivery) => {
+  const filteredHistory = history.filter((delivery) => {
     const matchesSearch =
-      delivery.donor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      delivery.ngo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      delivery.foodType.toLowerCase().includes(searchTerm.toLowerCase());
+      delivery.donor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      delivery.receiver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      delivery.donation.FoodType.toLowerCase().includes(
+        searchTerm.toLowerCase()
+      );
 
     const matchesFilter =
       statusFilter === "all" || delivery.status.toLowerCase() === statusFilter;
@@ -79,7 +29,7 @@ const DeliveryHistory = () => {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case "Delivered":
+      case "completed":
         return (
           <span className="inline-flex items-center space-x-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
             <CheckCircle className="w-4 h-4" />
@@ -102,10 +52,9 @@ const DeliveryHistory = () => {
     }
   };
 
-  const totalDeliveries = deliveryHistory.filter(
-    (d) => d.status === "Delivered"
+  const totalDeliveries = history.filter(
+    (d) => d.status === "completed"
   ).length;
-  const totalEarnings = deliveryHistory.reduce((sum, d) => sum + d.earnings, 0);
 
   return (
     <div className="space-y-6">
@@ -120,7 +69,7 @@ const DeliveryHistory = () => {
             <span className="font-bold">{totalDeliveries}</span> Completed
           </div>
           <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-xl">
-            <span className="font-bold">₹{totalEarnings}</span> Earned
+            <span className="font-bold">{"0 "}</span>Points Earned
           </div>
         </div>
       </div>
@@ -141,13 +90,13 @@ const DeliveryHistory = () => {
 
             <div className="relative">
               <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <select 
+              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="pl-10 pr-8 cursor-pointer py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none bg-white"
               >
                 <option value="all">All Status</option>
-                <option value="delivered">Delivered</option>
+                <option value="completed">Delivered</option>
                 <option value="cancelled">Cancelled</option>
               </select>
             </div>
@@ -185,14 +134,14 @@ const DeliveryHistory = () => {
                     Status
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    Earnings
+                    Points
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredHistory.map((delivery) => (
                   <tr
-                    key={delivery.id}
+                    key={delivery._id}
                     className="hover:bg-gray-50 transition-colors"
                   >
                     <td className="px-6 py-4">
@@ -200,31 +149,38 @@ const DeliveryHistory = () => {
                         <Calendar className="w-4 h-4 text-gray-400" />
                         <div>
                           <p className="font-medium text-gray-900">
-                            {new Date(delivery.date).toLocaleDateString(
-                              "en-IN",
-                              {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )}
+                            {new Date(
+                              delivery.donation.updatedAt
+                            ).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {delivery.time}
+                            {new Date(
+                              delivery.donation.updatedAt
+                            ).toLocaleTimeString("en-IN", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                            })}
                           </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <p className="font-medium text-gray-900">
-                        {delivery.donor}
+                        {delivery.donor.name}
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-gray-900">{delivery.ngo}</p>
+                      <p className="text-gray-900">{delivery.receiver.name}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-gray-600">{delivery.foodType}</p>
+                      <p className="text-gray-600">
+                        {delivery.donation.FoodType}
+                      </p>
                     </td>
                     <td className="px-6 py-4">
                       {getStatusBadge(delivery.status)}
@@ -232,12 +188,14 @@ const DeliveryHistory = () => {
                     <td className="px-6 py-4">
                       <p
                         className={`font-semibold ${
-                          delivery.earnings > 0
+                          delivery?.earnings > 0
                             ? "text-green-600"
                             : "text-gray-400"
                         }`}
                       >
-                        {delivery.earnings > 0 ? `₹${delivery.earnings}` : "-"}
+                        {delivery?.earnings > 0
+                          ? `₹${delivery?.earnings}`
+                          : "-"}
                       </p>
                     </td>
                   </tr>

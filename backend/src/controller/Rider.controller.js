@@ -1,147 +1,267 @@
 import { asynchandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import Ride from "../model/ride.model.js";
+import { donations } from "./Receiver.controller.js";
+import Donation from "../model/donation.model.js";
 
-const allRides=asynchandler(async(req,res)=>{
-    const partner=req.partner;
+const allRides = asynchandler(async (req, res) => {
+  const partner = req.partner;
 
-    if(!partner){
-        return res.status(404).json(new ApiResponse(404,{},'No delivery partner found'));
-    }
+  if (!partner) {
+    return res
+      .status(404)
+      .json(new ApiResponse(404, {}, "No delivery partner found"));
+  }
 
-    const rides=await Ride.find({status:"pending"}).populate("donor").populate("receiver").populate("donation");
+  let rides = await Ride.find({ status: "pending" })
+    .populate("donor")
+    .populate("receiver")
+    .populate("donation");
 
-    if(!rides){
-        return res.status(404).json(new ApiResponse(404,{},'No rides found'));
-    }
+  const combineDateAndTime = (dateStr, timeStr) => {
+    const date = new Date(dateStr);
+    const [hours, minutes] = timeStr.split(":").map(Number);
 
-    res.status(200).json(new ApiResponse(200,rides,'Rides fetched successfully'))
-})
+    return new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      hours,
+      minutes,
+      0,
+      0
+    );
+  };
 
-const acceptRide=asynchandler(async(req,res)=>{
-    const partner=req.partner
+  const getRemainingTime = (expiry) => {
+    const now = new Date();
+    let diff = expiry - now;
 
-    if(!partner){
-        return res.status(401).json(new ApiResponse(401,{},'Please login to continue'));
-    }
+    if (diff <= 0) return null;
 
-    const {rideId}=req.body
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    diff -= hours * 1000 * 60 * 60;
 
-    if(!rideId){
-        return res.status(401).json(new ApiResponse(401,{},'Ride not found'));
-    }
+    const minutes = Math.floor(diff / (1000 * 60));
 
-    const ride=await Ride.findById(rideId);
+    return `${hours}:${minutes}`;
+  };
 
-    if(ride.status==="accepted"){
-        return res.status(401).json(new ApiResponse(401,{},'Ride already accepted'));
-    }
+  rides = rides
+    .map((ride) => {
+      if (donations === null) {
+        console.log(ride);
+      }
+      const expiry = combineDateAndTime(
+        ride.donation.ExpiryDate,
+        ride.donation.ExpiryTime
+      );
 
-    const response=await Ride.findByIdAndUpdate(rideId,{status:"accepted",rider:partner._id},{new:true})
+      const timeLeft = getRemainingTime(expiry);
 
-    if(!response){
-        return res.status(401).json(new ApiResponse(401,{},'Ride not found'));
-    }
+      if (!timeLeft) return null;
 
-    const rideResponse=await Ride.findById(rideId).populate("donor").populate("receiver").populate("donation");
+      ride = ride.toObject();
+      ride.timeLeft = timeLeft;
 
-    res.status(200).json(new ApiResponse(200,rideResponse,'Ride accepted successfully'))
-})
+      return ride;
+    })
+    .filter((ride) => ride !== null);
 
-const getRides=asynchandler(async(req,res)=>{
-    const partner=req.partner
+  if (!rides) {
+    return res.status(404).json(new ApiResponse(404, {}, "No rides found"));
+  }
 
-    if(!partner){
-        return res.status(401).json(new ApiResponse(401,{},'Please login to continue'));
-    }
+  res
+    .status(200)
+    .json(new ApiResponse(200, rides, "Rides fetched successfully"));
+});
 
-    const rides=await Ride.find({rider:partner._id,status:{ $ne: "completed" }}).populate("donor").populate("receiver").populate("donation");
+const acceptRide = asynchandler(async (req, res) => {
+  const partner = req.partner;
 
-    if(!rides){
-        return res.status(401).json(new ApiResponse(401,{},'No rides found'));
-    }
+  if (!partner) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
+  }
 
-    res.status(200).json(new ApiResponse(200,rides,'Rides fetched successfully'))
-})
+  const { rideId } = req.body;
 
-const markPicked=asynchandler(async(req,res)=>{
-    const partner=req.partner
+  if (!rideId) {
+    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+  }
 
-    if(!partner){
-        return res.status(401).json(new ApiResponse(401,{},'Please login to continue'));
-    }
+  const ride = await Ride.findById(rideId);
 
-    const{rideId}=req.body
+  if (ride.status === "accepted") {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Ride already accepted"));
+  }
 
-    if(!rideId){
-        return res.status(401).json(new ApiResponse(401,{},'Ride not found'));
-    }
+  const response = await Ride.findByIdAndUpdate(
+    rideId,
+    { status: "accepted", rider: partner._id },
+    { new: true }
+  );
 
-    const ride=await Ride.findById(rideId);
+  if (!response) {
+    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+  }
 
-    if(!ride){
-        return res.status(401).json(new ApiResponse(401,{},'Ride not found'));
-    }
+  const rideResponse = await Ride.findById(rideId)
+    .populate("donor")
+    .populate("receiver")
+    .populate("donation");
 
-    if(ride.status==="picked up"){
-        return res.status(401).json(new ApiResponse(401,{},'Ride already picked up'));
-    }
+  res
+    .status(200)
+    .json(new ApiResponse(200, rideResponse, "Ride accepted successfully"));
+});
 
-    const response=await Ride.findByIdAndUpdate(rideId,{status:"picked up"},{new:true})
+const getRides = asynchandler(async (req, res) => {
+  const partner = req.partner;
 
-    if(!response){
-        return res.status(401).json(new ApiResponse(401,{},'Ride not found'));
-    }
+  if (!partner) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
+  }
 
-    res.status(200).json(new ApiResponse(200,{},'Ride picked up successfully'))
-})
+  const rides = await Ride.find({
+    rider: partner._id,
+    status: { $ne: "completed" },
+  })
+    .populate("donor")
+    .populate("receiver")
+    .populate("donation");
 
-const markCompeted=asynchandler(async(req,res)=>{
-    const partner=req.partner
+  if (!rides) {
+    return res.status(401).json(new ApiResponse(401, {}, "No rides found"));
+  }
 
-    if(!partner){
-        return res.status(401).json(new ApiResponse(401,{},'Please login to continue'));
-    }
+  res
+    .status(200)
+    .json(new ApiResponse(200, rides, "Rides fetched successfully"));
+});
 
-    const {rideId}=req.body
+const markPicked = asynchandler(async (req, res) => {
+  const partner = req.partner;
 
-    if(!rideId){
-        return res.status(401).json(new ApiResponse(401,{},'Ride not found'));
-    }
+  if (!partner) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
+  }
 
-    const ride=await Ride.findById(rideId);
+  const { rideId } = req.body;
 
-    if(!ride){
-        return res.status(401).json(new ApiResponse(401,{},'Ride not found'));
-    }
+  if (!rideId) {
+    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+  }
 
-    if(ride.status==="completed"){
-        return res.status(401).json(new ApiResponse(401,{},'Ride already completed'));
-    }
+  const ride = await Ride.findById(rideId);
 
-    const response=await Ride.findByIdAndUpdate(rideId,{status:"completed"},{new:true});
+  if (!ride) {
+    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+  }
 
-    if(!response){
-        return res.status(401).json(new ApiResponse(401,{},'Ride not found'));
-    }
+  if (ride.status === "picked up") {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Ride already picked up"));
+  }
 
-    res.status(200).json(new ApiResponse(200,{},'Ride completed successfully'))
-})
+  const response = await Ride.findByIdAndUpdate(
+    rideId,
+    { status: "picked up" },
+    { new: true }
+  );
 
-const getAllRides=asynchandler(async(req,res)=>{
-    const partner=req.partner
+  if (!response) {
+    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+  }
 
-    if(!partner){
-        return res.status(401).json(new ApiResponse(401,{},'Please login to continue'));
-    }
+  res.status(200).json(new ApiResponse(200, {}, "Ride picked up successfully"));
+});
 
-    const response=await Ride.find({rider:partner._id}).populate("donor").populate("receiver").populate("donation");
+const markCompeted = asynchandler(async (req, res) => {
+  const partner = req.partner;
 
-    if(!response){
-        return res.status(401).json(new ApiResponse(401,{},'No rides found'));
-    }
+  if (!partner) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
+  }
 
-    res.status(200).json(new ApiResponse(200,response,'Rides fetched successfully'))
-})
+  const { rideId } = req.body;
 
-export {allRides,acceptRide,getRides,markPicked,markCompeted,getAllRides}
+  if (!rideId) {
+    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+  }
+
+  const ride = await Ride.findById(rideId);
+
+  if (!ride) {
+    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+  }
+
+  if (ride.status === "completed") {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Ride already completed"));
+  }
+
+  const response = await Ride.findByIdAndUpdate(
+    rideId,
+    { status: "completed" },
+    { new: true }
+  );
+
+  if (!response) {
+    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+  }
+
+  if (response.donation) {
+    await Donation.findByIdAndUpdate(
+      response.donation,
+      { Status: "Completed" },
+      { new: true }
+    );
+  }
+
+  res.status(200).json(new ApiResponse(200, {}, "Ride completed successfully"));
+});
+
+const getAllRides = asynchandler(async (req, res) => {
+  const partner = req.partner;
+
+  if (!partner) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
+  }
+
+  const response = await Ride.find({ rider: partner._id })
+    .populate("donor")
+    .populate("receiver")
+    .populate("donation");
+
+  if (!response) {
+    return res.status(401).json(new ApiResponse(401, {}, "No rides found"));
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, response, "Rides fetched successfully"));
+});
+
+export {
+  allRides,
+  acceptRide,
+  getRides,
+  markPicked,
+  markCompeted,
+  getAllRides,
+};

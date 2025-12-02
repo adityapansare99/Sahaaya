@@ -72,7 +72,7 @@ const donations = asynchandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, donations, "Donations fetched successfully"));
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 });
 
@@ -163,9 +163,8 @@ const receivedDonations = asynchandler(async (req, res) => {
   }
 
   const total = response.length;
-  const completed = response.filter(
-    (item) => item.Status === "Completed"
-  ).length;
+  const completed = response.filter((item) => item.Status === "Completed").length;
+
   const pending = response.filter((item) => item.Status === "Accepted").length;
 
   res

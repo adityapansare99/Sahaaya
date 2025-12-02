@@ -227,7 +227,7 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
       licenseNumber,
       vehicleNumber,
       typeOfVehicle,
-    ].some((item) => item.trim().length === 0)
+    ].some((item) => String(item).trim().length === 0)
   ) {
     return res
       .status(400)

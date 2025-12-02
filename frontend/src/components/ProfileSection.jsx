@@ -12,21 +12,17 @@ import {
   Camera,
 } from "lucide-react";
 
-const ProfileSection = () => {
+const ProfileSection = ({profile,handleChangeProfile}) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState({
-    name: "Alex Kumar",
-    email: "alex.kumar@email.com",
-    phone: "+91 9876543210",
-    address: "Jubilee Hills, Hyderabad",
-    vehicleType: "motorcycle",
-    licenseNumber: "ABCD/436152",
-    emergencyContact: "+91 9876543211",
-    rating: "4.9",
-    totalDeliveries: "124",
-    vehicleNumber: "TS09AB1234",
-    vehicleCapacity: "50",
-  });
+
+  const [name, setName] = useState(profile.name || "");
+  const [phone, setPhone] = useState(profile.phone || "");
+  const [address, setAddress] = useState(profile.address);
+  const [emergencyContact, setEmergencyContact] = useState(profile.emergencyNumber || "");
+  const [vehicleType, setVehicleType] = useState(profile.typeOfVehicle || "");
+  const [licenseNumber, setLicenseNumber] = useState(profile.licenseNumber || "");
+  const [vehicleNumber, setVehicleNumber] = useState(profile.vehicleNumber || "");
+  const [vehicleCapacity, setVehicleCapacity] = useState(profile.vehicleCapacity || "");
 
   const vehicleOptions = [
     { value: "bicycle", label: "Bicycle", icon: "🚲" },
@@ -39,7 +35,18 @@ const ProfileSection = () => {
 
   const handleSave = () => {
     setIsEditing(false);
-    // Handle save logic here
+    const data={
+      name,
+      address,
+      phone,
+      emergencyNumber: emergencyContact,
+      vehicleCapacity,
+      licenseNumber,
+      vehicleNumber,
+      typeOfVehicle: vehicleType,
+    };
+
+    handleChangeProfile(data);
   };
 
   const getVehicleLabel = (value) => {
@@ -67,14 +74,14 @@ const ProfileSection = () => {
               </button>
             </div>
             <div className="flex-1">
-              <h3 className="text-2xl font-bold mb-1">{profile.name}</h3>
+              <h3 className="text-2xl font-bold mb-1">{name}</h3>
               <p className="text-red-100 mb-2">Delivery Partner</p>
               <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center space-x-1">
                   <span>⭐</span>
-                  <span>{profile.rating} Rating</span>
+                  <span>{profile?.rating || "-"} Rating</span>
                 </div>
-                <div>{profile.totalDeliveries} Deliveries</div>
+                <div>{profile?.totalDeliveries || "-"} Deliveries</div>
               </div>
             </div>
             <button
@@ -104,31 +111,19 @@ const ProfileSection = () => {
                   {isEditing ? (
                     <input
                       type="text"
-                      value={profile.name}
+                      value={name}
                       onChange={(e) =>
-                        setProfile({ ...profile, name: e.target.value })
+                        setName(e.target.value)
                       }
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
                   ) : (
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
                       <User className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{profile.name}</span>
+                      <span className="text-gray-900">{name}</span>
                     </div>
                   )}
                 </div>
-
-                {!isEditing && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                      <Mail className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{profile.email}</span>
-                    </div>
-                  </div>
-                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -137,16 +132,16 @@ const ProfileSection = () => {
                   {isEditing ? (
                     <input
                       type="tel"
-                      value={profile.phone}
+                      value={phone}
                       onChange={(e) =>
-                        setProfile({ ...profile, phone: e.target.value })
+                        setPhone(e.target.value)
                       }
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
                   ) : (
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
                       <Phone className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{profile.phone}</span>
+                      <span className="text-gray-900">{phone}</span>
                     </div>
                   )}
                 </div>
@@ -157,9 +152,9 @@ const ProfileSection = () => {
                   </label>
                   {isEditing ? (
                     <textarea
-                      value={profile.address}
+                      value={address}
                       onChange={(e) =>
-                        setProfile({ ...profile, address: e.target.value })
+                        setAddress(e.target.value)
                       }
                       rows={3}
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -167,7 +162,7 @@ const ProfileSection = () => {
                   ) : (
                     <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-xl">
                       <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                      <span className="text-gray-900">{profile.address}</span>
+                      <span className="text-gray-900">{address}</span>
                     </div>
                   )}
                 </div>
@@ -179,12 +174,9 @@ const ProfileSection = () => {
                   {isEditing ? (
                     <input
                       type="tel"
-                      value={profile.emergencyContact}
+                      value={emergencyContact}
                       onChange={(e) =>
-                        setProfile({
-                          ...profile,
-                          emergencyContact: e.target.value,
-                        })
+                        setEmergencyContact(e.target.value)
                       }
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
@@ -192,7 +184,7 @@ const ProfileSection = () => {
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
                       <Phone className="w-5 h-5 text-gray-400" />
                       <span className="text-gray-900">
-                        {profile.emergencyContact}
+                        {emergencyContact}
                       </span>
                     </div>
                   )}
@@ -212,9 +204,9 @@ const ProfileSection = () => {
                   </label>
                   {isEditing ? (
                     <select
-                      value={profile.vehicleType}
+                      value={vehicleType}
                       onChange={(e) =>
-                        setProfile({ ...profile, vehicleType: e.target.value })
+                        setVehicleType(e.target.value)
                       }
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     >
@@ -228,7 +220,7 @@ const ProfileSection = () => {
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
                       <Car className="w-5 h-5 text-gray-400" />
                       <span className="text-gray-900">
-                        {getVehicleLabel(profile.vehicleType)}
+                        {getVehicleLabel(vehicleType)}
                       </span>
                     </div>
                   )}
@@ -241,12 +233,9 @@ const ProfileSection = () => {
                   {isEditing ? (
                     <input
                       type="text"
-                      value={profile.licenseNumber}
+                      value={licenseNumber}
                       onChange={(e) =>
-                        setProfile({
-                          ...profile,
-                          licenseNumber: e.target.value,
-                        })
+                        setLicenseNumber(e.target.value)
                       }
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
@@ -254,7 +243,7 @@ const ProfileSection = () => {
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
                       <Shield className="w-5 h-5 text-gray-400" />
                       <span className="text-gray-900">
-                        {profile.licenseNumber}
+                        {licenseNumber}
                       </span>
                     </div>
                   )}
@@ -267,12 +256,9 @@ const ProfileSection = () => {
                   {isEditing ? (
                     <input
                       type="text"
-                      value={profile.vehicleNumber}
+                      value={vehicleNumber}
                       onChange={(e) =>
-                        setProfile({
-                          ...profile,
-                          vehicleNumber: e.target.value,
-                        })
+                        setVehicleNumber(e.target.value)
                       }
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
@@ -280,7 +266,7 @@ const ProfileSection = () => {
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
                       <Shield className="w-5 h-5 text-gray-400" />
                       <span className="text-gray-900">
-                        {profile.vehicleNumber}
+                        {vehicleNumber}
                       </span>
                     </div>
                   )}
@@ -293,12 +279,9 @@ const ProfileSection = () => {
                   {isEditing ? (
                     <input
                       type="tel"
-                      value={profile.vehicleCapacity}
+                      value={vehicleCapacity}
                       onChange={(e) =>
-                        setProfile({
-                          ...profile,
-                          vehicleCapacity: e.target.value,
-                        })
+                        setVehicleCapacity(e.target.value)
                       }
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     />
@@ -306,7 +289,7 @@ const ProfileSection = () => {
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
                       <Phone className="w-5 h-5 text-gray-400" />
                       <span className="text-gray-900">
-                        {profile.vehicleCapacity}
+                        {vehicleCapacity}
                       </span>
                     </div>
                   )}
@@ -318,7 +301,9 @@ const ProfileSection = () => {
           {isEditing && (
             <div className="mt-8 pt-6 border-t flex space-x-4">
               <button
-                onClick={handleSave}
+                onClick={()=>{
+                  handleSave();
+                }}
                 className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
               >
                 Save Changes
