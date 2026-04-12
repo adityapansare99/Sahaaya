@@ -77,9 +77,9 @@ const Login = () => {
   return (
     <div className="bg-white min-h-screen relative overflow-hidden">
       {/* Elegant Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-50/20 via-white to-red-50/10"></div>
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-red-200 to-transparent"></div>
-      <div className="absolute bottom-0 right-0 w-full h-px bg-gradient-to-l from-transparent via-red-200 to-transparent"></div>
+      <div className="absolute inset-0 bg-linear-gradient-to-br from-red-50/20 via-white to-red-50/10"></div>
+      <div className="absolute top-0 left-0 w-full h-px bg-linear-gradient-to-r from-transparent via-red-200 to-transparent"></div>
+      <div className="absolute bottom-0 right-0 w-full h-px bg-linear-gradient-to-l from-transparent via-red-200 to-transparent"></div>
 
       {/* Floating Decorative Elements */}
       <div className="absolute top-20 left-10 opacity-10">
@@ -100,7 +100,7 @@ const Login = () => {
 
       <div className="relative md:grid md:grid-cols-7 md:w-full md:min-h-screen">
         {/* Left Side - Elegant Logo Section */}
-        <div className="w-full md:col-span-3 md:flex items-center justify-center min-h-[50vh] md:min-h-screen hidden bg-gradient-to-br from-red-50/30 via-white to-red-50/20 relative">
+        <div className="w-full md:col-span-3 md:flex items-center justify-center min-h-[50vh] md:min-h-screen hidden bg-linear-gradient-to-br from-red-50/30 via-white to-red-50/20 relative">
           {/* Subtle Geometric Patterns */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-red-300 rounded-full"></div>
@@ -120,7 +120,7 @@ const Login = () => {
                 src="https://res.cloudinary.com/dvdwjzjvf/image/upload/v1758366445/project/Sahaaya/Minimalistic_Sahaaya_Logo_Design_cxghbe_skvums.png"
                 alt="Sahaaya Logo"
               />
-              <div className="absolute -inset-4 bg-gradient-to-r from-red-500/10 via-transparent to-red-500/10 rounded-full blur-xl opacity-0 hover:opacity-100 transition-opacity duration-700"></div>
+              <div className="absolute -inset-4 bg-linear-gradient-to-r from-red-500/10 via-transparent to-red-500/10 rounded-full blur-xl opacity-0 hover:opacity-100 transition-opacity duration-700"></div>
             </div>
             <div className="mt-8 space-y-3">
               <h2 className="text-2xl font-light text-gray-800 tracking-wide">
@@ -149,20 +149,20 @@ const Login = () => {
         <div className="flex md:mx-10 md:px-10 mx-4 md:col-span-4 my-6 md:my-8 flex-col items-center justify-center relative">
           <div className="w-full bg-white/95 max-w-2xl backdrop-blur-sm md:px-15 px-6 md:py-12 py-8 shadow-2xl rounded-3xl border border-gray-100/80 relative overflow-hidden">
             {/* Elegant Header Accent */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500/80 via-red-400 to-red-500/80"></div>
-            <div className="absolute top-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+            <div className="absolute top-0 left-0 right-0 h-1 bg-linear-gradient-to-r from-red-500/80 via-red-400 to-red-500/80"></div>
+            <div className="absolute top-1 left-0 right-0 h-px bg-linear-gradient-to-r from-transparent via-white/60 to-transparent"></div>
 
             {/* Login Header */}
             <div className="text-center mb-8">
               <div className="flex justify-center mb-4">
-                <div className="p-4 bg-gradient-to-r from-red-50 to-red-100 rounded-2xl">
+                <div className="p-4 bg-linear-gradient-to-r from-red-50 to-red-100 rounded-2xl">
                   <LogIn className="w-12 h-12 text-red-500" />
                 </div>
               </div>
               <h1 className="text-3xl font-bold text-red-500 mb-2 tracking-tight">
                 Welcome Back
               </h1>
-              <div className="w-20 h-1 bg-gradient-to-r from-red-500 to-red-400 mx-auto rounded-full mb-3"></div>
+              <div className="w-20 h-1 bg-linear-gradient-to-r from-red-500 to-red-400 mx-auto rounded-full mb-3"></div>
               <p className="text-gray-700 font-light leading-relaxed">
                 Sign in to continue your generous journey
               </p>
@@ -248,9 +248,9 @@ const Login = () => {
               onClick={() => {
                 submitHandler();
               }}
-              className="relative w-full p-4 cursor-pointer text-lg text-center rounded-2xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold mb-6 shadow-xl hover:shadow-2xl hover:scale-[1.02] transform transition-all duration-300 hover:from-red-600 hover:to-red-700 group overflow-hidden"
+              className="relative w-full p-4 cursor-pointer text-lg text-center rounded-2xl bg-linear-gradient-to-r from-red-500 to-red-600 text-white font-bold mb-6 shadow-xl hover:shadow-2xl hover:scale-[1.02] transform transition-all duration-300 hover:from-red-600 hover:to-red-700 group overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              <div className="absolute inset-0 bg-linear-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               <span className="relative flex items-center justify-center space-x-3">
                 <UserCheck className="w-6 h-6" />
                 <span className="tracking-wide">Sign in to Continue</span>
