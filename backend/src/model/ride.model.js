@@ -46,7 +46,7 @@ const rideSchema = new mongoose.Schema({
     rider:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Delivery"
-    }
+    },
 })
 
 const Ride=mongoose.model("Ride",rideSchema);

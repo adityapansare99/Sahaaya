@@ -74,6 +74,10 @@ const deliverySchema = new mongoose.Schema({
     totalDeliveries:{
         type:Number,
         default:0,
+    },
+
+    socketId:{
+        type:String
     }
 },{timestamps:true});
 

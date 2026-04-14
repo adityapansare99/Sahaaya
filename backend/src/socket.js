@@ -1,4 +1,7 @@
 import { Server } from "socket.io";
+import NGO from "./model/ngo.model.js";
+import Donor from "./model/donor.model.js";
+import Delivery from "./model/delivery.model.js";
 
 let io;
 
@@ -17,13 +20,18 @@ const initializeSocket = (server) => {
       const { userId, userType } = data;
 
       try {
-        // if (userType === "user") {
-        //   await User.findByIdAndUpdate(userId, { socketId: socket.id });
-        // } else if 
-        
-        //set the socket id for the specific user 
+        if (userType === "ngo") {
+          await NGO.findByIdAndUpdate(userId, { socketId: socket.id });
+        } else if (userType === "donor") {
+          await Donor.findByIdAndUpdate(userId, { socketId: socket.id });
+        } else if (userType === "delivery") {
+          await Delivery.findByIdAndUpdate(userId, { socketId: socket.id });
+        }
+
+        socket.emit("joined", { success: true });
+        console.log("JOIN SUCCESS:", userId);
       } catch (error) {
-        socket.emit("error", { message: "Join failed. Please try again" });
+        socket.emit("error", { message: "Join failed" });
       }
     });
 

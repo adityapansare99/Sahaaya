@@ -7,6 +7,8 @@ import Settings from "../components/Settings";
 import axios from "axios";
 import { AppContext } from "../context/AppContext.jsx";
 import { toast } from "react-toastify";
+import { io } from "socket.io-client";
+import { SocketContext } from "../context/SocketContext.jsx";
 
 function App() {
   const [activeTab, setActiveTab] = useState("requests");
@@ -16,6 +18,7 @@ function App() {
   const [acceptedOrder, setAcceptedOrder] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [profile, setProfile] = useState({});
+  const { socket } = useContext(SocketContext);
 
   const getProfile = async () => {
     try {
@@ -36,8 +39,14 @@ function App() {
   };
 
   useEffect(() => {
-    getProfile();
-  }, []);
+    if (!socket || !profile?._id) return;
+
+    socket.emit("join", { userId: profile._id, userType: "ngo" });
+
+    return () => {
+      socket.emit("leave", { userId: profile._id });
+    };
+  }, [socket, profile]);
 
   const updateProfile = async (responseData) => {
     try {
@@ -48,7 +57,7 @@ function App() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.data.success) {
@@ -91,7 +100,7 @@ function App() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.data.success) {
@@ -109,7 +118,7 @@ function App() {
   const rejectOrder = async (donationId) => {
     try {
       const response = donations.filter(
-        (donation) => donation._id !== donationId
+        (donation) => donation._id !== donationId,
       );
       setDonations(response);
       toast.success("Donation rejected temporarily");
@@ -126,7 +135,7 @@ function App() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.data.success) {

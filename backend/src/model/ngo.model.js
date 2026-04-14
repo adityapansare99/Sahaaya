@@ -66,6 +66,10 @@ const ngoSchema = new mongoose.Schema(
       default:
         "We work towards eliminating hunger in urban areas by collecting surplus food from donors and distributing it to those in need through our network of volunteers and community centers.",
     },
+
+    socketId:{
+        type:String
+    }
   },
   { timestamps: true }
 );

@@ -37,6 +37,10 @@ const donorSchema = new mongoose.Schema({
     image:{
         type:String,
         default:"",
+    },
+
+    socketId:{
+        type:String
     }
 },{timestamps:true});
 
