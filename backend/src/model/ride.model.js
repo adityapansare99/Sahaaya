@@ -47,6 +47,11 @@ const rideSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Delivery"
     },
+
+    earnings:{
+        type: Number,
+        default: 0,
+    },
 })
 
 const Ride=mongoose.model("Ride",rideSchema);

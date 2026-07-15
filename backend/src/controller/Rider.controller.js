@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import Ride from "../model/ride.model.js";
 import { donations } from "./Receiver.controller.js";
 import Donation from "../model/donation.model.js";
+import Delivery from "../model/delivery.model.js";
 
 const allRides = asynchandler(async (req, res) => {
   const partner = req.partner;
@@ -204,6 +205,18 @@ const markCompeted = asynchandler(async (req, res) => {
       { new: true }
     );
   }
+
+  await Delivery.findByIdAndUpdate(
+    partner._id,
+    {
+      $inc: {
+        points: 10,
+        earnings: 20,
+        totalDeliveries: 1,
+      },
+    },
+    { new: true }
+  );
 
   res.status(200).json(new ApiResponse(200, {}, "Ride completed successfully"));
 });
