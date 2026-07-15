@@ -203,7 +203,7 @@ const Login = () => {
                     </label>
                   </div>
                 </div>
-                <input
+                <input id="password"
                   className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
                   placeholder="••••••••"
                   type="password"
@@ -253,7 +253,7 @@ const Login = () => {
               <div className="absolute inset-0 bg-linear-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               <span className="relative flex items-center justify-center space-x-3">
                 <UserCheck className="w-6 h-6" />
-                <span className="tracking-wide">Sign in to Continue</span>
+                <span className="tracking-wide text-gray-800 font-bold">Sign in to Continue</span>
               </span>
             </button>
 

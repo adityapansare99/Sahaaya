@@ -32,11 +32,17 @@ function App() {
         toast.error("Error in fetching profile");
       }
 
+      console.log(response);
+
       setProfile(response.data.data);
     } catch (error) {
       toast.error("Error in fetching profile");
     }
   };
+  
+  useEffect(() => {
+    getProfile();
+  }, []);
 
   useEffect(() => {
     if (!socket || !profile?._id) return;

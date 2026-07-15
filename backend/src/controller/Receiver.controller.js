@@ -87,30 +87,20 @@ const acceptOrder = asynchandler(async (req, res) => {
 
   const { donationId } = req.body;
 
-  if (!donationId) {
+  if (!donationId || !donationId.trim()) {
     return res.status(401).json(new ApiResponse(401, {}, "Donation not found"));
   }
 
-  const donation = await Donation.findById(donationId);
-
-  if (!donation) {
-    return res.status(401).json(new ApiResponse(401, {}, "Donation not found"));
-  }
-
-  if (donation.Status !== "Pending") {
-    return res
-      .status(401)
-      .json(new ApiResponse(401, {}, "Donation already accepted"));
-  }
-
-  const reponse = await Donation.findByIdAndUpdate(
-    donationId,
+  const reponse = await Donation.findOneAndUpdate(
+    { _id: donationId, Status: "Pending" },
     { Status: "Accepted", Ngo: Ngo._id },
     { new: true }
   );
 
   if (!reponse) {
-    return res.status(401).json(new ApiResponse(401, {}, "Donation not found"));
+    return res
+      .status(409)
+      .json(new ApiResponse(409, {}, "Donation already accepted by another NGO or not found"));
   }
 
   const donationResponse = await Donation.findById(donationId)

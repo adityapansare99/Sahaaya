@@ -18,6 +18,7 @@ const Settings = ({profile,updateProfile}) => {
   const [contactPerson,setContactPerson]=useState(profile.contactPerson || "");
   const [DailyCapacity,setDailyCapacity]=useState(profile.DailyCapacity || "");
   const [Description,setDescription]=useState(profile.Description || "");
+  const [activeQuickAction, setActiveQuickAction] = useState(null);
 
   const submitHandler=()=>{
     const responseData={
@@ -53,6 +54,74 @@ const Settings = ({profile,updateProfile}) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* NGO Information */}
         <div className="lg:col-span-2 space-y-6">
+          {activeQuickAction === 'changePassword' && (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center gap-3 mb-6">
+                <User className="w-5 h-5 text-red-500" />
+                <h3 className="text-lg font-semibold text-gray-900">Change Password</h3>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                  <input
+                    type="password"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                  <input
+                    type="password"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                  <input
+                    type="password"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeQuickAction === 'privacySettings' && (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center gap-3 mb-6">
+                <Shield className="w-5 h-5 text-red-500" />
+                <h3 className="text-lg font-semibold text-gray-900">Privacy Settings</h3>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
+                  <div>
+                    <div className="font-medium text-gray-900">Profile Visibility</div>
+                    <div className="text-sm text-gray-500">Control who can see your NGO profile</div>
+                  </div>
+                  <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
+                  <div>
+                    <div className="font-medium text-gray-900">Data Sharing</div>
+                    <div className="text-sm text-gray-500">Allow sharing collection data with partners</div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" className="sr-only peer" />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center gap-3 mb-6">
               <Building className="w-5 h-5 text-red-500" />
@@ -151,7 +220,7 @@ const Settings = ({profile,updateProfile}) => {
           </div>
 
           {/* Notification Preferences */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          {/* <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center gap-3 mb-6">
               <Bell className="w-5 h-5 text-red-500" />
               <h3 className="text-lg font-semibold text-gray-900">Notification Preferences</h3>
@@ -183,7 +252,7 @@ const Settings = ({profile,updateProfile}) => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Quick Actions */}
@@ -191,29 +260,43 @@ const Settings = ({profile,updateProfile}) => {
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full p-3 cursor-pointer text-left rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200 flex items-center gap-3">
-                <User className="w-5 h-5 text-gray-400" />
+              <button
+                onClick={() => setActiveQuickAction('changePassword')}
+                className={`w-full p-3 cursor-pointer text-left rounded-lg border transition-colors duration-200 flex items-center gap-3 ${
+                  activeQuickAction === 'changePassword'
+                    ? 'border-red-500 bg-red-50 hover:bg-red-100'
+                    : 'border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <User className={`w-5 h-5 ${activeQuickAction === 'changePassword' ? 'text-red-500' : 'text-gray-400'}`} />
                 <div>
-                  <div className="font-medium text-gray-900">Change Password</div>
-                  <div className="text-sm text-gray-500">Update login credentials</div>
+                  <div className={`font-medium ${activeQuickAction === 'changePassword' ? 'text-red-500' : 'text-gray-900'}`}>Change Password</div>
+                  <div className={`text-sm ${activeQuickAction === 'changePassword' ? 'text-red-600' : 'text-gray-500'}`}>Update login credentials</div>
                 </div>
               </button>
               
-              <button className="w-full cursor-pointer p-3 text-left rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200 flex items-center gap-3">
-                <Shield className="w-5 h-5 text-gray-400" />
+              <button
+                onClick={() => setActiveQuickAction('privacySettings')}
+                className={`w-full cursor-pointer p-3 text-left rounded-lg border transition-colors duration-200 flex items-center gap-3 ${
+                  activeQuickAction === 'privacySettings'
+                    ? 'border-red-500 bg-red-50 hover:bg-red-100'
+                    : 'border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <Shield className={`w-5 h-5 ${activeQuickAction === 'privacySettings' ? 'text-red-500' : 'text-gray-400'}`} />
                 <div>
-                  <div className="font-medium text-gray-900">Privacy Settings</div>
-                  <div className="text-sm text-gray-500">Manage data preferences</div>
+                  <div className={`font-medium ${activeQuickAction === 'privacySettings' ? 'text-red-500' : 'text-gray-900'}`}>Privacy Settings</div>
+                  <div className={`text-sm ${activeQuickAction === 'privacySettings' ? 'text-red-600' : 'text-gray-500'}`}>Manage data preferences</div>
                 </div>
               </button>
               
-              <button className="w-full p-3 cursor-pointer text-left rounded-lg border border-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-200 flex items-center gap-3">
+              {/* <button className="w-full p-3 cursor-pointer text-left rounded-lg border border-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-200 flex items-center gap-3">
                 <HelpCircle className="w-5 h-5 text-red-500" />
                 <div>
                   <div className="font-medium text-red-500">Contact Support</div>
                   <div className="text-sm text-red-600">Get help from our team</div>
                 </div>
-              </button>
+              </button> */}
             </div>
           </div>
 
@@ -229,14 +312,14 @@ const Settings = ({profile,updateProfile}) => {
                 <span className="text-sm text-gray-600">Total food collections</span>
                 <span className="font-semibold text-gray-900">1,247</span>
               </div>
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Meals distributed</span>
                 <span className="font-semibold text-gray-900">18,650</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Collection success rate</span>
                 <span className="font-semibold text-green-600">96%</span>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
