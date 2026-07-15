@@ -1,4 +1,5 @@
 import NGO from "../model/ngo.model.js";
+import Donation from "../model/donation.model.js";
 import { asynchandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { uploadoncloudinary } from "../utils/cloudinary.js";
@@ -328,6 +329,63 @@ const deleteAccount = asynchandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Account deleted successfully"));
 });
 
+const getAnalytics = asynchandler(async (req, res) => {
+  const Ngo = req.Ngo;
+
+  if (!Ngo) {
+    return res.status(404).json(new ApiResponse(404, {}, "No Ngo found"));
+  }
+
+  const allDonations = await Donation.find({ Ngo: Ngo._id })
+    .populate("Donor", "name email phone")
+    .sort({ createdAt: -1 });
+
+  const total = allDonations.length;
+  const completed = allDonations.filter((d) => d.Status === "Completed").length;
+  const accepted = allDonations.filter((d) => d.Status === "Accepted").length;
+  const cancelled = allDonations.filter((d) => d.Status === "Cancelled").length;
+  const pending = allDonations.filter((d) => d.Status === "Pending").length;
+
+  // Top donors aggregation
+  const donorMap = {};
+  allDonations.forEach((d) => {
+    if (d.Donor && d.Donor._id) {
+      const id = d.Donor._id.toString();
+      if (!donorMap[id]) {
+        donorMap[id] = { name: d.Donor.name, donations: 0 };
+      }
+      donorMap[id].donations++;
+    }
+  });
+  const topDonors = Object.values(donorMap)
+    .sort((a, b) => b.donations - a.donations)
+    .slice(0, 5);
+
+  // Monthly trend (last 6 months)
+  const monthlyTrend = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const month = d.toLocaleString("en-US", { month: "short" });
+    const count = allDonations.filter((don) => {
+      const donDate = new Date(don.createdAt);
+      return (
+        donDate.getMonth() === d.getMonth() &&
+        donDate.getFullYear() === d.getFullYear()
+      );
+    }).length;
+    monthlyTrend.push({ month, donations: count });
+  }
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      { total, completed, accepted, cancelled, pending, topDonors, monthlyTrend },
+      "Analytics fetched successfully"
+    )
+  );
+});
+
 export {
   registerNgo,
   loginNgo,
@@ -335,4 +393,5 @@ export {
   updateNgoProfile,
   updatePassword,
   deleteAccount,
+  getAnalytics,
 };
