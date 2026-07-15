@@ -1,4 +1,5 @@
 import Donor from "../model/donor.model.js";
+import Donation from "../model/donation.model.js";
 import { asynchandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { uploadoncloudinary } from "../utils/cloudinary.js";
@@ -292,6 +293,91 @@ const deleteAccount = asynchandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Account deleted successfully"));
 });
 
+
+const getImpact = asynchandler(async (req, res) => {
+  const donor = req.donor;
+
+  if (!donor) {
+    return res.status(404).json(new ApiResponse(404, {}, "No donor found"));
+  }
+
+  // Best-effort parse of a leading integer from free-text Quantity.
+  const parseQty = (q) => {
+    const n = parseInt(String(q ?? ""), 10);
+    return Number.isNaN(n) ? 0 : n;
+  };
+
+  const allDonations = await Donation.find({ Donor: donor._id })
+    .populate("Ngo", "name")
+    .sort({ createdAt: -1 });
+
+  const total = allDonations.length;
+  const completed = allDonations.filter((d) => d.Status === "Completed").length;
+  const accepted = allDonations.filter((d) => d.Status === "Accepted").length;
+  const pending = allDonations.filter((d) => d.Status === "Pending").length;
+
+  // Distinct NGOs this donor has been matched with.
+  const ngoSet = new Set();
+  allDonations.forEach((d) => {
+    if (d.Ngo && d.Ngo._id) ngoSet.add(d.Ngo._id.toString());
+  });
+  const ngosConnected = ngoSet.size;
+
+  // totalMealsDonated counts every donation; wasteReduced / peopleServed count
+  // only completed ones (pending donations have reduced no waste / served no one).
+  const totalMealsDonated = allDonations.reduce(
+    (sum, d) => sum + parseQty(d.Quantity),
+    0
+  );
+  const wasteReduced = allDonations
+    .filter((d) => d.Status === "Completed")
+    .reduce((sum, d) => sum + parseQty(d.Quantity), 0);
+  const peopleServed = wasteReduced;
+
+  const recentActivity = allDonations.slice(0, 5).map((d) => ({
+    foodType: d.FoodType,
+    quantity: d.Quantity,
+    status: d.Status,
+    ngo: d.Ngo?.name || null,
+    createdAt: d.createdAt,
+  }));
+
+  // Monthly trend (last 6 months).
+  const monthlyTrend = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const month = d.toLocaleString("en-US", { month: "short" });
+    const count = allDonations.filter((don) => {
+      const donDate = new Date(don.createdAt);
+      return (
+        donDate.getMonth() === d.getMonth() &&
+        donDate.getFullYear() === d.getFullYear()
+      );
+    }).length;
+    monthlyTrend.push({ month, donations: count });
+  }
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        totalDonations: total,
+        completed,
+        accepted,
+        pending,
+        ngosConnected,
+        totalMealsDonated,
+        wasteReduced,
+        peopleServed,
+        recentActivity,
+        monthlyTrend,
+      },
+      "Impact fetched successfully"
+    )
+  );
+});
+
 export {
   registerDonor,
   loginDonor,
@@ -299,4 +385,5 @@ export {
   updateDonorProfile,
   updatePassword,
   deleteAccount,
+  getImpact,
 };
