@@ -4,6 +4,7 @@ import Ride from "../model/ride.model.js";
 import { donations } from "./Receiver.controller.js";
 import Donation from "../model/donation.model.js";
 import Delivery from "../model/delivery.model.js";
+import { sendMessageToSocketId } from "../socket.js";
 
 const allRides = asynchandler(async (req, res) => {
   const partner = req.partner;
@@ -168,6 +169,19 @@ const markPicked = asynchandler(async (req, res) => {
       .json(new ApiResponse(409, {}, "Ride cannot be marked as picked up — already in a different state"));
   }
 
+  // Notify the donor and the NGO that the food has been picked up.
+  const ride = await Ride.findById(response._id)
+    .populate("donor")
+    .populate("receiver");
+  sendMessageToSocketId(ride?.donor?.socketId, {
+    event: "statusUpdate",
+    data: { ride, status: "picked up" },
+  });
+  sendMessageToSocketId(ride?.receiver?.socketId, {
+    event: "statusUpdate",
+    data: { ride, status: "picked up" },
+  });
+
   res.status(200).json(new ApiResponse(200, {}, "Ride picked up successfully"));
 });
 
@@ -206,7 +220,8 @@ const markCompeted = asynchandler(async (req, res) => {
     );
   }
 
-  await Delivery.findByIdAndUpdate(
+  // Re-fetch so we emit accurate points/earnings (req.partner is pre-increment).
+  const updatedPartner = await Delivery.findByIdAndUpdate(
     partner._id,
     {
       $inc: {
@@ -217,6 +232,26 @@ const markCompeted = asynchandler(async (req, res) => {
     },
     { new: true }
   );
+
+  // Notify donor + NGO of completion, and the rider of points earned.
+  const ride = await Ride.findById(response._id)
+    .populate("donor")
+    .populate("receiver");
+  sendMessageToSocketId(ride?.donor?.socketId, {
+    event: "statusUpdate",
+    data: { ride, status: "completed" },
+  });
+  sendMessageToSocketId(ride?.receiver?.socketId, {
+    event: "statusUpdate",
+    data: { ride, status: "completed" },
+  });
+  sendMessageToSocketId(updatedPartner?.socketId, {
+    event: "pointsAwarded",
+    data: {
+      points: updatedPartner?.points ?? 0,
+      earnings: updatedPartner?.earnings ?? 0,
+    },
+  });
 
   res.status(200).json(new ApiResponse(200, {}, "Ride completed successfully"));
 });

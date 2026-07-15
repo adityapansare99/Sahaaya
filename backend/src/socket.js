@@ -28,6 +28,10 @@ const initializeSocket = (server) => {
           await Delivery.findByIdAndUpdate(userId, { socketId: socket.id });
         }
 
+        if (["ngo", "donor", "delivery"].includes(userType)) {
+          socket.join(userType);
+        }
+
         socket.emit("joined", { success: true });
         console.log("JOIN SUCCESS:", userId);
       } catch (error) {
@@ -42,11 +46,20 @@ const initializeSocket = (server) => {
 };
 
 const sendMessageToSocketId = (socketId, messageObject) => {
-  if (io) {
+  if (io && socketId) {
     io.to(socketId).emit(messageObject.event, messageObject.data);
+  } else if (!io) {
+    console.log("Socket.io not initialized.");
+  }
+};
+
+const broadcastToUserType = (userType, messageObject) => {
+  if (io) {
+    io.to(userType).emit(messageObject.event, messageObject.data);
+    console.log("BROADCAST SUCCESS:", userType," event: ",messageObject.event ," data: ", messageObject.data);
   } else {
     console.log("Socket.io not initialized.");
   }
 };
 
-export { initializeSocket, sendMessageToSocketId };
+export { initializeSocket, sendMessageToSocketId, broadcastToUserType };

@@ -2,6 +2,7 @@ import { asynchandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import Donation from "../model/donation.model.js";
 import Ride from "../model/ride.model.js";
+import { sendMessageToSocketId, broadcastToUserType } from "../socket.js";
 
 //take the donation with pending and not expired
 const donations = asynchandler(async (req, res) => {
@@ -129,6 +130,16 @@ const acceptOrder = asynchandler(async (req, res) => {
   if (!rideResponse) {
     return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
   }
+
+  // Tell the donor their donation was accepted, and alert all riders to the new ride.
+  sendMessageToSocketId(donationResponse.Donor?.socketId, {
+    event: "donationAccepted",
+    data: { donation: donationResponse },
+  });
+  broadcastToUserType("delivery", {
+    event: "rideCreated",
+    data: { ride: rideResponse },
+  });
 
   res
     .status(200)

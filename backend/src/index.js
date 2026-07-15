@@ -13,14 +13,9 @@ const PORT = 8000 || process.env.PORT;
 const server = createServer(app);
 initializeSocket(server);
 
-server.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`); 
-});
-
-
 connectdb()
   .then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   })

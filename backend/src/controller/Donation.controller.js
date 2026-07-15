@@ -1,6 +1,7 @@
 import { asynchandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import Donation from "../model/donation.model.js";
+import { broadcastToUserType } from "../socket.js";
 
 //create a donation
 const createDonation = asynchandler(async (req, res) => {
@@ -15,6 +16,16 @@ const createDonation = asynchandler(async (req, res) => {
   } = req.body;
   const donor = req.donor;
 
+  if (
+    [donorType, foodType, description, quantity, pickup, expiryDate, expiryTime].some(
+      (field) => !field || String(field).trim().length === 0
+    )
+  ) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "All fields are required"));
+  }
+
   const donation = await Donation.create({
     Donor: donor._id,
     FoodType: foodType,
@@ -26,29 +37,11 @@ const createDonation = asynchandler(async (req, res) => {
     typeOfDonor: donorType,
   });
 
-  if (
-    [
-      donorType,
-      foodType,
-      description,
-      quantity,
-      pickup,
-      expiryDate,
-      expiryTime,
-    ].some((field) => field.trim().length === 0)
-  ) {
-    return res
-      .status(400)
-      .json(new ApiResponse(400, {}, "All fields are required"));
-  }
-
   if (!donation) {
     return res
       .status(400)
       .json(new ApiResponse(400, {}, "Donation creation failed"));
   }
-
-  donation.save();
 
   const reponse = await Donation.findById(donation._id)
     .populate("Donor")
@@ -59,6 +52,8 @@ const createDonation = asynchandler(async (req, res) => {
       .status(400)
       .json(new ApiResponse(400, {}, "Donation creation failed"));
   }
+
+  broadcastToUserType("ngo", { event: "newDonation", data: { donation: reponse } });
 
   return res
     .status(201)
