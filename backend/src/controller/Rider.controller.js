@@ -244,6 +244,53 @@ const getAllRides = asynchandler(async (req, res) => {
     .json(new ApiResponse(200, response, "Rides fetched successfully"));
 });
 
+const getRewards = asynchandler(async (req, res) => {
+  const partner = req.partner;
+
+  if (!partner) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
+  }
+
+  const totalDeliveries = partner.totalDeliveries || 0;
+
+  const MILESTONES = [
+    { milestone: "50 Deliveries", threshold: 50, reward: "₹500 Bonus" },
+    { milestone: "100 Deliveries", threshold: 100, reward: "₹1000 Bonus" },
+    { milestone: "250 Deliveries", threshold: 250, reward: "₹2500 Bonus" },
+    { milestone: "500 Deliveries", threshold: 500, reward: "₹5000 Bonus" },
+  ];
+
+  let foundInProgress = false;
+  const milestones = MILESTONES.map((m) => {
+    if (totalDeliveries >= m.threshold) {
+      return { ...m, status: "completed", progress: 100 };
+    }
+    if (!foundInProgress) {
+      foundInProgress = true;
+      const progress = Math.round((totalDeliveries / m.threshold) * 100);
+      return { ...m, status: "in-progress", progress };
+    }
+    return { ...m, status: "upcoming", progress: 0 };
+  });
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        points: partner.points || 0,
+        earnings: partner.earnings || 0,
+        redeemedPoints: partner.redeemedPoints || 0,
+        totalDeliveries,
+        rating: partner.rating || 0,
+        milestones,
+      },
+      "Rewards fetched successfully"
+    )
+  );
+});
+
 export {
   allRides,
   acceptRide,
@@ -251,4 +298,5 @@ export {
   markPicked,
   markCompeted,
   getAllRides,
+  getRewards,
 };
