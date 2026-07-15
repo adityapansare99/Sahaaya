@@ -88,26 +88,20 @@ const acceptRide = asynchandler(async (req, res) => {
 
   const { rideId } = req.body;
 
-  if (!rideId) {
+  if (!rideId || !rideId.trim()) {
     return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
   }
 
-  const ride = await Ride.findById(rideId);
-
-  if (ride.status === "accepted") {
-    return res
-      .status(401)
-      .json(new ApiResponse(401, {}, "Ride already accepted"));
-  }
-
-  const response = await Ride.findByIdAndUpdate(
-    rideId,
+  const response = await Ride.findOneAndUpdate(
+    { _id: rideId, status: "pending", rider: null },
     { status: "accepted", rider: partner._id },
     { new: true }
   );
 
   if (!response) {
-    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+    return res
+      .status(409)
+      .json(new ApiResponse(409, {}, "Ride already accepted by another partner"));
   }
 
   const rideResponse = await Ride.findById(rideId)
@@ -157,30 +151,20 @@ const markPicked = asynchandler(async (req, res) => {
 
   const { rideId } = req.body;
 
-  if (!rideId) {
+  if (!rideId || !rideId.trim()) {
     return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
   }
 
-  const ride = await Ride.findById(rideId);
-
-  if (!ride) {
-    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
-  }
-
-  if (ride.status === "picked up") {
-    return res
-      .status(401)
-      .json(new ApiResponse(401, {}, "Ride already picked up"));
-  }
-
-  const response = await Ride.findByIdAndUpdate(
-    rideId,
+  const response = await Ride.findOneAndUpdate(
+    { _id: rideId, status: "accepted" },
     { status: "picked up" },
     { new: true }
   );
 
   if (!response) {
-    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+    return res
+      .status(409)
+      .json(new ApiResponse(409, {}, "Ride cannot be marked as picked up — already in a different state"));
   }
 
   res.status(200).json(new ApiResponse(200, {}, "Ride picked up successfully"));
@@ -197,30 +181,20 @@ const markCompeted = asynchandler(async (req, res) => {
 
   const { rideId } = req.body;
 
-  if (!rideId) {
+  if (!rideId || !rideId.trim()) {
     return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
   }
 
-  const ride = await Ride.findById(rideId);
-
-  if (!ride) {
-    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
-  }
-
-  if (ride.status === "completed") {
-    return res
-      .status(401)
-      .json(new ApiResponse(401, {}, "Ride already completed"));
-  }
-
-  const response = await Ride.findByIdAndUpdate(
-    rideId,
+  const response = await Ride.findOneAndUpdate(
+    { _id: rideId, status: "picked up" },
     { status: "completed" },
     { new: true }
   );
 
   if (!response) {
-    return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
+    return res
+      .status(409)
+      .json(new ApiResponse(409, {}, "Ride already completed or cannot be marked complete in current state"));
   }
 
   if (response.donation) {

@@ -10,11 +10,18 @@ import {
 } from "lucide-react";
 
 const ActiveDelivery = ({ setActiveSection, activeOrder, handlepickup,handlecomplete }) => {
-  const handleStatusUpdate = (order) => {
-    if (order.status === "accepted") {
-      handlepickup(order._id);
-    } else if (order.status === "picked up") {
-      handlecomplete(order._id);
+  const [loadingId, setLoadingId] = useState(null);
+
+  const handleStatusUpdate = async (order) => {
+    setLoadingId(order._id);
+    try {
+      if (order.status === "accepted") {
+        await handlepickup(order._id);
+      } else if (order.status === "picked up") {
+        await handlecomplete(order._id);
+      }
+    } finally {
+      setLoadingId(null);
     }
   };
 
@@ -204,11 +211,24 @@ const ActiveDelivery = ({ setActiveSection, activeOrder, handlepickup,handlecomp
 
               <div className="mt-8 pt-6 border-t">
                 <button
-                  onClick={()=>handleStatusUpdate(order)}
-                  className={`w-full ${getStatusConfig(order).buttonColor} text-white cursor-pointer px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-200 flex items-center justify-center space-x-3 hover:shadow-lg`}
+                  onClick={() => handleStatusUpdate(order)}
+                  disabled={loadingId === order._id}
+                  className={`w-full ${getStatusConfig(order).buttonColor} text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-200 flex items-center justify-center space-x-3 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  <CheckCircle2 className="w-6 h-6" />
-                  <span>{getStatusConfig(order).buttonText}</span>
+                  {loadingId === order._id ? (
+                    <span className="flex items-center space-x-2">
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      <span>Processing...</span>
+                    </span>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-6 h-6" />
+                      <span>{getStatusConfig(order).buttonText}</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
