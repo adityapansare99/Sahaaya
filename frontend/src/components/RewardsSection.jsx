@@ -1,293 +1,352 @@
-import React from "react";
-import {
-  Award,
-  TrendingUp,
-  Heart,
-  Star,
-  Target,
-  Trophy,
-  Users,
-  Package,
-} from "lucide-react";
+import React, { useContext, useEffect, useState } from "react";
+import { Award, TrendingUp, Star, Target, Trophy, Package } from "lucide-react";
+import axios from "axios";
+import { AppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
 
 const RewardsSection = () => {
-  const stats = [
+  const { backendurl, token } = useContext(AppContext);
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const fetchRewards = async () => {
+      try {
+        const response = await axios.get(`${backendurl}rider/rewards`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data.success) {
+          setData(response.data.data);
+        } else {
+          toast.error("Failed to load rewards");
+        }
+      } catch (error) {
+        toast.error("Error fetching rewards");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRewards();
+  }, [backendurl, token]);
+
+  if (loading) {
+    return (
+      <div>
+        <div className="mb-8">
+          <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
+          <div className="h-4 w-64 bg-gray-200 rounded-lg animate-pulse"></div>
+        </div>
+        <div className="h-32 bg-gray-200 rounded-2xl animate-pulse mb-8"></div>
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="rounded-2xl p-6 animate-pulse bg-gray-100">
+              <div className="h-12 w-12 bg-gray-200 rounded-2xl mb-4"></div>
+              <div className="h-8 bg-gray-200 rounded w-20 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-32"></div>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-2xl p-6 animate-pulse bg-gray-100 mb-8 h-48"></div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div>
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+          Rewards & Impact
+        </h2>
+        <p className="text-gray-600 mb-8">
+          Track your contributions and achievements
+        </p>
+        <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
+          <Award className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            No rewards data yet
+          </h3>
+          <p className="text-gray-500">
+            Complete deliveries to start earning points and rewards.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const {
+    points = 0,
+    earnings = 0,
+    redeemedPoints = 0,
+    totalDeliveries = 0,
+    rating = 0,
+    milestones = [],
+  } = data;
+
+  const statCards = [
     {
-      title: "Total Deliveries",
-      value: "124",
+      label: "Total Deliveries",
+      value: totalDeliveries.toLocaleString(),
       icon: Package,
-      color: "blue",
-      change: "+12 this week",
+      tint: "bg-blue-100 text-blue-600",
+      sub: "Lifetime deliveries completed",
     },
     {
-      title: "Meals Served",
-      value: "486",
-      icon: Heart,
-      color: "red",
-      change: "+38 this week",
-    },
-    {
-      title: "Total Earnings",
-      value: "₹6,240",
+      label: "Total Earnings",
+      value: `₹${earnings.toLocaleString()}`,
       icon: TrendingUp,
-      color: "green",
-      change: "+₹520 this week",
+      tint: "bg-green-100 text-green-600",
+      sub: "From completed deliveries",
     },
     {
-      title: "Rating",
-      value: "4.9/5",
+      label: "Rating",
+      value: rating ? rating.toFixed(1) : "—",
       icon: Star,
-      color: "yellow",
-      change: "Excellent service",
+      tint: "bg-yellow-100 text-yellow-600",
+      sub: "Average service rating",
     },
   ];
 
+  // Derived from real API fields — no fabricated metrics.
   const badges = [
     {
-      id: 1,
-      title: "Speed Demon",
-      description: "Complete 10 deliveries in under 30 minutes",
-      icon: Target,
-      earned: true,
-      progress: 100,
+      title: "First Delivery",
+      desc: "Complete your first delivery",
+      current: totalDeliveries,
+      target: 1,
+      unit: "",
+      icon: Package,
     },
     {
-      id: 2,
-      title: "Community Hero",
-      description: "Help serve 500 meals to those in need",
-      icon: Users,
-      earned: true,
-      progress: 100,
-    },
-    {
-      id: 3,
-      title: "Reliability Champion",
-      description: "Maintain 100% delivery success rate for 30 days",
+      title: "Century Rider",
+      desc: "Complete 100 deliveries",
+      current: totalDeliveries,
+      target: 100,
+      unit: "",
       icon: Trophy,
-      earned: false,
-      progress: 87,
     },
     {
-      id: 4,
-      title: "Early Bird",
-      description: "Complete 25 morning deliveries (6 AM - 10 AM)",
+      title: "Point Collector",
+      desc: "Earn 500 points",
+      current: points,
+      target: 500,
+      unit: " pts",
       icon: Award,
-      earned: false,
-      progress: 68,
     },
-  ];
-
-  const milestones = [
-    { milestone: "50 Deliveries", status: "completed", reward: "₹500 Bonus" },
-    { milestone: "100 Deliveries", status: "completed", reward: "₹1000 Bonus" },
     {
-      milestone: "250 Deliveries",
-      status: "in-progress",
-      reward: "₹2500 Bonus",
-      progress: 50,
+      title: "Top Rated",
+      desc: "Maintain a 4.5+ rating",
+      current: rating,
+      target: 4.5,
+      unit: "★",
+      icon: Star,
     },
-    { milestone: "500 Deliveries", status: "upcoming", reward: "₹5000 Bonus" },
-  ];
-
-  const getColorClasses = (color) => {
-    const colors = {
-      blue: "bg-blue-100 text-blue-800",
-      red: "bg-red-100 text-red-800",
-      green: "bg-green-100 text-green-800",
-      yellow: "bg-yellow-100 text-yellow-800",
-    };
-    return colors[color] || colors.blue;
-  };
+  ].map((b) => {
+    const current = b.current || 0;
+    const unlocked = current >= b.target;
+    const progress = Math.min(100, Math.round((current / b.target) * 100));
+    return { ...b, current, unlocked, progress };
+  });
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Rewards & Impact</h2>
+    <div>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+          Rewards & Impact
+        </h2>
         <p className="text-gray-600">
           Track your contributions and achievements
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
+      {/* Hero — points balance */}
+      <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 rounded-2xl p-6 md:p-8 text-white mb-8">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-amber-100 text-sm font-medium mb-1">
+              Points Balance
+            </p>
+            <div className="text-4xl md:text-5xl font-bold mb-2">
+              {points.toLocaleString()}
+            </div>
+            <p className="text-amber-100 text-sm">
+              <span className="text-green-200 font-semibold">
+                ₹{earnings.toLocaleString()} earned
+              </span>
+              {" · "}
+              {redeemedPoints.toLocaleString()} redeemed
+            </p>
+          </div>
+          <div className="bg-white/20 rounded-2xl p-4">
+            <Award className="w-8 h-8" />
+          </div>
+        </div>
+      </div>
+
+      {/* Stat cards */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+        {statCards.map((card) => {
+          const Icon = card.icon;
           return (
             <div
-              key={index}
-              className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-300"
+              key={card.label}
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center ${getColorClasses(
-                    stat.color
-                  )}`}
-                >
-                  <Icon className="w-6 h-6" />
-                </div>
+              <div
+                className={`p-3 rounded-2xl w-fit mb-4 ${card.tint}`}
+              >
+                <Icon className="w-6 h-6" />
               </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                  {stat.value}
-                </h3>
-                <p className="text-gray-600 font-medium mb-2">{stat.title}</p>
-                <p className="text-sm text-green-600 font-medium">
-                  {stat.change}
-                </p>
+              <div className="text-2xl font-bold text-gray-800 mb-1">
+                {card.value}
               </div>
+              <p className="text-sm font-medium text-gray-700">{card.label}</p>
+              <p className="text-xs text-gray-500 mt-1">{card.sub}</p>
             </div>
           );
         })}
       </div>
 
-      {/* Badges Section */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-xl font-bold text-gray-900">
+      {/* Badges */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+        <div className="flex items-center gap-2 mb-6">
+          <Award className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-semibold text-gray-800">
             Achievement Badges
           </h3>
-          <p className="text-gray-600">
-            Unlock rewards by completing challenges
-          </p>
         </div>
-
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {badges.map((badge) => {
-              const Icon = badge.icon;
-              return (
+        <div className="grid md:grid-cols-2 gap-4">
+          {badges.map((b, i) => {
+            const Icon = b.icon;
+            return (
+              <div
+                key={i}
+                className={`flex items-start gap-4 p-4 rounded-xl border transition-all ${
+                  b.unlocked
+                    ? "bg-amber-50 border-amber-200"
+                    : "bg-gray-50 border-gray-200"
+                }`}
+              >
                 <div
-                  key={badge.id}
-                  className={`p-6 rounded-2xl border-2 transition-all duration-300 ${
-                    badge.earned
-                      ? "border-green-200 bg-green-50"
-                      : "border-gray-200 hover:border-gray-300"
+                  className={`p-2 rounded-xl ${
+                    b.unlocked
+                      ? "bg-amber-500 text-white"
+                      : "bg-gray-300 text-gray-500"
                   }`}
                 >
-                  <div className="flex items-start space-x-4">
-                    <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        badge.earned
-                          ? "bg-green-500 text-white"
-                          : "bg-gray-100 text-gray-400"
-                      }`}
-                    >
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <h4 className="font-bold text-gray-900">
-                          {badge.title}
-                        </h4>
-                        {badge.earned && (
-                          <div className="bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
-                            EARNED
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-gray-600 text-sm mb-3">
-                        {badge.description}
-                      </p>
-
-                      {!badge.earned && (
-                        <div>
-                          <div className="flex items-center justify-between text-sm mb-2">
-                            <span className="text-gray-600">Progress</span>
-                            <span className="font-medium text-gray-900">
-                              {badge.progress}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-red-500 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${badge.progress}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <Icon className="w-5 h-5" />
                 </div>
-              );
-            })}
-          </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-semibold text-gray-800">{b.title}</h4>
+                    {b.unlocked && (
+                      <span className="bg-amber-500 text-white px-2 py-0.5 rounded text-xs font-medium">
+                        EARNED
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">{b.desc}</p>
+                  {!b.unlocked && (
+                    <>
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-gray-500">
+                          {b.current}
+                          {b.unit} / {b.target}
+                          {b.unit}
+                        </span>
+                        <span className="font-medium text-gray-700">
+                          {b.progress}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-amber-500 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${b.progress}%` }}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Milestones */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-xl font-bold text-gray-900">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex items-center gap-2 mb-6">
+          <Trophy className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-semibold text-gray-800">
             Delivery Milestones
           </h3>
-          <p className="text-gray-600">
-            Earn bonus rewards for major achievements
-          </p>
         </div>
+        <div className="space-y-3">
+          {milestones.length > 0 ? (
+            milestones.map((m, i) => {
+              const completed = m.status === "completed";
+              const inProgress = m.status === "in-progress";
+              return (
+                <div
+                  key={i}
+                  className={`flex items-center justify-between p-4 rounded-xl border transition-all ${
+                    completed
+                      ? "bg-green-50 border-green-200"
+                      : inProgress
+                      ? "bg-blue-50 border-blue-200"
+                      : "bg-gray-50 border-gray-200"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        completed
+                          ? "bg-green-500 text-white"
+                          : inProgress
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-300 text-gray-600"
+                      }`}
+                    >
+                      {completed ? (
+                        <Trophy className="w-5 h-5" />
+                      ) : (
+                        <Target className="w-5 h-5" />
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">{m.milestone}</h4>
+                      <p className="text-gray-600 text-sm">{m.reward}</p>
+                    </div>
+                  </div>
 
-        <div className="p-6">
-          <div className="space-y-4">
-            {milestones.map((milestone, index) => (
-              <div
-                key={index}
-                className={`flex items-center justify-between p-4 rounded-xl transition-all duration-300 ${
-                  milestone.status === "completed"
-                    ? "bg-green-50 border border-green-200"
-                    : milestone.status === "in-progress"
-                    ? "bg-blue-50 border border-blue-200"
-                    : "bg-gray-50 border border-gray-200"
-                }`}
-              >
-                <div className="flex items-center space-x-4">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      milestone.status === "completed"
-                        ? "bg-green-500 text-white"
-                        : milestone.status === "in-progress"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-300 text-gray-600"
-                    }`}
-                  >
-                    {milestone.status === "completed" ? (
-                      <Trophy className="w-5 h-5" />
-                    ) : (
-                      <Target className="w-5 h-5" />
+                  <div className="text-right">
+                    {completed && (
+                      <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Completed
+                      </span>
+                    )}
+                    {inProgress && (
+                      <div>
+                        <span className="text-blue-600 font-medium text-sm">
+                          {m.progress}%
+                        </span>
+                        <div className="w-24 bg-blue-200 rounded-full h-2 mt-1">
+                          <div
+                            className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${m.progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {m.status === "upcoming" && (
+                      <span className="text-gray-500 text-sm">Upcoming</span>
                     )}
                   </div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">
-                      {milestone.milestone}
-                    </h4>
-                    <p className="text-gray-600 text-sm">{milestone.reward}</p>
-                  </div>
                 </div>
-
-                <div className="text-right">
-                  {milestone.status === "completed" && (
-                    <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                      Completed
-                    </span>
-                  )}
-                  {milestone.status === "in-progress" && (
-                    <div className="text-right">
-                      <span className="text-blue-600 font-medium text-sm">
-                        {milestone.progress}%
-                      </span>
-                      <div className="w-24 bg-blue-200 rounded-full h-2 mt-1">
-                        <div
-                          className="bg-blue-500 h-2 rounded-full"
-                          style={{ width: `${milestone.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {milestone.status === "upcoming" && (
-                    <span className="text-gray-500 text-sm">Upcoming</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+              );
+            })
+          ) : (
+            <p className="text-gray-400 text-center py-6">No milestones yet</p>
+          )}
         </div>
       </div>
     </div>
