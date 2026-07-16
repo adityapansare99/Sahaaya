@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Award, TrendingUp, Star, Target, Trophy, Package } from "lucide-react";
+import { Award, Star, Target, Trophy, Package } from "lucide-react";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
@@ -75,7 +75,6 @@ const RewardsSection = () => {
 
   const {
     points = 0,
-    earnings = 0,
     redeemedPoints = 0,
     totalDeliveries = 0,
     rating = 0,
@@ -89,13 +88,6 @@ const RewardsSection = () => {
       icon: Package,
       tint: "bg-blue-100 text-blue-600",
       sub: "Lifetime deliveries completed",
-    },
-    {
-      label: "Total Earnings",
-      value: `₹${earnings.toLocaleString()}`,
-      icon: TrendingUp,
-      tint: "bg-green-100 text-green-600",
-      sub: "From completed deliveries",
     },
     {
       label: "Rating",
@@ -169,11 +161,7 @@ const RewardsSection = () => {
               {points.toLocaleString()}
             </div>
             <p className="text-amber-100 text-sm">
-              <span className="text-green-200 font-semibold">
-                ₹{earnings.toLocaleString()} earned
-              </span>
-              {" · "}
-              {redeemedPoints.toLocaleString()} redeemed
+              {redeemedPoints.toLocaleString()} points redeemed
             </p>
           </div>
           <div className="bg-white/20 rounded-2xl p-4">
@@ -183,7 +171,7 @@ const RewardsSection = () => {
       </div>
 
       {/* Stat cards */}
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
+      <div className="grid md:grid-cols-2 gap-6 mb-8">
         {statCards.map((card) => {
           const Icon = card.icon;
           return (

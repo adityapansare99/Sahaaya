@@ -48,7 +48,7 @@ const rideSchema = new mongoose.Schema({
         ref: "Delivery"
     },
 
-    earnings:{
+    points:{
         type: Number,
         default: 0,
     },

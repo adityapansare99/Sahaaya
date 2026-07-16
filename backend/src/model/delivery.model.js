@@ -81,11 +81,6 @@ const deliverySchema = new mongoose.Schema({
         default:0,
     },
 
-    earnings:{
-        type:Number,
-        default:0,
-    },
-
     redeemedPoints:{
         type:Number,
         default:0,

@@ -183,8 +183,8 @@ const RiderDashboard = () => {
       toast.success("New delivery available!");
       actions.current.fetchDeliveries();
     };
-    const onPointsAwarded = ({ points, earnings }) => {
-      toast.success(`+10 points! Total: ${points} pts · ₹${earnings} earned`);
+    const onPointsAwarded = ({ points }) => {
+      toast.success(`Points earned! Total: ${points} pts`);
       actions.current.getActiveOrder(true);
       actions.current.getHistory();
     };

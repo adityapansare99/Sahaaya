@@ -56,6 +56,10 @@ const DeliveryHistory = ({ history }) => {
     (d) => d.status === "completed"
   ).length;
 
+  const totalPoints = history
+    .filter((d) => d.status === "completed")
+    .reduce((sum, d) => sum + (d.points || 0), 0);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -69,7 +73,7 @@ const DeliveryHistory = ({ history }) => {
             <span className="font-bold">{totalDeliveries}</span> Completed
           </div>
           <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-xl">
-            <span className="font-bold">{"0 "}</span>Points Earned
+            <span className="font-bold">{totalPoints} </span>Points Earned
           </div>
         </div>
       </div>
@@ -188,13 +192,13 @@ const DeliveryHistory = ({ history }) => {
                     <td className="px-6 py-4">
                       <p
                         className={`font-semibold ${
-                          delivery?.earnings > 0
+                          delivery?.points > 0
                             ? "text-green-600"
                             : "text-gray-400"
                         }`}
                       >
-                        {delivery?.earnings > 0
-                          ? `₹${delivery?.earnings}`
+                        {delivery?.points > 0
+                          ? `+${delivery?.points} pts`
                           : "-"}
                       </p>
                     </td>

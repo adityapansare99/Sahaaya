@@ -200,9 +200,11 @@ const markCompeted = asynchandler(async (req, res) => {
     return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
   }
 
+  const POINTS_PER_DELIVERY = 10;
+
   const response = await Ride.findOneAndUpdate(
     { _id: rideId, status: "picked up" },
-    { status: "completed" },
+    { status: "completed", points: POINTS_PER_DELIVERY },
     { new: true }
   );
 
@@ -220,13 +222,12 @@ const markCompeted = asynchandler(async (req, res) => {
     );
   }
 
-  // Re-fetch so we emit accurate points/earnings (req.partner is pre-increment).
+  // Re-fetch so we emit accurate points (req.partner is pre-increment).
   const updatedPartner = await Delivery.findByIdAndUpdate(
     partner._id,
     {
       $inc: {
-        points: 10,
-        earnings: 20,
+        points: POINTS_PER_DELIVERY,
         totalDeliveries: 1,
       },
     },
@@ -249,7 +250,6 @@ const markCompeted = asynchandler(async (req, res) => {
     event: "pointsAwarded",
     data: {
       points: updatedPartner?.points ?? 0,
-      earnings: updatedPartner?.earnings ?? 0,
     },
   });
 
@@ -291,10 +291,10 @@ const getRewards = asynchandler(async (req, res) => {
   const totalDeliveries = partner.totalDeliveries || 0;
 
   const MILESTONES = [
-    { milestone: "50 Deliveries", threshold: 50, reward: "₹500 Bonus" },
-    { milestone: "100 Deliveries", threshold: 100, reward: "₹1000 Bonus" },
-    { milestone: "250 Deliveries", threshold: 250, reward: "₹2500 Bonus" },
-    { milestone: "500 Deliveries", threshold: 500, reward: "₹5000 Bonus" },
+    { milestone: "50 Deliveries", threshold: 50, reward: "500 Points" },
+    { milestone: "100 Deliveries", threshold: 100, reward: "1000 Points" },
+    { milestone: "250 Deliveries", threshold: 250, reward: "2500 Points" },
+    { milestone: "500 Deliveries", threshold: 500, reward: "5000 Points" },
   ];
 
   let foundInProgress = false;
@@ -315,7 +315,6 @@ const getRewards = asynchandler(async (req, res) => {
       200,
       {
         points: partner.points || 0,
-        earnings: partner.earnings || 0,
         redeemedPoints: partner.redeemedPoints || 0,
         totalDeliveries,
         rating: partner.rating || 0,
