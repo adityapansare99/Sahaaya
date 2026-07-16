@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MapPin, Clock, Package, Check, X } from "lucide-react";
+import { formatAmount } from "../utils/formatDonation";
 
 const FoodRequests = ({ donations,acceptOrder,rejectOrder }) => {
 
@@ -78,7 +79,7 @@ const FoodRequests = ({ donations,acceptOrder,rejectOrder }) => {
                       </span>
                     </div>
                     <div className="font-semibold text-gray-900">
-                      {request.Quantity}
+                      {formatAmount(request)}
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-gray-400" />

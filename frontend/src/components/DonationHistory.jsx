@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Calendar, User, Package, Filter } from "lucide-react";
+import { formatAmount } from "../utils/formatDonation";
 
 const DonationHistory = ({acceptedOrder,filtered,setFiltered }) => {
   const [filter, setFilter] = useState("all");
@@ -99,7 +100,7 @@ const DonationHistory = ({acceptedOrder,filtered,setFiltered }) => {
                   Food Type
                 </th>
                 <th className="text-left p-4 font-semibold text-gray-900">
-                  Quantity
+                  Amount
                 </th>
                 <th className="text-left p-4 font-semibold text-gray-900">
                   Status
@@ -147,7 +148,7 @@ const DonationHistory = ({acceptedOrder,filtered,setFiltered }) => {
                   </td>
                   <td className="p-4">
                     <span className="font-medium text-gray-900">
-                      {donation.Quantity}
+                      {formatAmount(donation)}
                     </span>
                   </td>
 

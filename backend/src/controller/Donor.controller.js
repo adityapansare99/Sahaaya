@@ -301,10 +301,10 @@ const getImpact = asynchandler(async (req, res) => {
     return res.status(404).json(new ApiResponse(404, {}, "No donor found"));
   }
 
-  // Best-effort parse of a leading integer from free-text Quantity.
-  const parseQty = (q) => {
-    const n = parseInt(String(q ?? ""), 10);
-    return Number.isNaN(n) ? 0 : n;
+  // Coerce a stored numeric field to a safe Number (missing/invalid → 0).
+  const num = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
   };
 
   const allDonations = await Donation.find({ Donor: donor._id })
@@ -323,20 +323,21 @@ const getImpact = asynchandler(async (req, res) => {
   });
   const ngosConnected = ngoSet.size;
 
-  // totalMealsDonated counts every donation; wasteReduced / peopleServed count
-  // only completed ones (pending donations have reduced no waste / served no one).
   const totalMealsDonated = allDonations.reduce(
-    (sum, d) => sum + parseQty(d.Quantity),
+    (sum, d) => sum + num(d.serves),
     0
   );
   const wasteReduced = allDonations
     .filter((d) => d.Status === "Completed")
-    .reduce((sum, d) => sum + parseQty(d.Quantity), 0);
-  const peopleServed = wasteReduced;
+    .reduce((sum, d) => sum + num(d.weightKg), 0);
+  const peopleServed = allDonations
+    .filter((d) => d.Status === "Completed")
+    .reduce((sum, d) => sum + num(d.serves), 0);
 
   const recentActivity = allDonations.slice(0, 5).map((d) => ({
     foodType: d.FoodType,
-    quantity: d.Quantity,
+    weightKg: num(d.weightKg),
+    serves: num(d.serves),
     status: d.Status,
     ngo: d.Ngo?.name || null,
     createdAt: d.createdAt,

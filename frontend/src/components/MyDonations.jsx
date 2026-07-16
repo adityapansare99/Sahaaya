@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Edit3, X, MapPin, Calendar, Package, Clock } from "lucide-react";
 import { useEffect } from "react";
+import { formatAmount } from "../utils/formatDonation";
 
 const MyDonations = ({ donations, onEdit, onCancel }) => {
   const getStatusColor = (status) => {
@@ -36,7 +37,8 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
   const [description, setDescription] = useState(
     donationData.FoodDescription || ""
   );
-  const [quantity, setQuantity] = useState(donationData.Quantity || "");
+  const [weightKg, setWeightKg] = useState(donationData.weightKg || "");
+  const [serves, setServes] = useState(donationData.serves || "");
   const [pickup, setPickup] = useState(donationData.PickupLocation || "");
   const [expiryDate, setExpiryDate] = useState(donationData.ExpiryDate || "");
   const [expiryTime, setExpiryTime] = useState(donationData.ExpiryTime || "");
@@ -56,14 +58,21 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
       donationId:editId,
       foodType:foodType || donationData.FoodType,
       description:description || donationData.FoodDescription,
-      quantity:quantity || donationData.Quantity,
+      weightKg: weightKg !== "" ? weightKg : donationData.weightKg,
+      serves: serves !== "" ? serves : donationData.serves,
       pickup:pickup || donationData.PickupLocation,
       expiryDate:expiryDate || donationData.ExpiryDate,
       expiryTime:expiryTime || donationData.ExpiryTime,
     }
+    console.log(data);
     onEdit(data);
     setEditId(null)
   }
+
+  // Latest donations first (newest createdAt on top); never mutate the prop.
+  const sortedDonations = [...donations].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
 
   return (
     <div>
@@ -72,7 +81,7 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
         <p className="text-gray-600">Track and manage your food donations</p>
       </div>
 
-      {donations.length === 0 ? (
+      {sortedDonations.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
           <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-800 mb-2">
@@ -84,7 +93,7 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
         </div>
       ) : (
         <div className="space-y-4">
-          {donations.map((donation) =>
+          {sortedDonations.map((donation) =>
             donation._id !== editId ? (
               <div
                 key={donation._id}
@@ -98,7 +107,7 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                           {donation.FoodType}
                         </h3>
                         <p className="text-lg text-gray-600 mt-1">
-                          {donation.Quantity}
+                          {formatAmount(donation)}
                         </p>
                         <p className="text-lg text-gray-600 mt-1">
                           {donation.FoodDescription}
@@ -195,16 +204,30 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                         </h3>
                         <p className="text-lg text-gray-500 mx-2 my-2 mb-4">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Quantity
+                            Weight (kg) · Serves (people)
                           </label>
-                          <input
-                            type="text"
-                            value={quantity}
-                            onChange={(e) => setQuantity(e.target.value)}
-                            placeholder={donation.Quantity}
-                            className="w-full px-4 py-1 text-lg font-medium border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                            required
-                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              value={weightKg}
+                              onChange={(e) => setWeightKg(e.target.value)}
+                              placeholder={donation.weightKg || "Weight"}
+                              className="w-full px-4 py-1 text-lg font-medium border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                              required
+                            />
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={serves}
+                              onChange={(e) => setServes(e.target.value)}
+                              placeholder={donation.serves || "Serves"}
+                              className="w-full px-4 py-1 text-lg font-medium border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                              required
+                            />
+                          </div>
                         </p>
                         <p className="text-lg text-gray-500 mx-2 my-2 mb-4">
                           <label className="block text-sm font-medium text-gray-700 mb-2">

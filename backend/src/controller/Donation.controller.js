@@ -3,21 +3,28 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import Donation from "../model/donation.model.js";
 import { broadcastToUserType } from "../socket.js";
 
+// Coerce a numeric field from req.body into a non-negative Number (defaults to 0).
+const toNonNegativeNumber = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+};
+
 //create a donation
 const createDonation = asynchandler(async (req, res) => {
   const {
     donorType,
     foodType,
     description,
-    quantity,
     pickup,
     expiryDate,
     expiryTime,
+    weightKg,
+    serves,
   } = req.body;
   const donor = req.donor;
 
   if (
-    [donorType, foodType, description, quantity, pickup, expiryDate, expiryTime].some(
+    [donorType, foodType, description, pickup, expiryDate, expiryTime].some(
       (field) => !field || String(field).trim().length === 0
     )
   ) {
@@ -30,11 +37,12 @@ const createDonation = asynchandler(async (req, res) => {
     Donor: donor._id,
     FoodType: foodType,
     FoodDescription: description,
-    Quantity: quantity,
     PickupLocation: pickup,
     ExpiryDate: expiryDate,
     ExpiryTime: expiryTime,
     typeOfDonor: donorType,
+    weightKg: toNonNegativeNumber(weightKg),
+    serves: toNonNegativeNumber(serves),
   });
 
   if (!donation) {
@@ -89,15 +97,16 @@ const editDonation = asynchandler(async (req, res) => {
     donationId,
     foodType,
     description,
-    quantity,
     pickup,
     expiryDate,
     expiryTime,
+    weightKg,
+    serves,
   } = req.body;
 
   if (
-    [foodType, description, quantity, pickup, expiryDate, expiryTime].some(
-      (field) => field.trim().length === 0
+    [foodType, description, pickup, expiryDate, expiryTime].some(
+      (field) => !field || String(field).trim().length === 0
     )
   ) {
     return res
@@ -108,10 +117,11 @@ const editDonation = asynchandler(async (req, res) => {
   const donation = await Donation.findByIdAndUpdate(donationId, {
     FoodType: foodType,
     FoodDescription: description,
-    Quantity: quantity,
     PickupLocation: pickup,
     ExpiryDate: expiryDate,
     ExpiryTime: expiryTime,
+    weightKg: toNonNegativeNumber(weightKg),
+    serves: toNonNegativeNumber(serves),
   });
 
   donation.save();

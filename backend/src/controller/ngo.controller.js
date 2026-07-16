@@ -377,10 +377,46 @@ const getAnalytics = asynchandler(async (req, res) => {
     monthlyTrend.push({ month, donations: count });
   }
 
+  // Impact + efficiency metrics over completed donations.
+  const num = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+  const completedDonations = allDonations.filter((d) => d.Status === "Completed");
+  const peopleServed = completedDonations.reduce((s, d) => s + num(d.serves), 0);
+  const wasteReduced = completedDonations.reduce((s, d) => s + num(d.weightKg), 0);
+  const avgServes = completedDonations.length
+    ? Math.round(peopleServed / completedDonations.length)
+    : 0;
+  const avgWeight = completedDonations.length
+    ? Math.round((wasteReduced / completedDonations.length) * 10) / 10
+    : 0;
+
+  // Month-over-month % change (this month vs last). null when last month had 0,
+  // since a % off zero isn't meaningful.
+  const lastMonth = monthlyTrend[monthlyTrend.length - 1]?.donations ?? 0;
+  const prevMonth = monthlyTrend[monthlyTrend.length - 2]?.donations ?? 0;
+  const momChange = prevMonth > 0
+    ? Math.round(((lastMonth - prevMonth) / prevMonth) * 100)
+    : null;
+
   res.status(200).json(
     new ApiResponse(
       200,
-      { total, completed, accepted, cancelled, pending, topDonors, monthlyTrend },
+      {
+        total,
+        completed,
+        accepted,
+        cancelled,
+        pending,
+        topDonors,
+        monthlyTrend,
+        peopleServed,
+        wasteReduced,
+        avgServes,
+        avgWeight,
+        momChange,
+      },
       "Analytics fetched successfully"
     )
   );

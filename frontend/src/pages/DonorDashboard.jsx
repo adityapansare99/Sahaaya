@@ -19,13 +19,6 @@ const DonorDashboard = () => {
   const [donations, setDonations] = useState([]);
   const [profile, setProfile] = useState({});
 
-  const [impactStats, setImpactStats] = useState({
-    totalMealsDonated: 247,
-    ngosConnected: 12,
-    peopleServed: 823,
-    wasteReduced: 78,
-  });
-
   useEffect(() => {
     getAllDonations();
     getProfile();
@@ -250,7 +243,7 @@ const DonorDashboard = () => {
           />
         );
       case "impact":
-        return <Impact stats={impactStats} />;
+        return <Impact />;
       case "settings":
         return (
           <SettingsD

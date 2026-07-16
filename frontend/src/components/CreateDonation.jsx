@@ -5,7 +5,8 @@ const CreateDonation = ({ onDonationCreate }) => {
   const [donorType, setDonorType] = useState("");
   const [foodType, setFoodType] = useState("");
   const [description, setDescription] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const [weightKg, setWeightKg] = useState("");
+  const [serves, setServes] = useState("");
   const [pickupLocation, setPickupLocation] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [expiryTime, setExpiryTime] = useState("");
@@ -30,8 +31,9 @@ const CreateDonation = ({ onDonationCreate }) => {
       donorType,
       foodType,
       description,
-      quantity,
-      pickup:pickupLocation,
+      weightKg: Number(weightKg) || 0,
+      serves: Number(serves) || 0,
+      pickup: pickupLocation,
       expiryDate,
       expiryTime,
     };
@@ -41,7 +43,8 @@ const CreateDonation = ({ onDonationCreate }) => {
     setDonorType("");
     setFoodType("");
     setDescription("");
-    setQuantity("");
+    setWeightKg("");
+    setServes("");
     setPickupLocation("");
     setExpiryDate("");
     setExpiryTime("");
@@ -115,19 +118,40 @@ const CreateDonation = ({ onDonationCreate }) => {
             />
           </div>
 
-          {/* Quantity */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Quantity
-            </label>
-            <input
-              type="text"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder="e.g., 50 meals, 10 kg, 20 packets"
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-              required
-            />
+          {/* Approximate Weight & Serves */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Package className="w-4 h-4 inline mr-2" />
+                Approximate Weight (kg)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={weightKg}
+                onChange={(e) => setWeightKg(e.target.value)}
+                placeholder="e.g., 10"
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Package className="w-4 h-4 inline mr-2" />
+                Serves (people)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={serves}
+                onChange={(e) => setServes(e.target.value)}
+                placeholder="e.g., 50"
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                required
+              />
+            </div>
           </div>
 
           {/* Pickup Location */}

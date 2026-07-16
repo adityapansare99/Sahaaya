@@ -32,9 +32,21 @@ const donationSchema = new mongoose.Schema(
         required: true,
     },
 
-    Quantity:{
+    Quantity: {
         type: String,
-        required: true,
+        default: "",
+    },
+
+    weightKg: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+
+    serves: {
+        type: Number,
+        default: 0,
+        min: 0,
     },
 
     PickupLocation: {

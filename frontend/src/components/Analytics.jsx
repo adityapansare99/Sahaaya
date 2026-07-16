@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { TrendingUp, Package, Award, Users, Calendar, ChevronUp } from 'lucide-react';
+import { TrendingUp, Package, Award, Users, Calendar, ChevronUp, ChevronDown, Recycle } from 'lucide-react';
 import axios from 'axios';
 import { AppContext } from '../context/AppContext';
 import { toast } from 'react-toastify';
@@ -83,7 +83,7 @@ const Analytics = () => {
     );
   }
 
-  const { total, completed, accepted, cancelled, pending, topDonors, monthlyTrend } = data;
+  const { total, completed, accepted, cancelled, pending, topDonors, monthlyTrend, peopleServed, wasteReduced, avgServes, avgWeight, momChange } = data;
   const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
   const activeNow = accepted + pending;
   const maxDonation = monthlyTrend && monthlyTrend.length > 0
@@ -122,6 +122,31 @@ const Analytics = () => {
         </div>
         <div className="mt-4 w-full bg-white/20 rounded-full h-2">
           <div className="bg-white h-2 rounded-full transition-all duration-700" style={{ width: `${completionRate}%` }}></div>
+        </div>
+      </div>
+
+      {/* Impact — real-world effect of completed donations */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+              <Users className="w-5 h-5 text-green-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-500">People Served</span>
+          </div>
+          <div className="text-3xl font-bold text-gray-900">{peopleServed.toLocaleString()}</div>
+          <div className="text-sm text-gray-500 mt-2">Across {completed} completed {completed === 1 ? 'delivery' : 'deliveries'}</div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+              <Recycle className="w-5 h-5 text-green-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-500">Food Waste Reduced</span>
+          </div>
+          <div className="text-3xl font-bold text-gray-900">{wasteReduced.toLocaleString()} kg</div>
+          <div className="text-sm text-gray-500 mt-2">Diverted from landfill</div>
         </div>
       </div>
 
@@ -172,13 +197,49 @@ const Analytics = () => {
         </div>
       </div>
 
+      {/* Per-delivery averages */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-orange-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-500">Avg People Served / Delivery</span>
+          </div>
+          <div className="text-3xl font-bold text-gray-900">{avgServes.toLocaleString()}</div>
+          <div className="text-sm text-gray-500 mt-2">Per completed donation</div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+              <Recycle className="w-5 h-5 text-orange-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-500">Avg Waste Reduced / Delivery</span>
+          </div>
+          <div className="text-3xl font-bold text-gray-900">{avgWeight} kg</div>
+          <div className="text-sm text-gray-500 mt-2">Per completed donation</div>
+        </div>
+      </div>
+
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Monthly Bar Chart — takes 3/5 */}
         <div className="lg:col-span-3 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-6">
-            <Calendar className="w-5 h-5 text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900">Monthly Trend</h3>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-gray-400" />
+              <h3 className="text-lg font-semibold text-gray-900">Monthly Trend</h3>
+            </div>
+            {momChange !== null && momChange !== undefined ? (
+              <span className={`inline-flex items-center gap-1 text-sm font-medium px-2.5 py-1 rounded-full ${
+                momChange > 0 ? 'bg-green-100 text-green-700' :
+                momChange < 0 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+              }`}>
+                {momChange > 0 ? <ChevronUp className="w-4 h-4" /> : momChange < 0 ? <ChevronDown className="w-4 h-4" /> : null}
+                {momChange > 0 ? `+${momChange}%` : `${momChange}%`} vs last month
+              </span>
+            ) : null}
           </div>
           {monthlyTrend && monthlyTrend.length > 0 ? (
             <div className="flex items-end justify-between gap-2 h-48">
