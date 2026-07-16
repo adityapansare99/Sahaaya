@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import SidebarR from "../components/SidebarR";
 import AvailableDeliveries from "../components/AvailableDeliveries";
 import ActiveDelivery from "../components/ActiveDelivery";
@@ -6,6 +6,7 @@ import DeliveryHistory from "../components/DeliveryHistory";
 import RewardsSection from "../components/RewardsSection";
 import ProfileSection from "../components/ProfileSection";
 import { AppContext } from "../context/AppContext";
+import { SocketContext } from "../context/SocketContext";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -14,6 +15,8 @@ const RiderDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [deliveries, setDeliveries] = useState([]);
   const { backendurl, token } = useContext(AppContext);
+  const { socket } = useContext(SocketContext);
+  const actions = useRef(null);
   const [activeOrder, setActiveOrder] = useState([]);
   const [history, setHistory] = useState([]);
   const [profile, setProfile] = useState({});
@@ -52,16 +55,20 @@ const RiderDashboard = () => {
 
       if (!response.data.success) {
         toast.error("Error in accepting delivery");
+        return;
       }
 
       fetchDeliveries();
+      // Pull the now-active ride, then land on the Active tab so it shows without a manual refresh.
+      await getActiveOrder(true);
+      setActiveSection("active");
       toast.success("Delivery accepted successfully");
     } catch (error) {
       toast.error("Error in accepting delivery");
     }
   };
 
-  const getActiveOrder = async () => {
+  const getActiveOrder = async (silent = false) => {
     try {
       const response = await axios.get(`${backendurl}rider/getRides`, {
         headers: {
@@ -75,7 +82,7 @@ const RiderDashboard = () => {
 
       setActiveOrder(response.data.data);
 
-      if (response.data.data.length > 0) toast.info("You have an active order");
+      if (!silent && response.data.data.length > 0) toast.info("You have an active order");
     } catch (error) {
       toast.error("Error in fetching active order");
     }
@@ -161,6 +168,35 @@ const RiderDashboard = () => {
       toast.error("Error in fetching profile");
     }
   };
+
+  // Latest fetch fns in a ref so the socket listeners (registered once) always call current closures.
+  actions.current = { fetchDeliveries, getActiveOrder, getHistory };
+
+  useEffect(() => {
+    if (!socket || !profile?._id) return;
+
+    const join = () => socket.emit("join", { userId: profile._id, userType: "delivery" });
+    if (socket.connected) join();
+    socket.on("connect", join);
+
+    const onRideCreated = () => {
+      toast.success("New delivery available!");
+      actions.current.fetchDeliveries();
+    };
+    const onPointsAwarded = ({ points, earnings }) => {
+      toast.success(`+10 points! Total: ${points} pts · ₹${earnings} earned`);
+      actions.current.getActiveOrder(true);
+      actions.current.getHistory();
+    };
+    socket.on("rideCreated", onRideCreated);
+    socket.on("pointsAwarded", onPointsAwarded);
+
+    return () => {
+      socket.off("connect", join);
+      socket.off("rideCreated", onRideCreated);
+      socket.off("pointsAwarded", onPointsAwarded);
+    };
+  }, [socket, profile]);
 
   const handleChangeProfile = async (data) => {
     try {

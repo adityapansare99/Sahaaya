@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Sidebar from "../components/Sidebar.jsx";
 import FoodRequests from "../components/FoodRequests";
 import DonationHistory from "../components/DonationHistory";
@@ -19,6 +19,7 @@ function App() {
   const [filtered, setFiltered] = useState([]);
   const [profile, setProfile] = useState({});
   const { socket } = useContext(SocketContext);
+  const actions = useRef(null);
 
   const getProfile = async () => {
     try {
@@ -47,10 +48,25 @@ function App() {
   useEffect(() => {
     if (!socket || !profile?._id) return;
 
-    socket.emit("join", { userId: profile._id, userType: "ngo" });
+    const join = () => socket.emit("join", { userId: profile._id, userType: "ngo" });
+    if (socket.connected) join();
+    socket.on("connect", join);
+
+    const onNewDonation = () => {
+      toast.success("New donation available!");
+      actions.current.getAllDonations(true);
+    };
+    const onStatusUpdate = ({ status }) => {
+      toast.info(status === "completed" ? "A delivery was completed" : "Food picked up");
+      actions.current.acceptedOrdersHandler(true);
+    };
+    socket.on("newDonation", onNewDonation);
+    socket.on("statusUpdate", onStatusUpdate);
 
     return () => {
-      socket.emit("leave", { userId: profile._id });
+      socket.off("connect", join);
+      socket.off("newDonation", onNewDonation);
+      socket.off("statusUpdate", onStatusUpdate);
     };
   }, [socket, profile]);
 
@@ -77,7 +93,7 @@ function App() {
     }
   };
 
-  const getAllDonations = async () => {
+  const getAllDonations = async (silent = false) => {
     try {
       const response = await axios.get(`${backendurl}receiver/donations`, {
         headers: {
@@ -90,7 +106,7 @@ function App() {
         return;
       }
 
-      toast.success(response.data.message);
+      if (!silent) toast.success(response.data.message);
       setDonations(response.data.data);
     } catch (err) {
       toast.error("Error fetching donations");
@@ -133,7 +149,7 @@ function App() {
     }
   };
 
-  const acceptedOrdersHandler = async () => {
+  const acceptedOrdersHandler = async (silent = false) => {
     try {
       const response = await axios.get(
         `${backendurl}receiver/receivedDonations`,
@@ -149,7 +165,7 @@ function App() {
         return;
       }
 
-      toast.success(response.data.message);
+      if (!silent) toast.success(response.data.message);
       setAcceptedOrder(response.data.data);
       setFiltered(response.data.data.response);
       console.log(response.data.data);
@@ -158,6 +174,9 @@ function App() {
       toast.error("Error in fetching accepted donations");
     }
   };
+
+  // Latest fetch fns in a ref so the socket listeners (registered once) always call current closures.
+  actions.current = { getAllDonations, acceptedOrdersHandler };
 
   useEffect(() => {
     getAllDonations();

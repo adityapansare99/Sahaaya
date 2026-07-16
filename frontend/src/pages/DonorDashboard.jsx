@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import SidebarD from "../components/SidebarD";
 import CreateDonation from "../components/CreateDonation";
@@ -8,12 +8,13 @@ import SettingsD from "../components/SettingsD";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
-import Swal from "sweetalert2";
+import { SocketContext } from "../context/SocketContext";
 
 const DonorDashboard = () => {
   const { backendurl, token } = useContext(AppContext);
+  const { socket } = useContext(SocketContext);
+  const actions = useRef(null);
   const [activeSection, setActiveSection] = useState("create");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [donations, setDonations] = useState([]);
@@ -44,7 +45,7 @@ const DonorDashboard = () => {
     setDonations((prevDonations) => [...prevDonations, response.data.data]);
   };
 
-  const getAllDonations = async () => {
+  const getAllDonations = async (silent = false) => {
     try {
       const response = await axios.get(
         `${backendurl}donation/getAllDonations`,
@@ -60,12 +61,40 @@ const DonorDashboard = () => {
         return;
       }
 
-      toast.success(response.data.message);
+      if (!silent) toast.success(response.data.message);
       setDonations(response.data.data);
 
       console.log(response.data.data);
     } catch (error) {}
   };
+
+  // Latest fetch fn in a ref so the socket listeners (registered once) always call current closures.
+  actions.current = { getAllDonations };
+
+  useEffect(() => {
+    if (!socket || !profile?._id) return;
+
+    const join = () => socket.emit("join", { userId: profile._id, userType: "donor" });
+    if (socket.connected) join();
+    socket.on("connect", join);
+
+    const onDonationAccepted = () => {
+      toast.success("Your donation was accepted by an NGO!");
+      actions.current.getAllDonations(true);
+    };
+    const onStatusUpdate = ({ status }) => {
+      toast.info(status === "completed" ? "Delivery completed" : "Food picked up");
+      actions.current.getAllDonations(true);
+    };
+    socket.on("donationAccepted", onDonationAccepted);
+    socket.on("statusUpdate", onStatusUpdate);
+
+    return () => {
+      socket.off("connect", join);
+      socket.off("donationAccepted", onDonationAccepted);
+      socket.off("statusUpdate", onStatusUpdate);
+    };
+  }, [socket, profile]);
 
   const navigate = useNavigate();
 
