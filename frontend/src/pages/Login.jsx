@@ -71,6 +71,21 @@ const Login = () => {
       localStorage.setItem("token", response.data.data.token);
       toast.success("Login successfully");
       navigate("/RiderDashboard");
+    } else if (loginAs === "Partner") {
+      const response = await axios.post(`${backendurl}partner/login`, {
+        email,
+        password,
+      });
+
+      if (!response.data.success) {
+        toast.error(response.data.message || "Error in partner login");
+        return;
+      }
+
+      setToken(response.data.data.token);
+      localStorage.setItem("token", response.data.data.token);
+      toast.success("Login successfully");
+      navigate("/PartnerDashboard");
     }
   };
 
@@ -232,6 +247,7 @@ const Login = () => {
                   <option value="Donor">Food Donor</option>
                   <option value="Receiver">Food Receiver</option>
                   <option value="Rider">Delivery Partner</option>
+                  <option value="Partner">Restaurant Partner</option>
                 </select>
               </div>
             </div>

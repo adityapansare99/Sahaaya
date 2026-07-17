@@ -30,6 +30,7 @@ const buildReceiptHtml = ({
   partnerName,
   discountPercentage,
   pointsUsed,
+  address
 }) => {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 560px; margin: auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
@@ -46,6 +47,10 @@ const buildReceiptHtml = ({
           <tr>
             <td style="padding: 8px 0; color: #6b7280; border-top: 1px solid #f3f4f6;">Restaurant</td>
             <td style="padding: 8px 0; text-align: right; border-top: 1px solid #f3f4f6;">${partnerName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6b7280; border-top: 1px solid #f3f4f6;">Restaurant Address</td>
+            <td style="padding: 8px 0; text-align: right; border-top: 1px solid #f3f4f6;">${address}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #6b7280; border-top: 1px solid #f3f4f6;">Rider</td>
@@ -98,6 +103,7 @@ const sendReceipt = async ({ redemption, rider, partner }) => {
         partnerName: partner?.name || "Restaurant Partner",
         discountPercentage: redemption.discountPercentage,
         pointsUsed: redemption.pointsUsed,
+        address: partner?.address,
       }),
     });
     return { sent: true };

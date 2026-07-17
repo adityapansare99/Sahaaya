@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, Heart, Truck, ChevronRight, UserCheck } from "lucide-react";
+import { Users, Heart, Truck, ChevronRight, UserCheck, Store } from "lucide-react";
 import { AppContext } from "../context/AppContext";
 
 const Role = () => {
@@ -40,6 +40,16 @@ const Role = () => {
       borderColor: "border-emerald-200",
       selectedBorder: "border-emerald-400",
     },
+    {
+      id: "Partner",
+      title: "Restaurant Partner",
+      description: "Offer discounts to riders and grow your reach",
+      icon: Store,
+      color: "from-amber-400 to-orange-500",
+      bgColor: "bg-gradient-to-br from-amber-50 to-orange-50",
+      borderColor: "border-amber-200",
+      selectedBorder: "border-amber-400",
+    },
   ];
 
   const submitHandler = (e) => {
@@ -49,8 +59,10 @@ const Role = () => {
       navigate("/Registration-Donor");
     } else if (selectedRole === "Receiver") {
       navigate("/Registration-Ngo");
-    } else {
+    } else if (selectedRole === "Rider") {
       navigate("/Registration-Rider");
+    } else {
+      navigate("/Registration-Partner");
     }
   };
 

@@ -1,4 +1,5 @@
 import Partner from "../model/partner.model.js";
+import Redemption from "../model/redemption.model.js";
 import { asynchandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { uploadoncloudinary } from "../utils/cloudinary.js";
@@ -202,7 +203,7 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
 });
 
 const getActivePartners = asynchandler(async (req, res) => {
-  const activePartners = await Partner.find({ isActive: true });
+  const activePartners = await Partner.find({ isActive: true }).select("-password -__v");
   res
     .status(200)
     .json(
@@ -210,10 +211,68 @@ const getActivePartners = asynchandler(async (req, res) => {
     );
 });
 
+const getPartnerRedemptions = asynchandler(async (req, res) => {
+  const partner = req.partner;
+
+  if (!partner) {
+    return res
+      .status(404)
+      .json(new ApiResponse(404, {}, "No partner found"));
+  }
+
+  const redemptions = await Redemption.find({ partner: partner._id })
+    .populate("rider", "name email phone address")
+    .sort({ createdAt: -1 });
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, redemptions, "Redemptions fetched successfully"),
+    );
+});
+
+// Public popularity board — top 5 partners by redemption count.
+// Aggregates from Redemption so a partner with no redemptions never appears.
+const getTopPartners = asynchandler(async (req, res) => {
+  const top = await Redemption.aggregate([
+    { $group: { _id: "$partner", redemptionCount: { $sum: 1 } } },
+    {
+      $lookup: {
+        from: "partners",
+        localField: "_id",
+        foreignField: "_id",
+        as: "partner",
+      },
+    },
+    { $unwind: "$partner" },
+    { $match: { "partner.isActive": true } },
+    { $sort: { redemptionCount: -1 } },
+    { $limit: 5 },
+    {
+      $project: {
+        _id: "$partner._id",
+        name: "$partner.name",
+        logo: "$partner.logo",
+        description: "$partner.description",
+        discountPercentage: "$partner.discountPercentage",
+        pointsRequired: "$partner.pointsRequired",
+        redemptionCount: "$redemptionCount",
+        address:"$partner.address"
+      },
+    },
+  ]);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, top, "Top partners fetched successfully"));
+});
+
 export {
   registerPartner,
   loginPartner,
   getPartnerProfile,
   updatePartnerProfile,
-  getActivePartners
+  getActivePartners,
+  getPartnerRedemptions,
+  getTopPartners,
 };

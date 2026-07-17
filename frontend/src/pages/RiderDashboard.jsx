@@ -4,6 +4,7 @@ import AvailableDeliveries from "../components/AvailableDeliveries";
 import ActiveDelivery from "../components/ActiveDelivery";
 import DeliveryHistory from "../components/DeliveryHistory";
 import RewardsSection from "../components/RewardsSection";
+import RedeemPoints from "../components/RedeemPoints";
 import ProfileSection from "../components/ProfileSection";
 import { AppContext } from "../context/AppContext";
 import { SocketContext } from "../context/SocketContext";
@@ -252,6 +253,8 @@ const RiderDashboard = () => {
         return <DeliveryHistory history={history} />;
       case "rewards":
         return <RewardsSection />;
+      case "redeem":
+        return <RedeemPoints />;
       case "profile":
         return (
           <ProfileSection

@@ -11,6 +11,8 @@ import ScrollToTop from "./components/ScrollToTop";
 import DonorDashboard from "./pages/DonorDashboard";
 import NgoDashboard from "./pages/NgoDashboard";
 import RiderDashboard from "./pages/RiderDashboard";
+import PartnerRegistration from "./pages/PartnerRegistration";
+import PartnerDashboard from "./pages/PartnerDashboard";
 
 //Version 1 completed
 const App = () => {
@@ -28,6 +30,8 @@ const App = () => {
         <Route path="/DonorDashboard" element={<DonorDashboard />} />
         <Route path="/NgoDashboard" element={<NgoDashboard />} />
         <Route path="/RiderDashboard" element={<RiderDashboard />} />
+        <Route path="/Registration-Partner" element={<PartnerRegistration />} />
+        <Route path="/PartnerDashboard" element={<PartnerDashboard />} />
       </Routes>
     </>
   );

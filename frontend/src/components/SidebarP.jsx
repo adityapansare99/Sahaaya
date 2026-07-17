@@ -1,23 +1,20 @@
 import React from "react";
-import { Truck, MapPin, Clock, Award, User, X, Gift } from "lucide-react";
+import { Store, LayoutDashboard, Ticket, User, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const SidebarR = ({
+const SidebarP = ({
   activeSection,
   setActiveSection,
   sidebarOpen,
   setSidebarOpen,
 }) => {
   const menuItems = [
-    { id: "deliveries", label: "Available Deliveries", icon: Truck },
-    { id: "active", label: "Active Delivery", icon: MapPin },
-    { id: "history", label: "Delivery History", icon: Clock },
-    { id: "rewards", label: "Rewards & Impact", icon: Award },
-    { id: "redeem", label: "Redeem Points", icon: Gift },
+    { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "redemptions", label: "Redemptions", icon: Ticket },
     { id: "profile", label: "Profile & Settings", icon: User },
   ];
 
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -40,13 +37,16 @@ const SidebarR = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
-                <Truck className="w-6 h-6 text-white" />
+                <Store className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 onClick={()=>{
-                  navigate('/');
-                }} className="font-bold cursor-pointer text-xl text-gray-900">Sahaaya</h2>
-                <p className="text-sm text-gray-500">Rider Dashboard</p>
+                <h2
+                  onClick={() => navigate("/")}
+                  className="font-bold cursor-pointer text-xl text-gray-900"
+                >
+                  Sahaaya
+                </h2>
+                <p className="text-sm text-gray-500">Partner Dashboard</p>
               </div>
             </div>
             <button
@@ -100,4 +100,4 @@ const SidebarR = ({
   );
 };
 
-export default SidebarR;
+export default SidebarP;
