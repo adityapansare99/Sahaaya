@@ -4,7 +4,11 @@ import Ride from "../model/ride.model.js";
 import { donations } from "./Receiver.controller.js";
 import Donation from "../model/donation.model.js";
 import Delivery from "../model/delivery.model.js";
+import Redemption from "../model/redemption.model.js";
+import Partner from "../model/partner.model.js";
+import crypto from "crypto";
 import { sendMessageToSocketId } from "../socket.js";
+import { sendReceipt } from "../service/emailService.js";
 
 const allRides = asynchandler(async (req, res) => {
   const partner = req.partner;
@@ -31,7 +35,7 @@ const allRides = asynchandler(async (req, res) => {
       hours,
       minutes,
       0,
-      0
+      0,
     );
   };
 
@@ -56,7 +60,7 @@ const allRides = asynchandler(async (req, res) => {
       }
       const expiry = combineDateAndTime(
         ride.donation.ExpiryDate,
-        ride.donation.ExpiryTime
+        ride.donation.ExpiryTime,
       );
 
       const timeLeft = getRemainingTime(expiry);
@@ -97,13 +101,15 @@ const acceptRide = asynchandler(async (req, res) => {
   const response = await Ride.findOneAndUpdate(
     { _id: rideId, status: "pending", rider: null },
     { status: "accepted", rider: partner._id },
-    { new: true }
+    { new: true },
   );
 
   if (!response) {
     return res
       .status(409)
-      .json(new ApiResponse(409, {}, "Ride already accepted by another partner"));
+      .json(
+        new ApiResponse(409, {}, "Ride already accepted by another partner"),
+      );
   }
 
   const rideResponse = await Ride.findById(rideId)
@@ -160,13 +166,19 @@ const markPicked = asynchandler(async (req, res) => {
   const response = await Ride.findOneAndUpdate(
     { _id: rideId, status: "accepted" },
     { status: "picked up" },
-    { new: true }
+    { new: true },
   );
 
   if (!response) {
     return res
       .status(409)
-      .json(new ApiResponse(409, {}, "Ride cannot be marked as picked up — already in a different state"));
+      .json(
+        new ApiResponse(
+          409,
+          {},
+          "Ride cannot be marked as picked up — already in a different state",
+        ),
+      );
   }
 
   // Notify the donor and the NGO that the food has been picked up.
@@ -205,20 +217,26 @@ const markCompeted = asynchandler(async (req, res) => {
   const response = await Ride.findOneAndUpdate(
     { _id: rideId, status: "picked up" },
     { status: "completed", points: POINTS_PER_DELIVERY },
-    { new: true }
+    { new: true },
   );
 
   if (!response) {
     return res
       .status(409)
-      .json(new ApiResponse(409, {}, "Ride already completed or cannot be marked complete in current state"));
+      .json(
+        new ApiResponse(
+          409,
+          {},
+          "Ride already completed or cannot be marked complete in current state",
+        ),
+      );
   }
 
   if (response.donation) {
     await Donation.findByIdAndUpdate(
       response.donation,
       { Status: "Completed" },
-      { new: true }
+      { new: true },
     );
   }
 
@@ -231,7 +249,7 @@ const markCompeted = asynchandler(async (req, res) => {
         totalDeliveries: 1,
       },
     },
-    { new: true }
+    { new: true },
   );
 
   // Notify donor + NGO of completion, and the rider of points earned.
@@ -320,8 +338,109 @@ const getRewards = asynchandler(async (req, res) => {
         rating: partner.rating || 0,
         milestones,
       },
-      "Rewards fetched successfully"
-    )
+      "Rewards fetched successfully",
+    ),
+  );
+});
+
+const generateBookingCode = () =>
+  `SAH-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+
+const redeemPoints = asynchandler(async (req, res) => {
+  const rider = req.partner;
+
+  if (!rider) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
+  }
+
+  const { partnerId } = req.body;
+
+  if (!partnerId) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Partner is required"));
+  }
+
+  const partner = await Partner.findOne({ _id: partnerId, isActive: true });
+
+  if (!partner) {
+    return res
+      .status(404)
+      .json(new ApiResponse(404, {}, "Partner not found or inactive"));
+  }
+
+  const pointsRequired = partner.pointsRequired || 0;
+
+  if (pointsRequired <= 0) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "This partner has no redemption set"));
+  }
+
+  const updatedRider = await Delivery.findOneAndUpdate(
+    { _id: rider._id, points: { $gte: pointsRequired } },
+    { $inc: { points: -pointsRequired, redeemedPoints: pointsRequired } },
+    { new: true },
+  );
+
+  if (!updatedRider) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Insufficient points to redeem"));
+  }
+
+  console.log("booking code:", await generateBookingCode());
+
+  // Points are spent — create the redemption record. Retry on bookingCode
+  // collision (unique index); if it still fails, refund so the rider isn't charged.
+  let redemption;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      redemption = await Redemption.create({
+        rider: rider._id,
+        partner: partner._id,
+        pointsUsed: pointsRequired,
+        discountPercentage: partner.discountPercentage,
+        bookingCode:await generateBookingCode(),
+      });
+      break;
+    } catch (error) {
+      const isDuplicate = error.code === 11000;
+      if (isDuplicate && attempt < 2) {
+        continue;
+      }
+      await Delivery.findByIdAndUpdate(rider._id, {
+        $inc: { points: pointsRequired, redeemedPoints: -pointsRequired },
+      });
+      console.log(error);
+      return res
+        .status(500)
+        .json(new ApiResponse(500, {}, "Unable to create redemption"));
+    }
+  }
+
+  // Receipt is best-effort: a missing/failed email must not fail the redemption.
+  const emailResult = await sendReceipt({
+    redemption,
+    rider: updatedRider,
+    partner,
+  });
+
+  res.status(201).json(
+    new ApiResponse(
+      201,
+      {
+        bookingCode: redemption.bookingCode,
+        partner: partner.name,
+        discountPercentage: redemption.discountPercentage,
+        pointsUsed: redemption.pointsUsed,
+        remainingPoints: updatedRider.points,
+        receiptSent: emailResult.sent,
+      },
+      "Points redeemed successfully",
+    ),
   );
 });
 
@@ -333,4 +452,5 @@ export {
   markCompeted,
   getAllRides,
   getRewards,
+  redeemPoints,
 };

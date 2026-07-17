@@ -1,5 +1,5 @@
 import Router from "express"
-import {allRides,acceptRide,getRides,markPicked,markCompeted,getAllRides,getRewards} from "../controller/Rider.controller.js"
+import {allRides,acceptRide,getRides,markPicked,markCompeted,getAllRides,getRewards,redeemPoints} from "../controller/Rider.controller.js"
 import { authPartner } from "../middleware/auth.middleware.js";
 
 const riderRouter=Router();
@@ -11,5 +11,6 @@ riderRouter.route("/markPicked").put(authPartner,markPicked);
 riderRouter.route("/markCompeted").put(authPartner,markCompeted);
 riderRouter.route("/getAllRides").get(authPartner,getAllRides);
 riderRouter.route("/rewards").get(authPartner,getRewards);
+riderRouter.route("/redeemPoints").post(authPartner,redeemPoints);
 
 export default riderRouter

@@ -22,7 +22,7 @@ const registerPartner = asynchandler(async (req, res) => {
 
   if (
     [name, email, phone, address, password].some(
-      (item) => !item || String(item).trim().length === 0
+      (item) => !item || String(item).trim().length === 0,
     )
   ) {
     return res
@@ -73,7 +73,7 @@ const registerPartner = asynchandler(async (req, res) => {
     const token = jwt.sign(
       { email: partner.email, type: "partner" },
       process.env.refreshtoken,
-      { expiresIn: process.env.refreshtime }
+      { expiresIn: process.env.refreshtime },
     );
 
     const options = {
@@ -90,8 +90,8 @@ const registerPartner = asynchandler(async (req, res) => {
         new ApiResponse(
           201,
           { finalPartner, token },
-          "Partner registered successfully"
-        )
+          "Partner registered successfully",
+        ),
       );
   } catch (error) {
     console.log(error);
@@ -104,7 +104,9 @@ const registerPartner = asynchandler(async (req, res) => {
 const loginPartner = asynchandler(async (req, res) => {
   const { email, password } = req.body;
 
-  if ([email, password].some((item) => !item || String(item).trim().length === 0)) {
+  if (
+    [email, password].some((item) => !item || String(item).trim().length === 0)
+  ) {
     return res
       .status(400)
       .json(new ApiResponse(400, {}, "All fields are required"));
@@ -127,7 +129,7 @@ const loginPartner = asynchandler(async (req, res) => {
   const token = jwt.sign(
     { email: partner.email, type: "partner" },
     process.env.refreshtoken,
-    { expiresIn: process.env.refreshtime }
+    { expiresIn: process.env.refreshtime },
   );
 
   if (!token) {
@@ -151,9 +153,7 @@ const getPartnerProfile = asynchandler(async (req, res) => {
   const partner = req.partner;
 
   if (!partner) {
-    return res
-      .status(404)
-      .json(new ApiResponse(404, {}, "No partner found"));
+    return res.status(404).json(new ApiResponse(404, {}, "No partner found"));
   }
 
   res
@@ -165,9 +165,7 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
   const partner = req.partner;
 
   if (!partner) {
-    return res
-      .status(404)
-      .json(new ApiResponse(404, {}, "No partner found"));
+    return res.status(404).json(new ApiResponse(404, {}, "No partner found"));
   }
 
   const {
@@ -189,7 +187,7 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
       ...(pointsRequired && { pointsRequired }),
       ...(description !== undefined && { description }),
     },
-    { new: true }
+    { new: true },
   );
 
   if (!updated) {
@@ -203,9 +201,19 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     .json(new ApiResponse(200, updated, "Profile updated successfully"));
 });
 
+const getActivePartners = asynchandler(async (req, res) => {
+  const activePartners = await Partner.find({ isActive: true });
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, activePartners, "Partners fetched successfully"),
+    );
+});
+
 export {
   registerPartner,
   loginPartner,
   getPartnerProfile,
   updatePartnerProfile,
+  getActivePartners
 };
