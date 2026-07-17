@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
 import NGO from "../model/ngo.model.js";
 import Delivery from "../model/delivery.model.js";
+import Partner from "../model/partner.model.js";
 
 const authDonor = asynchandler(async (req, res, next) => {
   const token =
@@ -104,4 +105,37 @@ const authPartner = asynchandler(async (req, res, next) => {
     }
 });
 
-export {authDonor,authNgo,authPartner};
+const authRestaurant = asynchandler(async (req, res, next) => {
+  const token =
+    req.cookies.refreshtoken ||
+    req.header("Authorization")?.replace("Bearer ", "") ||
+    req.body.refreshtoken;
+
+    if(!token){
+        return res.status(401).json(new ApiResponse(401,{},"Please login to continue"));
+    }
+
+    try {
+        const decodedToken=jwt.verify(token,process.env.refreshtoken);
+
+        if(!decodedToken){
+            return res.status(401).json(new ApiResponse(401,{},"Invalid Token"));
+        }
+
+        const email=decodedToken.email;
+
+        const partner=await Partner.findOne({email});
+
+        if(!partner){
+            return res.status(401).json(new ApiResponse(401,{},"No restaurant partner found"));
+        }
+
+        req.partner=partner;
+        next();
+    } catch (error) {
+        console.log(error);
+        return res.status(401).json(new ApiResponse(401,{},"Invalid Token"));
+    }
+});
+
+export {authDonor,authNgo,authPartner, authRestaurant};

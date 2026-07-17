@@ -32,4 +32,7 @@ app.use('/receiver', receiverRouter);
 import riderRouter from './route/Rider.route.js';
 app.use('/rider', riderRouter);
 
+import partnerRoute from './route/partner.route.js';
+app.use('/partner', partnerRoute);
+
 export default app;
