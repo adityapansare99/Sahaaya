@@ -38,4 +38,7 @@ app.use('/partner', partnerRoute);
 import adminRoute from './route/admin.route.js';
 app.use('/admin', adminRoute);
 
+import forgotRoute from './route/forgot.route.js';
+app.use('/forgot', forgotRoute);
+
 export default app;

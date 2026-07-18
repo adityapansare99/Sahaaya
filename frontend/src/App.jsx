@@ -13,6 +13,7 @@ import NgoDashboard from "./pages/NgoDashboard";
 import RiderDashboard from "./pages/RiderDashboard";
 import PartnerRegistration from "./pages/PartnerRegistration";
 import PartnerDashboard from "./pages/PartnerDashboard";
+import ForgotPassword from "./pages/ForgotPassword";
 
 //Version 1 completed
 const App = () => {
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/RiderDashboard" element={<RiderDashboard />} />
         <Route path="/Registration-Partner" element={<PartnerRegistration />} />
         <Route path="/PartnerDashboard" element={<PartnerDashboard />} />
+        <Route path="/ForgotPassword" element={<ForgotPassword />} />
       </Routes>
     </>
   );

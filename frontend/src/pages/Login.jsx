@@ -252,7 +252,7 @@ const Login = () => {
 
             {/* Forgot Password Link */}
             <div className="text-right mb-6">
-              <span onClick={() => toast.info("Please contact support@sahaaya.com to reset your password")} className="text-red-500 cursor-pointer font-medium hover:text-red-600 hover:underline transition-all duration-200">
+              <span onClick={() => navigate("/ForgotPassword")} className="text-red-500 cursor-pointer font-medium hover:text-red-600 hover:underline transition-all duration-200">
                 Forgot Password?
               </span>
             </div>
