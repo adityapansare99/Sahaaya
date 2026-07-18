@@ -116,6 +116,21 @@ function App() {
     }
   };
 
+  const deleteAccountHandler = async () => {
+    if (!window.confirm("Delete your NGO account? This cannot be undone.")) return;
+    try {
+      const response = await axios.delete(`${backendurl}ngo/deleteaccount`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        toast.success("Account deleted successfully");
+        window.location.href = "/";
+      }
+    } catch (error) {
+      toast.error("Error deleting account");
+    }
+  };
+
   const getAllDonations = async (silent = false) => {
     try {
       const response = await axios.get(`${backendurl}receiver/donations`, {
@@ -225,7 +240,7 @@ function App() {
       case "analytics":
         return <Analytics />;
       case "settings":
-        return <Settings profile={profile} updateProfile={updateProfile} changePasswordHandler={changePasswordHandler} totalCollections={acceptedOrder.total || 0} />;
+        return <Settings profile={profile} updateProfile={updateProfile} changePasswordHandler={changePasswordHandler} deleteAccountHandler={deleteAccountHandler} totalCollections={acceptedOrder.total || 0} />;
       default:
         return <FoodRequests />;
     }

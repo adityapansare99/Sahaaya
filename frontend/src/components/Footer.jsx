@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 
 const Footer = (props) => {
-  const navigate = useNavigate(props);
+  const navigate = useNavigate();
 
   const scrollToSection = (ref) => {
     window.scrollTo({
@@ -44,37 +44,40 @@ const Footer = (props) => {
                   Who we are
                 </h1>
                 <p
-                  onClick={() => {
-                    scrollToSection(props.aboutusRef);
-                  }}
-                  className="text-small cursor-pointer mb-3 text-[#828282]"
+                  onClick={() => scrollToSection(props.aboutusRef)}
+                  className="text-small cursor-pointer mb-3 text-[#828282] hover:text-red-500"
                 >
                   About us
                 </p>
                 <p
-                  onClick={() => {
-                    scrollToSection(props.ourworkRef);
-                  }}
-                  className="text-small cursor-pointer mb-3 text-[#828282]"
+                  onClick={() => scrollToSection(props.ourworkRef)}
+                  className="text-small cursor-pointer mb-3 text-[#828282] hover:text-red-500"
                 >
                   Our work
                 </p>
                 <p
-                  onClick={() => {
-                    scrollToSection(props.partnerwithusRef);
-                  }}
-                  className="text-small cursor-pointer mb-3 text-[#828282]"
+                  onClick={() => scrollToSection(props.partnerwithusRef)}
+                  className="text-small cursor-pointer mb-3 text-[#828282] hover:text-red-500"
                 >
                   Partner with us
                 </p>
-                <p className="text-small cursor-pointer mb-3 text-[#828282]">
+                <p
+                  onClick={() => navigate("/Role")}
+                  className="text-small cursor-pointer mb-3 text-[#828282] hover:text-red-500"
+                >
+                  Join us
+                </p>
+                <p
+                  onClick={() => navigate("/Login")}
+                  className="text-small cursor-pointer mb-3 text-[#828282] hover:text-red-500"
+                >
+                  Sign in
+                </p>
+                <p
+                  onClick={() => window.location.href = "mailto:support@sahaaya.com"}
+                  className="text-small cursor-pointer mb-3 text-[#828282] hover:text-red-500"
+                >
                   Contact us
-                </p>
-                <p className="text-small cursor-pointer mb-3 text-[#828282]">
-                  Blog
-                </p>
-                <p className="text-small cursor-pointer mb-3 text-[#828282]">
-                  Policies
                 </p>
               </div>
               <div>
@@ -82,28 +85,28 @@ const Footer = (props) => {
                   Get involved
                 </h1>
                 <p
-                  onClick={() => {
-                    navigate("/Registration-Rider");
-                  }}
-                  className="text-small cursor-pointer mb-3 text-[#828282]"
+                  onClick={() => navigate("/Registration-Donor")}
+                  className="text-small cursor-pointer mb-3 text-[#828282] hover:text-red-500"
                 >
-                  Volunteer
+                  Donate food
                 </p>
                 <p
-                  onClick={() => {
-                    navigate("/Registration-Donor");
-                  }}
-                  className="text-small cursor-pointer mb-3 text-[#828282]"
+                  onClick={() => navigate("/Registration-Ngo")}
+                  className="text-small cursor-pointer mb-3 text-[#828282] hover:text-red-500"
                 >
-                  Donor
+                  Receive food
                 </p>
                 <p
-                  onClick={() => {
-                    navigate("/Registration-Ngo");
-                  }}
-                  className="text-small cursor-pointer mb-3 text-[#828282]"
+                  onClick={() => navigate("/Registration-Rider")}
+                  className="text-small cursor-pointer mb-3 text-[#828282] hover:text-red-500"
                 >
-                  Request for food
+                  Deliver food
+                </p>
+                <p
+                  onClick={() => navigate("/Registration-Partner")}
+                  className="text-small cursor-pointer mb-3 text-[#828282] hover:text-red-500"
+                >
+                  Partner restaurant
                 </p>
               </div>
             </div>
@@ -116,48 +119,30 @@ const Footer = (props) => {
                 <Link
                   to="https://www.facebook.com/"
                   target="_blank"
-                  className="text-[#828282]"
+                  className="text-[#828282] hover:text-red-500"
                 >
-                  <Icon
-                    icon="entypo-social:facebook-with-circle"
-                    height="27"
-                    width="27"
-                  />
+                  <Icon icon="entypo-social:facebook-with-circle" height="27" width="27" />
                 </Link>
                 <Link
                   to="https://www.linkedin.com/"
                   target="_blank"
-                  className="text-[#828282]"
+                  className="text-[#828282] hover:text-red-500"
                 >
-                  <Icon
-                    icon="entypo-social:linkedin-with-circle"
-                    height="27"
-                    width="27"
-                  />
+                  <Icon icon="entypo-social:linkedin-with-circle" height="27" width="27" />
                 </Link>
-
                 <Link
                   to="https://www.instagram.com/"
                   target="_blank"
-                  className="text-[#828282]"
+                  className="text-[#828282] hover:text-red-500"
                 >
-                  <Icon
-                    icon="entypo-social:instagram-with-circle"
-                    height="27"
-                    width="27"
-                  />
+                  <Icon icon="entypo-social:instagram-with-circle" height="27" width="27" />
                 </Link>
-
                 <Link
                   to="https://twitter.com/"
                   target="_blank"
-                  className="text-[#828282]"
+                  className="text-[#828282] hover:text-red-500"
                 >
-                  <Icon
-                    icon="entypo-social:twitter-with-circle"
-                    height="27"
-                    width="27"
-                  />
+                  <Icon icon="entypo-social:twitter-with-circle" height="27" width="27" />
                 </Link>
               </div>
             </div>
