@@ -4,6 +4,7 @@ import FoodRequests from "../components/FoodRequests";
 import DonationHistory from "../components/DonationHistory";
 import Analytics from "../components/Analytics";
 import Settings from "../components/Settings";
+import ApprovalPending from "../components/ApprovalPending";
 import axios from "axios";
 import { AppContext } from "../context/AppContext.jsx";
 import { toast } from "react-toastify";
@@ -209,6 +210,10 @@ function App() {
         return <FoodRequests />;
     }
   };
+
+  if (profile._id && !profile.approved) {
+    return <ApprovalPending />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -5,6 +5,7 @@ import CreateDonation from "../components/CreateDonation";
 import MyDonations from "../components/MyDonations";
 import Impact from "../components/Impact";
 import SettingsD from "../components/SettingsD";
+import ApprovalPending from "../components/ApprovalPending";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -286,6 +287,10 @@ const DonorDashboard = () => {
         return <CreateDonation onDonationCreate={handleDonationCreate} />;
     }
   };
+
+  if (profile._id && !profile.approved) {
+    return <ApprovalPending />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

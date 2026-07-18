@@ -4,6 +4,7 @@ import PartnerOverview from "../components/PartnerOverview";
 import PartnerRedemptions from "../components/PartnerRedemptions";
 import PartnerProfile from "../components/PartnerProfile";
 import { AppContext } from "../context/AppContext";
+import ApprovalPending from "../components/ApprovalPending";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -94,6 +95,10 @@ const PartnerDashboard = () => {
         return <PartnerOverview profile={profile} redemptions={redemptions} />;
     }
   };
+
+  if (profile._id && !profile.approved) {
+    return <ApprovalPending />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

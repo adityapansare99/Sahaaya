@@ -6,6 +6,7 @@ import DeliveryHistory from "../components/DeliveryHistory";
 import RewardsSection from "../components/RewardsSection";
 import RedeemPoints from "../components/RedeemPoints";
 import ProfileSection from "../components/ProfileSection";
+import ApprovalPending from "../components/ApprovalPending";
 import { AppContext } from "../context/AppContext";
 import { SocketContext } from "../context/SocketContext";
 import { toast } from "react-toastify";
@@ -266,6 +267,10 @@ const RiderDashboard = () => {
         return <AvailableDeliveries />;
     }
   };
+
+  if (profile._id && !profile.approved) {
+    return <ApprovalPending />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

@@ -35,4 +35,7 @@ app.use('/rider', riderRouter);
 import partnerRoute from './route/partner.route.js';
 app.use('/partner', partnerRoute);
 
+import adminRoute from './route/admin.route.js';
+app.use('/admin', adminRoute);
+
 export default app;

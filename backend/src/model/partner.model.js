@@ -56,6 +56,11 @@ const partnerSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    approved: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
