@@ -17,7 +17,6 @@ const Analytics = () => {
         });
         if (response.data.success) {
           setData(response.data.data);
-          console.log(response.data.data);
         } else {
           toast.error('Failed to load analytics');
         }

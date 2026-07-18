@@ -11,6 +11,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
 import { SocketContext } from "../context/SocketContext";
+import Swal from "sweetalert2";
 
 const DonorDashboard = () => {
   const { backendurl, token } = useContext(AppContext);
@@ -64,8 +65,6 @@ const DonorDashboard = () => {
 
       if (!silent) toast.success(response.data.message);
       setDonations(response.data.data);
-
-      console.log(response.data.data);
     } catch (error) {}
   };
 
@@ -163,14 +162,12 @@ const DonorDashboard = () => {
       }
 
       setProfile(response.data.data);
-      console.log(response.data.data);
     } catch (error) {
       toast.error("Error fetching profile");
     }
   };
 
   const handleProfileUpdate = async (updatedProfile) => {
-    console.log(updatedProfile);
     try {
       const response = await axios.post(
         `${backendurl}donor/updateprofile`,

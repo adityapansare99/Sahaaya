@@ -1,15 +1,33 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Partner from "../components/Partner";
 import Footer from "../components/Footer";
+import axios from "axios";
 
 const Home = () => {
   const aboutusRef = useRef(null);
   const ourworkRef = useRef(null);
   const partnerwithusRef = useRef(null);
+  const [totalMeals, setTotalMeals] = useState(null);
+
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}stats`)
+      .then((res) => {
+        if (res.data.success) setTotalMeals(res.data.data.totalMealsServed);
+      })
+      .catch(() => {});
+  }, []);
+
+  const formatNumber = (num) => {
+    if (num === null) return "Loading...";
+    if (num >= 10000000) return (num / 10000000).toFixed(1) + " crores";
+    if (num >= 100000) return (num / 100000).toFixed(1) + " lakhs";
+    return num.toLocaleString();
+  };
 
   const scrollToSection = (ref) => {
     window.scrollTo({
@@ -104,7 +122,7 @@ const Home = () => {
         <div className="mt-8 md:mt-15 bg-[#f8f8f8] h-24 md:h-40 rounded-lg px-4 md:px-10 flex flex-col justify-center items-center tracking-wider">
           <p className="text-xl md:text-4xl font-semibold">
             Total meals served:{" "}
-            <span className="text-red-500">20 crores</span> and counting....
+            <span className="text-red-500">{formatNumber(totalMeals)}</span> and counting....
           </p>
         </div>
       </div>

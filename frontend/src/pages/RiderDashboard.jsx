@@ -38,7 +38,6 @@ const RiderDashboard = () => {
 
       setDeliveries(response.data.data);
     } catch (error) {
-      console.log(error);
       toast.error("Error in fetching deliveries");
     }
   };

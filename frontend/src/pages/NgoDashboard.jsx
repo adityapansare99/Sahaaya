@@ -34,8 +34,6 @@ function App() {
         toast.error("Error in fetching profile");
       }
 
-      console.log(response);
-
       setProfile(response.data.data);
     } catch (error) {
       toast.error("Error in fetching profile");
@@ -91,6 +89,30 @@ function App() {
       setProfile(response.data.data);
     } catch (error) {
       toast.error("Error in updating profile");
+    }
+  };
+
+  const changePasswordHandler = async (passwordData) => {
+    if (passwordData.newpassword !== passwordData.confirmNewPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${backendurl}ngo/updatepassword`,
+        { oldpassword: passwordData.oldpassword, newpassword: passwordData.newpassword },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      if (!response.data.success) {
+        toast.error(response.data.message || "Could not change password");
+        return;
+      }
+
+      toast.success("Password changed successfully");
+    } catch (error) {
+      toast.error("Error changing password. Please check old password.");
     }
   };
 
@@ -169,8 +191,6 @@ function App() {
       if (!silent) toast.success(response.data.message);
       setAcceptedOrder(response.data.data);
       setFiltered(response.data.data.response);
-      console.log(response.data.data);
-      console.log(response.data.data.response);
     } catch (error) {
       toast.error("Error in fetching accepted donations");
     }
@@ -205,7 +225,7 @@ function App() {
       case "analytics":
         return <Analytics />;
       case "settings":
-        return <Settings profile={profile} updateProfile={updateProfile} />;
+        return <Settings profile={profile} updateProfile={updateProfile} changePasswordHandler={changePasswordHandler} totalCollections={acceptedOrder.total || 0} />;
       default:
         return <FoodRequests />;
     }

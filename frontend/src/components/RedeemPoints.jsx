@@ -32,7 +32,6 @@ const RedeemPoints = () => {
         }
         if (rewardsRes.data.success) {
           setPoints(rewardsRes.data.data.points || 0);
-          console.log(rewardsRes.data.data);
         }
         if (topRes.data.success) {
           setTopPartners(topRes.data.data);

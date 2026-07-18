@@ -318,41 +318,6 @@ const ProfileSection = ({profile,handleChangeProfile}) => {
           )}
         </div>
       </div>
-
-      {/* Quick Actions */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-              <Settings className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900">Account Settings</h3>
-              <p className="text-gray-600 text-sm">
-                Privacy, notifications, and more
-              </p>
-            </div>
-          </div>
-          <button className="w-full cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-600 py-3 rounded-xl font-medium transition-colors">
-            Manage Settings
-          </button>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-              <HelpCircle className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900">Help & Support</h3>
-              <p className="text-gray-600 text-sm">Get help with deliveries</p>
-            </div>
-          </div>
-          <button className="w-full cursor-pointer bg-green-50 hover:bg-green-100 text-green-600 py-3 rounded-xl font-medium transition-colors">
-            Contact Support
-          </button>
-        </div>
-      </div>
     </div>
   );
 };

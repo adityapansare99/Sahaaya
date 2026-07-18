@@ -15,13 +15,9 @@ const SocketProvider = (props) => {
     socketRef.current = newSocket;
     setSocket(newSocket); 
 
-    newSocket.on("connect", () => {
-      console.log("Connected", newSocket.id);
-    });
+    newSocket.on("connect", () => {});
 
-    newSocket.on("disconnect", () => {
-      console.log("Disconnected");
-    });
+    newSocket.on("disconnect", () => {});
 
     return () => newSocket.disconnect();
   }, [backendurl]);

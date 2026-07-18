@@ -64,7 +64,6 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
       expiryDate:expiryDate || donationData.ExpiryDate,
       expiryTime:expiryTime || donationData.ExpiryTime,
     }
-    console.log(data);
     onEdit(data);
     setEditId(null)
   }

@@ -80,8 +80,6 @@ const NgoRegistration = () => {
     localStorage.setItem("token", response.data.data.token);
     toast.success("NGO registered successfully");
     navigate("/NgoDashboard");
-
-    console.log(response.data.data);
   };
 
   return (
