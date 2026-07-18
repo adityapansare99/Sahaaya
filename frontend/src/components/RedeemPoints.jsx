@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Gift, Award, Tag, CheckCircle, X, Utensils, Ticket, Flame } from "lucide-react";
+import { Gift, Award, Tag, CheckCircle, X, Utensils, Ticket, Flame, History, Calendar, MapPin } from "lucide-react";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 
 const placeholderLogo =
-  "https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png";
+  "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
 const RedeemPoints = () => {
   const { backendurl, token } = useContext(AppContext);
@@ -13,19 +13,23 @@ const RedeemPoints = () => {
   const [partners, setPartners] = useState([]);
   const [topPartners, setTopPartners] = useState([]);
   const [points, setPoints] = useState(0);
-  const [selected, setSelected] = useState(null); // partner being confirmed
+  const [selected, setSelected] = useState(null);
   const [redeeming, setRedeeming] = useState(false);
-  const [success, setSuccess] = useState(null); // redemption result
+  const [success, setSuccess] = useState(null);
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [listRes, rewardsRes, topRes] = await Promise.all([
+        const [listRes, rewardsRes, topRes, historyRes] = await Promise.all([
           axios.get(`${backendurl}partner/list`),
           axios.get(`${backendurl}rider/rewards`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get(`${backendurl}partner/top`),
+          axios.get(`${backendurl}rider/myRedemptions`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
         if (listRes.data.success) {
           setPartners(listRes.data.data);
@@ -35,6 +39,9 @@ const RedeemPoints = () => {
         }
         if (topRes.data.success) {
           setTopPartners(topRes.data.data);
+        }
+        if (historyRes.data.success) {
+          setHistory(historyRes.data.data);
         }
       } catch (error) {
         toast.error("Error loading partners");
@@ -190,6 +197,55 @@ const RedeemPoints = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Redemption History */}
+      {history.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+          <div className="flex items-center gap-2 mb-5">
+            <History className="w-5 h-5 text-gray-500" />
+            <h3 className="text-lg font-semibold text-gray-800">
+              Recent Redemptions
+            </h3>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left p-3 font-semibold text-gray-900">Date</th>
+                  <th className="text-left p-3 font-semibold text-gray-900">Restaurant</th>
+                  <th className="text-left p-3 font-semibold text-gray-900">Location</th>
+                  <th className="text-left p-3 font-semibold text-gray-900">Discount</th>
+                  <th className="text-left p-3 font-semibold text-gray-900">Points</th>
+                  <th className="text-left p-3 font-semibold text-gray-900">Code</th>
+                  <th className="text-left p-3 font-semibold text-gray-900">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((r) => (
+                  <tr key={r._id} className="border-b border-gray-50 hover:bg-gray-50">
+                    <td className="p-3 text-gray-500 whitespace-nowrap">
+                      {new Date(r.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    </td>
+                    <td className="p-3 font-medium text-gray-900">{r.partner?.name || "—"}</td>
+                    <td className="p-3 text-gray-600">{r.partner?.address || "—"}</td>
+                    <td className="p-3 text-green-600 font-medium">{r.discountPercentage}%</td>
+                    <td className="p-3 text-gray-900">{r.pointsUsed}</td>
+                    <td className="p-3 font-mono text-xs text-gray-700">{r.bookingCode}</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${
+                        r.status === "active" ? "bg-green-100 text-green-700" :
+                        r.status === "used" ? "bg-gray-100 text-gray-600" :
+                        "bg-red-100 text-red-600"
+                      }`}>{r.status || "active"}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

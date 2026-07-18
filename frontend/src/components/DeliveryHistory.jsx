@@ -15,8 +15,8 @@ const DeliveryHistory = ({ history }) => {
 
   const filteredHistory = history.filter((delivery) => {
     const matchesSearch =
-      delivery.donor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      delivery.receiver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      delivery.donor?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      delivery.receiver?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       delivery.donation.FoodType.toLowerCase().includes(
         searchTerm.toLowerCase()
       );
@@ -175,11 +175,11 @@ const DeliveryHistory = ({ history }) => {
                     </td>
                     <td className="px-6 py-4">
                       <p className="font-medium text-gray-900">
-                        {delivery.donor.name}
+                        {delivery.donor?.name}
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-gray-900">{delivery.receiver.name}</p>
+                      <p className="text-gray-900">{delivery.receiver?.name}</p>
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-gray-600">

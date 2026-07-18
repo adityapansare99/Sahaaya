@@ -444,6 +444,20 @@ const redeemPoints = asynchandler(async (req, res) => {
   );
 });
 
+const myRedemptions = asynchandler(async (req, res) => {
+  const rider = req.partner;
+
+  if (!rider) {
+    return res.status(401).json(new ApiResponse(401, {}, "Please login to continue"));
+  }
+
+  const redemptions = await Redemption.find({ rider: rider._id })
+    .populate("partner", "name logo address discountPercentage")
+    .sort({ createdAt: -1 }).limit(5);
+
+  res.status(200).json(new ApiResponse(200, redemptions, "Redemptions fetched successfully"));
+});
+
 export {
   allRides,
   acceptRide,
@@ -453,4 +467,5 @@ export {
   getAllRides,
   getRewards,
   redeemPoints,
+  myRedemptions,
 };

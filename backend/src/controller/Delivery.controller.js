@@ -206,6 +206,9 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     return res.status(404).json(new ApiResponse(404, {}, "No delivery partner found"));
   }
 
+  // Support both JSON and multipart/form-data
+  const body = req.body?.data ? JSON.parse(req.body.data) : req.body;
+
   const {
     name,
     address,
@@ -215,37 +218,38 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     licenseNumber,
     vehicleNumber,
     typeOfVehicle,
-  } = req.body;
+  } = body;
 
   if (
-    [
-      name,
-      address,
-      phone,
-      emergencyNumber,
-      vehicleCapacity,
-      licenseNumber,
-      vehicleNumber,
-      typeOfVehicle,
-    ].some((item) => String(item).trim().length === 0)
+    [name, address, phone]?.some((item) => !item || String(item).trim().length === 0)
   ) {
     return res
       .status(400)
       .json(new ApiResponse(400, {}, "All fields are required"));
   }
 
+  const updateData = {
+    ...(name && { name }),
+    ...(phone && { phone }),
+    ...(address && { address }),
+    ...(emergencyNumber && { emergencyNumber }),
+    ...(vehicleCapacity && { vehicleCapacity }),
+    ...(licenseNumber && { licenseNumber }),
+    ...(vehicleNumber && { vehicleNumber }),
+    ...(typeOfVehicle && { typeOfVehicle }),
+  };
+
+  // Handle image upload
+  if (req.file) {
+    const imageurl = await uploadoncloudinary(req.file.path);
+    if (imageurl) {
+      updateData.image = imageurl.url;
+    }
+  }
+
   const updatedPartner = await Delivery.findOneAndUpdate(
     { email },
-    {
-      name: name,
-      phone: phone,
-      address: address,
-      emergencyNumber: emergencyNumber,
-      vehicleCapacity: vehicleCapacity,
-      licenseNumber: licenseNumber,
-      vehicleNumber: vehicleNumber,
-      typeOfVehicle: typeOfVehicle,
-    },
+    updateData,
     { new: true }
   );
 

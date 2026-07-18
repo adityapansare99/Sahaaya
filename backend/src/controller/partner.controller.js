@@ -169,6 +169,9 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     return res.status(404).json(new ApiResponse(404, {}, "No partner found"));
   }
 
+  // Support both JSON and multipart/form-data
+  const body = req.body?.data ? JSON.parse(req.body.data) : req.body;
+
   const {
     name,
     phone,
@@ -176,18 +179,28 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     discountPercentage,
     pointsRequired,
     description,
-  } = req.body;
+  } = body;
+
+  const updateData = {
+    ...(name && { name }),
+    ...(phone && { phone }),
+    ...(address && { address }),
+    ...(discountPercentage && { discountPercentage }),
+    ...(pointsRequired && { pointsRequired }),
+    ...(description !== undefined && { description }),
+  };
+
+  // Handle logo upload
+  if (req.file) {
+    const imageurl = await uploadoncloudinary(req.file.path);
+    if (imageurl) {
+      updateData.logo = imageurl.url;
+    }
+  }
 
   const updated = await Partner.findByIdAndUpdate(
     partner._id,
-    {
-      ...(name && { name }),
-      ...(phone && { phone }),
-      ...(address && { address }),
-      ...(discountPercentage && { discountPercentage }),
-      ...(pointsRequired && { pointsRequired }),
-      ...(description !== undefined && { description }),
-    },
+    updateData,
     { new: true },
   );
 
@@ -200,6 +213,51 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
   res
     .status(200)
     .json(new ApiResponse(200, updated, "Profile updated successfully"));
+});
+
+const updatePassword = asynchandler(async (req, res) => {
+  const partner = req.partner;
+
+  if (!partner) {
+    return res.status(404).json(new ApiResponse(404, {}, "No partner found"));
+  }
+
+  const { oldpassword, newpassword } = req.body;
+
+  if ([oldpassword, newpassword].some((item) => !item || String(item).trim().length === 0)) {
+    return res.status(400).json(new ApiResponse(400, {}, "All fields are required"));
+  }
+
+  if (newpassword.length < 6) {
+    return res.status(400).json(new ApiResponse(400, {}, "Password must be at least 6 characters"));
+  }
+
+  const isPasswordCorrect = await partner.isPasswordCorrect(oldpassword);
+
+  if (!isPasswordCorrect) {
+    return res.status(400).json(new ApiResponse(400, {}, "Old password is incorrect"));
+  }
+
+  partner.password = newpassword;
+  const updated = await partner.save();
+
+  if (!updated) {
+    return res.status(500).json(new ApiResponse(500, {}, "Unable to update password"));
+  }
+
+  res.status(200).json(new ApiResponse(200, {}, "Password updated successfully"));
+});
+
+const deleteAccount = asynchandler(async (req, res) => {
+  const partner = req.partner;
+
+  if (!partner) {
+    return res.status(404).json(new ApiResponse(404, {}, "No partner found"));
+  }
+
+  await Partner.findByIdAndDelete(partner._id);
+
+  res.status(200).json(new ApiResponse(200, {}, "Account deleted successfully"));
 });
 
 const getActivePartners = asynchandler(async (req, res) => {
@@ -272,6 +330,8 @@ export {
   loginPartner,
   getPartnerProfile,
   updatePartnerProfile,
+  updatePassword,
+  deleteAccount,
   getActivePartners,
   getPartnerRedemptions,
   getTopPartners,

@@ -131,7 +131,7 @@ const DonationHistory = ({acceptedOrder,filtered,setFiltered }) => {
                   <td className="p-4">
                     <div>
                       <div className="font-medium text-gray-900">
-                        {donation.Donor.name}
+                        {donation.Donor?.name}
                       </div>
                       <div className="text-sm text-gray-500">
                         {donation.typeOfDonor}
