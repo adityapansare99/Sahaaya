@@ -5,10 +5,8 @@ import {
   History,
   TrendingUp,
   Settings,
-  HelpCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
 const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
   const menuItems = [
     { id: "create", label: "Create Donation", icon: Plus },
@@ -70,13 +68,6 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
             })}
           </nav>
 
-          {/* Support Button */}
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <button className="w-full flex items-center space-x-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-2xl transition-all duration-200">
-              <HelpCircle className="w-5 h-5" />
-              <span className="font-medium cursor-pointer">Contact Support</span>
-            </button>
-          </div>
         </div>
       </div>
     </>

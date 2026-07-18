@@ -1,0 +1,22 @@
+# Sahaaya — Platform Features & Troubleshooting
+
+## Real-time updates
+The platform uses Socket.IO for real-time notifications. Donors see when their donation is accepted. NGOs see new donations as they're created. Riders get instant ride assignments. All parties receive status updates throughout the delivery process.
+
+## Notifications not working?
+Make sure your browser allows notifications for the site. Check that you're logged in. If socket connections fail, the page will auto-refresh to reconnect. Try refreshing the page manually if updates stop.
+
+## Login issues
+If you can't log in, check that you're selecting the correct account type (Donor, NGO, Rider, or Restaurant Partner). Passwords are case-sensitive. Use the "Forgot Password" option to reset your password via email OTP.
+
+## Account approval
+New NGO, Rider, and Restaurant Partner accounts require admin approval. If you see a "Pending Approval" screen, wait for the admin to activate your account. Contact support if it takes more than 24 hours.
+
+## Browser compatibility
+The platform works best on modern browsers: Chrome, Firefox, Edge, and Safari. Make sure your browser is up to date. The platform uses Tailwind CSS and modern JavaScript features.
+
+## Mobile access
+All dashboards are responsive and work on mobile devices. Use the hamburger menu to navigate on smaller screens. The layout adjusts automatically for different screen sizes.
+
+## Data privacy
+Your personal information is stored securely. Passwords are hashed using bcrypt. Session tokens expire after 10 days. Your data is never shared with third parties without your consent.

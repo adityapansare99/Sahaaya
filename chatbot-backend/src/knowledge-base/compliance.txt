@@ -1,0 +1,19 @@
+# Sahaaya — NGO Compliance & Guidelines
+
+## Registration requirements
+NGOs must provide a valid registration number, contact person details, and proof of operation. All NGOs are verified before being approved on the platform.
+
+## Daily capacity
+NGOs must specify their daily capacity for receiving and distributing food. This helps match donations to the right organizations.
+
+## Distribution requirements
+NGOs must distribute received food to people in need within a reasonable timeframe. Food should not be wasted or resold. NGOs are expected to maintain hygiene standards at their distribution points.
+
+## Record keeping
+NGOs should maintain records of all food received and distributed. The platform tracks donation history automatically. These records can be accessed through the NGO dashboard.
+
+## Compliance with local laws
+NGOs must comply with all applicable local, state, and national laws regarding food handling and distribution. This includes obtaining necessary licenses and permits.
+
+## Reporting requirements
+If any issue arises with a donation, NGOs should report it through the platform immediately. This helps maintain quality standards for all participants.

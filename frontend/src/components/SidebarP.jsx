@@ -1,7 +1,6 @@
 import React from "react";
 import { Store, LayoutDashboard, Ticket, User, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
 const SidebarP = ({
   activeSection,
   setActiveSection,
@@ -84,17 +83,6 @@ const SidebarP = ({
           })}
         </nav>
 
-        <div className="absolute bottom-6 left-6 right-6">
-          <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-4 text-white">
-            <h3 className="font-semibold mb-2">Need Help?</h3>
-            <p className="text-sm text-red-100 mb-3">
-              Contact our support team
-            </p>
-            <button className="bg-white cursor-pointer text-red-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-red-50 transition-colors">
-              Get Support
-            </button>
-          </div>
-        </div>
       </div>
     </>
   );

@@ -1,0 +1,46 @@
+# Sahaaya — Platform FAQ
+
+## How do I donate food?
+Go to the Donor Dashboard and click "Create Donation". Fill in the food type, approximate weight, number of people it serves, pickup location, and expiry time. Submit the form and nearby NGOs will see your donation in real time.
+
+## How do I accept a donation as an NGO?
+Log into your NGO dashboard. Go to "Incoming Donations". You'll see all pending donations near you. Click "Accept" on any donation. A ride will be created for a delivery partner to transport the food to your NGO address.
+
+## How do I deliver food as a rider?
+Log into your Rider Dashboard. Go to "Available Deliveries". Accept a ride, then go to the pickup location. After picking up the food, click "Mark as Picked Up". Once delivered to the NGO, click "Mark as Delivered". You'll earn 10 points per delivery.
+
+## How do points work for riders?
+Each completed delivery earns 10 points. Points can be redeemed at partner restaurants for discounts on your bill. Check the "Redeem Points" section in your Rider Dashboard to see available restaurants.
+
+## How do I redeem my rider points?
+Go to your Rider Dashboard → "Redeem Points". Browse partner restaurants. Click "Redeem" on any restaurant you have enough points for. A unique booking code will be generated. Show this code at the restaurant to claim your discount.
+
+## How do I register as a donor?
+Click "Join Us" on the homepage, select "Food Donor", and fill in your name, email, phone, address, and password. Upload an optional profile photo. After registration, you can log in and start donating.
+
+## How do I register as an NGO?
+Click "Join Us" on the homepage, select "Food Receiver", and fill in the NGO details including name, registration number, contact person, and daily capacity. After registration, you must be approved by an admin before you can access the dashboard.
+
+## How do I register as a delivery rider?
+Click "Join Us" on the homepage, select "Delivery Partner", and fill in your personal details, vehicle information, and license number. After registration, you must be approved by an admin.
+
+## How do I register as a restaurant partner?
+Click "Join Us" on the homepage, select "Restaurant Partner", or go to /Registration-Partner. Fill in your restaurant details including discount percentage and points required. Once registered, riders can redeem points at your restaurant.
+
+## What food types can be donated?
+Cooked Meals, Fresh Vegetables, Fruits, Packaged Food, Dairy Products, Bakery Items, Beverages, and Other. All food should be fresh and safe for consumption.
+
+## How is food quality ensured?
+Donors must provide accurate descriptions and expiry times. NGOs can inspect food upon arrival. Food past its listed expiry time is automatically filtered out from available donations.
+
+## What if no rider accepts my donation?
+The donation remains visible to riders until it expires. Multiple riders can see it simultaneously. If it's urgent, try to coordinate with riders directly through the contact information provided.
+
+## Can I edit or cancel a donation?
+Yes. Go to "My Donations" in your Donor Dashboard. Only pending donations can be edited or cancelled. Once accepted by an NGO, the donation cannot be modified.
+
+## How do I update my profile?
+Each dashboard has a "Settings" or "Profile" section where you can update your name, phone, address, and other details. Donors, riders, and restaurant partners can also upload profile photos.
+
+## What happens after an NGO accepts my donation?
+A ride is automatically created. A delivery rider will pick up the food from your location and deliver it to the NGO. You'll receive real-time updates via the platform.
