@@ -52,6 +52,13 @@ const rideSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+
+    riderRating:{
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5,
+    },
 })
 
 const Ride=mongoose.model("Ride",rideSchema);

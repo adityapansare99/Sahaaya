@@ -17,6 +17,7 @@ const RewardsSection = () => {
         });
         if (response.data.success) {
           setData(response.data.data);
+          console.log(response.data.data);
         } else {
           toast.error("Failed to load rewards");
         }
@@ -119,7 +120,7 @@ const RewardsSection = () => {
     {
       title: "Point Collector",
       desc: "Earn 500 points",
-      current: points,
+      current: points+redeemedPoints,
       target: 500,
       unit: " pts",
       icon: Award,

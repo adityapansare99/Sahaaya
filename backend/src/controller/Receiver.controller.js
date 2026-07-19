@@ -2,6 +2,7 @@ import { asynchandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import Donation from "../model/donation.model.js";
 import Ride from "../model/ride.model.js";
+import Delivery from "../model/delivery.model.js";
 import { sendMessageToSocketId, broadcastToUserType } from "../socket.js";
 
 //take the donation with pending and not expired
@@ -179,4 +180,102 @@ const receivedDonations = asynchandler(async (req, res) => {
     );
 });
 
-export { donations, acceptOrder, receivedDonations };
+// ─── Rating system ─────────────────────────────────────────
+
+const completedDeliveries = asynchandler(async (req, res) => {
+  const Ngo = req.Ngo;
+
+  if (!Ngo) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
+  }
+
+  const rides = await Ride.find({
+    receiver: Ngo._id,
+    status: "completed",
+  })
+    .populate("donor", "name email")
+    .populate("rider", "name phone")
+    .populate("donation", "FoodType FoodDescription Quantity ExpiryDate")
+    .sort({ updatedAt: -1 });
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, rides, "Completed deliveries fetched successfully"));
+});
+
+const rateDelivery = asynchandler(async (req, res) => {
+  const Ngo = req.Ngo;
+  const { rideId, rating } = req.body;
+
+  if (!Ngo) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
+  }
+
+  if (!rideId || !rideId.trim()) {
+    return res.status(400).json(new ApiResponse(400, {}, "Ride ID is required"));
+  }
+
+  const ratingNum = Number(rating);
+  if (!Number.isInteger(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Rating must be an integer between 1 and 5"));
+  }
+
+  // Find the ride and verify it belongs to this NGO
+  const ride = await Ride.findOne({
+    _id: rideId,
+    receiver: Ngo._id,
+    status: "completed",
+  }).populate("rider");
+
+  if (!ride) {
+    return res
+      .status(404)
+      .json(new ApiResponse(404, {}, "Completed ride not found"));
+  }
+
+  if (ride.riderRating > 0) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Rider already rated for this delivery"));
+  }
+
+  if (!ride.rider) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "No rider assigned to this ride"));
+  }
+
+  // Update the ride with the rating
+  ride.riderRating = ratingNum;
+  await ride.save();
+
+  // Recalculate the rider's average rating across all completed rides
+  const allRides = await Ride.find({
+    rider: ride.rider._id,
+    riderRating: { $gt: 0 },
+  });
+
+  const totalRatings = allRides.length;
+  const sumRatings = allRides.reduce((sum, r) => sum + r.riderRating, 0);
+  const averageRating = Math.round((sumRatings / totalRatings) * 10) / 10;
+
+  await Delivery.findByIdAndUpdate(ride.rider._id, { rating: averageRating });
+
+  // Notify the rider they got a rating
+  sendMessageToSocketId(ride.rider.socketId, {
+    event: "riderRated",
+    data: { rating: ratingNum, averageRating },
+  });
+
+  res.status(200).json(
+    new ApiResponse(200, { rating: ratingNum, averageRating }, "Rating submitted successfully")
+  );
+});
+
+export { donations, acceptOrder, receivedDonations, completedDeliveries, rateDelivery };

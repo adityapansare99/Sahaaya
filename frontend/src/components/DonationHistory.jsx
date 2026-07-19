@@ -1,9 +1,70 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, User, Package, Filter } from "lucide-react";
+import { Calendar, User, Package, Filter, Star } from "lucide-react";
 import { formatAmount } from "../utils/formatDonation";
 
-const DonationHistory = ({acceptedOrder,filtered,setFiltered }) => {
+const StarRating = ({ rideId, onRate }) => {
+  const [hovered, setHovered] = useState(0);
+  const [selected, setSelected] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+
+  if (selected > 0) {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-4 h-4 ${star <= selected ? "text-yellow-400 fill-yellow-400" : "text-gray-200"}`}
+          />
+        ))}
+        <span className="text-xs text-gray-400 ml-1">Rated</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          disabled={submitting}
+          onClick={() => {
+            setSubmitting(true);
+            setSelected(star);
+            onRate(rideId, star).finally(() => setSubmitting(false));
+          }}
+          onMouseEnter={() => setHovered(star)}
+          onMouseLeave={() => setHovered(0)}
+          className="cursor-pointer transition-transform hover:scale-110 disabled:opacity-50"
+        >
+          <Star
+            className={`w-5 h-5 ${
+              star <= (hovered || selected)
+                ? "text-yellow-400 fill-yellow-400"
+                : "text-gray-300 hover:text-yellow-300"
+            }`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const DonationHistory = ({ acceptedOrder, filtered, setFiltered, completedDeliveries = [], onRateDelivery }) => {
   const [filter, setFilter] = useState("all");
+
+  // Build a lookup: donationId → { riderName, rideId, riderRating }
+  const deliveryLookup = {};
+  if (completedDeliveries) {
+    for (const ride of completedDeliveries) {
+      if (ride.donation?._id) {
+        deliveryLookup[ride.donation._id] = {
+          rideId: ride._id,
+          riderName: ride.rider?.name || "Unknown",
+          riderRating: ride.riderRating || 0,
+        };
+      }
+    }
+  }
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -22,12 +83,10 @@ const DonationHistory = ({acceptedOrder,filtered,setFiltered }) => {
     filteredDonations();
   }, [filter]);
 
-  useEffect(() => {}, [acceptedOrder.response]);
-
   const filteredDonations = () => {
-    const temp= filter === "all"
+    const temp = filter === "all"
       ? acceptedOrder.response
-      : acceptedOrder.response.filter((d) =>
+      : acceptedOrder.response?.filter((d) =>
           d.Status.toLowerCase().includes(filter)
         );
 
@@ -90,79 +149,104 @@ const DonationHistory = ({acceptedOrder,filtered,setFiltered }) => {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="text-left p-4 font-semibold text-gray-900">
-                  Date
-                </th>
-                <th className="text-left p-4 font-semibold text-gray-900">
-                  Donor
-                </th>
-                <th className="text-left p-4 font-semibold text-gray-900">
-                  Food Type
-                </th>
-                <th className="text-left p-4 font-semibold text-gray-900">
-                  Amount
-                </th>
-                <th className="text-left p-4 font-semibold text-gray-900">
-                  Status
-                </th>
+                <th className="text-left p-4 font-semibold text-gray-900">Date</th>
+                <th className="text-left p-4 font-semibold text-gray-900">Donor</th>
+                <th className="text-left p-4 font-semibold text-gray-900">Food Type</th>
+                <th className="text-left p-4 font-semibold text-gray-900">Amount</th>
+                <th className="text-left p-4 font-semibold text-gray-900">Status</th>
+                <th className="text-left p-4 font-semibold text-gray-900">Rider Rating</th>
               </tr>
             </thead>
             <tbody>
-              {filtered?.map((donation, index) => (
-                <tr
-                  key={donation._id}
-                  className={index % 2 === 0 ? "bg-white" : "bg-gray-25"}
-                >
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-900">
-                        {new Date(donation.updatedAt).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          }
-                        )}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {donation.Donor?.name}
+              {filtered?.map((donation, index) => {
+                const delivery = deliveryLookup[donation._id];
+                return (
+                  <tr
+                    key={donation._id}
+                    className={index % 2 === 0 ? "bg-white" : "bg-gray-25"}
+                  >
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-900">
+                          {new Date(donation.updatedAt).toLocaleDateString(
+                            "en-US",
+                            { month: "short", day: "numeric", year: "numeric" }
+                          )}
+                        </span>
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {donation.typeOfDonor}
+                    </td>
+                    <td className="p-4">
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {donation.Donor?.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {donation.typeOfDonor}
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <Package className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-900">
-                        {donation.FoodType}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-900">
+                          {donation.FoodType}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <span className="font-medium text-gray-900">
+                        {formatAmount(donation)}
                       </span>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <span className="font-medium text-gray-900">
-                      {formatAmount(donation)}
-                    </span>
-                  </td>
+                    </td>
 
-                  <td className="p-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        donation.Status
-                      )}`}
-                    >
-                      {donation.Status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+                    <td className="p-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          donation.Status
+                        )}`}
+                      >
+                        {donation.Status}
+                      </span>
+                    </td>
+
+                    <td className="p-4">
+                      {donation.Status === "Completed" ? (
+                        delivery ? (
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs text-gray-400">
+                              {delivery.riderName}
+                            </span>
+                            {delivery.riderRating > 0 ? (
+                              <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    className={`w-4 h-4 ${
+                                      star <= delivery.riderRating
+                                        ? "text-yellow-400 fill-yellow-400"
+                                        : "text-gray-200"
+                                    }`}
+                                  />
+                                ))}
+                                <span className="text-xs text-gray-400 ml-1">
+                                  {delivery.riderRating}/5
+                                </span>
+                              </div>
+                            ) : (
+                              <StarRating rideId={delivery.rideId} onRate={onRateDelivery} />
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">No rider data</span>
+                        )
+                      ) : (
+                        <span className="text-xs text-gray-300">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

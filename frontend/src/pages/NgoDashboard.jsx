@@ -19,6 +19,7 @@ function App() {
   const [acceptedOrder, setAcceptedOrder] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [profile, setProfile] = useState({});
+  const [completedDeliveries, setCompletedDeliveries] = useState([]);
   const { socket } = useContext(SocketContext);
   const actions = useRef(null);
 
@@ -58,6 +59,7 @@ function App() {
     const onStatusUpdate = ({ status }) => {
       toast.info(status === "completed" ? "A delivery was completed" : "Food picked up");
       actions.current.acceptedOrdersHandler(true);
+      if (status === "completed") actions.current.fetchCompletedDeliveries();
     };
     socket.on("newDonation", onNewDonation);
     socket.on("statusUpdate", onStatusUpdate);
@@ -211,12 +213,42 @@ function App() {
     }
   };
 
+  const handleRateDelivery = async (rideId, rating) => {
+    try {
+      const response = await axios.post(
+        `${backendurl}receiver/rateDelivery`,
+        { rideId, rating },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      if (response.data.success) {
+        toast.success("Rating submitted successfully!");
+        fetchCompletedDeliveries();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to submit rating");
+    }
+  };
+
+  const fetchCompletedDeliveries = async () => {
+    try {
+      const response = await axios.get(`${backendurl}receiver/completedDeliveries`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.success) {
+        setCompletedDeliveries(response.data.data);
+      }
+    } catch {
+      // silently ignore
+    }
+  };
+
   // Latest fetch fns in a ref so the socket listeners (registered once) always call current closures.
-  actions.current = { getAllDonations, acceptedOrdersHandler };
+  actions.current = { getAllDonations, acceptedOrdersHandler, fetchCompletedDeliveries };
 
   useEffect(() => {
     getAllDonations();
     acceptedOrdersHandler();
+    fetchCompletedDeliveries();
   }, []);
 
   const renderContent = () => {
@@ -235,6 +267,8 @@ function App() {
             acceptedOrder={acceptedOrder}
             filtered={filtered}
             setFiltered={setFiltered}
+            completedDeliveries={completedDeliveries}
+            onRateDelivery={handleRateDelivery}
           />
         );
       case "analytics":
