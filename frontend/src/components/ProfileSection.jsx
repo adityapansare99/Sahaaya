@@ -1,5 +1,6 @@
-import React, { useContext, useState, useRef } from "react";
+import React, { useContext, useState, useRef, useEffect } from "react";
 import { User, Phone, MapPin, Car, Edit3, Shield, Camera, Lock, Trash2 } from "lucide-react";
+import LocationInput from "./LocationInput";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
@@ -12,7 +13,12 @@ const ProfileSection = ({ profile, handleChangeProfile }) => {
 
   const [name, setName] = useState(profile.name || "");
   const [phone, setPhone] = useState(profile.phone || "");
-  const [address, setAddress] = useState(profile.address || "");
+  const [address, setAddress] = useState("");
+
+  useEffect(() => {
+    if (profile.address) setAddress(profile.address);
+  }, [profile.address]);
+  const [addressCoords, setAddressCoords] = useState({ lat: profile.homeLatitude ?? null, lng: profile.homeLongitude ?? null });
   const [emergencyContact, setEmergencyContact] = useState(profile.emergencyNumber || "");
   const [vehicleType, setVehicleType] = useState(profile.typeOfVehicle || "");
   const [licenseNumber, setLicenseNumber] = useState(profile.licenseNumber || "");
@@ -34,7 +40,7 @@ const ProfileSection = ({ profile, handleChangeProfile }) => {
 
   const handleSave = () => {
     setIsEditing(false);
-    handleChangeProfile({ name, address, phone, emergencyNumber: emergencyContact, vehicleCapacity, licenseNumber, vehicleNumber, typeOfVehicle: vehicleType });
+    handleChangeProfile({ name, address, phone, emergencyNumber: emergencyContact, vehicleCapacity, licenseNumber, vehicleNumber, typeOfVehicle: vehicleType, latitude: addressCoords.lat, longitude: addressCoords.lng });
   };
 
   const handlePasswordSubmit = async (e) => {
@@ -158,8 +164,12 @@ const ProfileSection = ({ profile, handleChangeProfile }) => {
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">Address</label>
                   {isEditing ? (
-                    <textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500" />
+                    <LocationInput
+                      value={address}
+                      onChange={(val) => setAddress(val)}
+                      onSelect={(coords) => setAddressCoords(coords)}
+                      placeholder="Enter complete address"
+                    />
                   ) : (
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
                       <MapPin className="w-5 h-5 text-gray-400" />

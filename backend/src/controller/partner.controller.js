@@ -17,6 +17,8 @@ const registerPartner = asynchandler(async (req, res) => {
     discountPercentage,
     pointsRequired,
     description,
+    latitude,
+    longitude,
   } = data;
 
   const image = req.file;
@@ -55,6 +57,8 @@ const registerPartner = asynchandler(async (req, res) => {
       discountPercentage: discountPercentage || 10,
       pointsRequired: pointsRequired || 50,
       description: description || "",
+      latitude: latitude != null ? Number(latitude) : null,
+      longitude: longitude != null ? Number(longitude) : null,
     });
 
     if (!partner) {
@@ -179,12 +183,16 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     discountPercentage,
     pointsRequired,
     description,
+    latitude,
+    longitude,
   } = body;
 
   const updateData = {
     ...(name && { name }),
     ...(phone && { phone }),
     ...(address && { address }),
+    ...(latitude != null && { latitude: Number(latitude) }),
+    ...(longitude != null && { longitude: Number(longitude) }),
     ...(discountPercentage && { discountPercentage }),
     ...(pointsRequired && { pointsRequired }),
     ...(description !== undefined && { description }),

@@ -18,6 +18,8 @@ const registerPartner = asynchandler(async (req, res) => {
     licenseNumber,
     vehicleNumber,
     typeOfVehicle,
+    latitude,
+    longitude,
   } = data;
 
   const image = req.file;
@@ -67,6 +69,10 @@ const registerPartner = asynchandler(async (req, res) => {
       licenseNumber: licenseNumber,
       vehicleNumber: vehicleNumber,
       typeOfVehicle: typeOfVehicle,
+      latitude: latitude != null ? Number(latitude) : null,
+      longitude: longitude != null ? Number(longitude) : null,
+      homeLatitude: latitude != null ? Number(latitude) : null,
+      homeLongitude: longitude != null ? Number(longitude) : null,
     });
 
     if (!newpartner) {
@@ -218,6 +224,8 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     licenseNumber,
     vehicleNumber,
     typeOfVehicle,
+    latitude,
+    longitude,
   } = body;
 
   if (
@@ -237,6 +245,8 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     ...(licenseNumber && { licenseNumber }),
     ...(vehicleNumber && { vehicleNumber }),
     ...(typeOfVehicle && { typeOfVehicle }),
+    ...(latitude != null && { homeLatitude: Number(latitude) }),
+    ...(longitude != null && { homeLongitude: Number(longitude) }),
   };
 
   // Handle image upload

@@ -84,7 +84,7 @@ const FoodRequests = ({ donations,acceptOrder,rejectOrder }) => {
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-gray-400" />
                       <span className="text-sm text-gray-600">
-                        {request.PickupLocation} <br/> ({request?.distance || "0 km"})
+                        {request.PickupLocation} <br/> ({(request.distanceKm ?? request.distance) ? `${request.distanceKm ?? request.distance} km` : "—"})
                       </span>
                     </div>
                     <div className="flex items-center gap-2">

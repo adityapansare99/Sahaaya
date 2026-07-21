@@ -69,7 +69,17 @@ const ngoSchema = new mongoose.Schema(
 
     socketId:{
         type:String
-    }
+    },
+
+    latitude:{
+        type: Number,
+        default: null,
+    },
+
+    longitude:{
+        type: Number,
+        default: null,
+    },
   },
   { timestamps: true }
 );

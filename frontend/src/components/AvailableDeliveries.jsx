@@ -96,7 +96,7 @@ const AvailableDeliveries = ({deliveries,handleAcceptDelivery,setDeliveries}) =>
                       </div>
                       <div className="bg-gray-100 px-3 py-1 rounded-lg">
                         <span className="text-gray-700 font-medium">
-                          {delivery?.distance || "0 km"}
+                          {delivery?.distanceKm != null ? `${delivery.distanceKm} km` : "—"}
                         </span>
                       </div>
                     </div>

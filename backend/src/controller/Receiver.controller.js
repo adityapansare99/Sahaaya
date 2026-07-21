@@ -4,8 +4,8 @@ import Donation from "../model/donation.model.js";
 import Ride from "../model/ride.model.js";
 import Delivery from "../model/delivery.model.js";
 import { sendMessageToSocketId, broadcastToUserType } from "../socket.js";
+import { haversineDistance } from "../utils/haversine.js";
 
-//take the donation with pending and not expired
 const donations = asynchandler(async (req, res) => {
   try {
     const Ngo = req.Ngo;
@@ -16,17 +16,15 @@ const donations = asynchandler(async (req, res) => {
         .json(new ApiResponse(401, {}, "Please login to continue"));
     }
 
-    let donations = await Donation.find({
+    let allDonations = await Donation.find({
       Status: "Pending",
     })
       .populate("Donor")
       .populate("Ngo");
 
-    //logic for the get distance donation
     const combineDateAndTime = (dateStr, timeStr) => {
       const date = new Date(dateStr);
       const [hours, minutes] = timeStr.split(":").map(Number);
-
       return new Date(
         date.getFullYear(),
         date.getMonth(),
@@ -41,38 +39,55 @@ const donations = asynchandler(async (req, res) => {
     const getRemainingTime = (expiry) => {
       const now = new Date();
       let diff = expiry - now;
-
       if (diff <= 0) return null;
-
       const hours = Math.floor(diff / (1000 * 60 * 60));
       diff -= hours * 1000 * 60 * 60;
-
       const minutes = Math.floor(diff / (1000 * 60));
-
       return `${hours}:${minutes}`;
     };
 
-    donations = donations
+    let result = allDonations
       .map((donation) => {
         const expiry = combineDateAndTime(
           donation.ExpiryDate,
           donation.ExpiryTime
         );
-
         const timeLeft = getRemainingTime(expiry);
-
         if (!timeLeft) return null;
 
         donation = donation.toObject();
         donation.timeLeft = timeLeft;
 
+        if (Ngo.latitude != null && Ngo.longitude != null && donation.pickupLatitude != null && donation.pickupLongitude != null) {
+          const dist = haversineDistance(
+            Ngo.latitude,
+            Ngo.longitude,
+            donation.pickupLatitude,
+            donation.pickupLongitude
+          );
+          donation.distanceKm = dist !== null ? Math.round(dist * 10) / 10 : null;
+        } else {
+          donation.distanceKm = null;
+        }
+
         return donation;
       })
-      .filter((donation) => donation !== null);
+      .filter((donation) => {
+        if (!donation) return false;
+        if (Ngo.latitude != null && donation.distanceKm !== null) {
+          return donation.distanceKm <= 20;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        if (a.distanceKm === null) return 1;
+        if (b.distanceKm === null) return -1;
+        return a.distanceKm - b.distanceKm;
+      });
 
     return res
       .status(200)
-      .json(new ApiResponse(200, donations, "Donations fetched successfully"));
+      .json(new ApiResponse(200, result, "Donations fetched successfully"));
   } catch (error) {
     console.log(error);
   }
@@ -117,7 +132,6 @@ const acceptOrder = asynchandler(async (req, res) => {
     donation: donationResponse._id,
   });
 
-  // add the time and distance logic here
 
   if (!ride) {
     return res.status(401).json(new ApiResponse(401, {}, "Ride not created"));
@@ -132,15 +146,50 @@ const acceptOrder = asynchandler(async (req, res) => {
     return res.status(401).json(new ApiResponse(401, {}, "Ride not found"));
   }
 
-  // Tell the donor their donation was accepted, and alert all riders to the new ride.
   sendMessageToSocketId(donationResponse.Donor?.socketId, {
     event: "donationAccepted",
     data: { donation: donationResponse },
   });
-  broadcastToUserType("delivery", {
-    event: "rideCreated",
-    data: { ride: rideResponse },
-  });
+  
+  if (donationResponse.pickupLatitude != null && donationResponse.pickupLongitude != null) {
+    try {
+      const activeRiders = await Delivery.find({
+        approved: true,
+        lastActiveAt: { $gte: new Date(Date.now() - 3 * 60 * 1000) }, 
+        $or: [
+          { latitude: { $ne: null }, longitude: { $ne: null } },
+          { homeLatitude: { $ne: null }, homeLongitude: { $ne: null } },
+        ],
+      });
+
+      for (const rider of activeRiders) {
+        const dCurrent =
+          rider.latitude != null && rider.longitude != null
+            ? haversineDistance(donationResponse.pickupLatitude, donationResponse.pickupLongitude, rider.latitude, rider.longitude)
+            : null;
+        const dHome =
+          rider.homeLatitude != null && rider.homeLongitude != null
+            ? haversineDistance(donationResponse.pickupLatitude, donationResponse.pickupLongitude, rider.homeLatitude, rider.homeLongitude)
+            : null;
+        const inRange = (dCurrent !== null && dCurrent <= 20) || (dHome !== null && dHome <= 20);
+        if (inRange) {
+          const candidates = [dCurrent, dHome].filter((d) => d !== null);
+          const dist = candidates.length ? Math.min(...candidates) : null;
+          sendMessageToSocketId(rider.socketId, {
+            event: "rideCreated",
+            data: { ride: rideResponse, distanceKm: dist !== null ? Math.round(dist * 10) / 10 : null },
+          });
+        }
+      }
+    } catch (err) {
+      console.error("[acceptOrder] Error notifying nearby riders:", err.message);
+    }
+  } else {
+    broadcastToUserType("delivery", {
+      event: "rideCreated",
+      data: { ride: rideResponse },
+    });
+  }
 
   res
     .status(200)
@@ -179,8 +228,6 @@ const receivedDonations = asynchandler(async (req, res) => {
       )
     );
 });
-
-// ─── Rating system ─────────────────────────────────────────
 
 const completedDeliveries = asynchandler(async (req, res) => {
   const Ngo = req.Ngo;
@@ -226,7 +273,6 @@ const rateDelivery = asynchandler(async (req, res) => {
       .json(new ApiResponse(400, {}, "Rating must be an integer between 1 and 5"));
   }
 
-  // Find the ride and verify it belongs to this NGO
   const ride = await Ride.findOne({
     _id: rideId,
     receiver: Ngo._id,
@@ -251,11 +297,9 @@ const rateDelivery = asynchandler(async (req, res) => {
       .json(new ApiResponse(400, {}, "No rider assigned to this ride"));
   }
 
-  // Update the ride with the rating
   ride.riderRating = ratingNum;
   await ride.save();
 
-  // Recalculate the rider's average rating across all completed rides
   const allRides = await Ride.find({
     rider: ride.rider._id,
     riderRating: { $gt: 0 },
@@ -267,7 +311,6 @@ const rateDelivery = asynchandler(async (req, res) => {
 
   await Delivery.findByIdAndUpdate(ride.rider._id, { rating: averageRating });
 
-  // Notify the rider they got a rating
   sendMessageToSocketId(ride.rider.socketId, {
     event: "riderRated",
     data: { rating: ratingNum, averageRating },

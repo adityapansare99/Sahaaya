@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
+import LocationInput from "../components/LocationInput";
 
 const DonorRegistration = () => {
   const { backendurl, setToken } = useContext(AppContext);
@@ -32,6 +33,7 @@ const DonorRegistration = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [addressCoords, setAddressCoords] = useState({ lat: null, lng: null });
   const [pincode, setPincode] = useState("");
   const [checked, setChecked] = useState(false);
 
@@ -55,6 +57,8 @@ const DonorRegistration = () => {
       phone,
       email,
       password,
+      latitude: addressCoords.lat,
+      longitude: addressCoords.lng,
     };
 
     // console.log(data);
@@ -353,12 +357,11 @@ const DonorRegistration = () => {
                           </label>
                         </div>
                       </div>
-                      <input
-                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
-                        placeholder="Complete address with city and state"
-                        type="text"
+                      <LocationInput
                         value={address}
-                        onChange={(e) => setAddress(e.target.value)}
+                        onChange={setAddress}
+                        onSelect={setAddressCoords}
+                        placeholder="Complete address with city and state"
                       />
                     </div>
 
@@ -523,12 +526,11 @@ const DonorRegistration = () => {
                           </label>
                         </div>
                       </div>
-                      <input
-                        className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
-                        placeholder="Complete address with city and state"
-                        type="text"
+                      <LocationInput
                         value={address}
-                        onChange={(e) => setAddress(e.target.value)}
+                        onChange={setAddress}
+                        onSelect={setAddressCoords}
+                        placeholder="Complete address with city and state"
                       />
                     </div>
 

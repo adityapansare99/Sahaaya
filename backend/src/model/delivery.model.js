@@ -88,7 +88,32 @@ const deliverySchema = new mongoose.Schema({
 
     socketId:{
         type:String
-    }
+    },
+
+    latitude:{
+        type: Number,
+        default: null,
+    },
+
+    longitude:{
+        type: Number,
+        default: null,
+    },
+
+    lastActiveAt:{
+        type: Date,
+        default: null,
+    },
+
+    homeLatitude:{
+        type: Number,
+        default: null,
+    },
+
+    homeLongitude:{
+        type: Number,
+        default: null,
+    },
 },{timestamps:true});
 
 deliverySchema.pre("save", async function (next) {

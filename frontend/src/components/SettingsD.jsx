@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Mail, Phone, MapPin, Lock, Save } from 'lucide-react';
+import LocationInput from "./LocationInput";
 
 const SettingsD = ({ profile, onProfileUpdate,changePasswordHandler,deleteAccountHandler }) => {
   const [formData, setFormData] = useState(profile);
@@ -87,11 +88,11 @@ const SettingsD = ({ profile, onProfileUpdate,changePasswordHandler,deleteAccoun
                     <MapPin className="w-4 h-4 inline mr-2" />
                     Address
                   </label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                  <LocationInput
+                    value={formData.address?.address || formData.address || ""}
+                    onChange={(val) => handleInputChange('address', val)}
+                    onSelect={(coords) => setFormData((prev) => ({ ...prev, latitude: coords.lat, longitude: coords.lng }))}
+                    placeholder="Enter your address"
                     required
                   />
                 </div>

@@ -8,6 +8,7 @@ import Redemption from "../model/redemption.model.js";
 import Partner from "../model/partner.model.js";
 import crypto from "crypto";
 import { sendMessageToSocketId } from "../socket.js";
+import { haversineDistance } from "../utils/haversine.js";
 import { sendReceipt } from "../service/emailService.js";
 
 const allRides = asynchandler(async (req, res) => {
@@ -73,6 +74,37 @@ const allRides = asynchandler(async (req, res) => {
       return ride;
     })
     .filter((ride) => ride !== null);
+
+  const curLat = partner.latitude;
+  const curLng = partner.longitude;
+  const homeLat = partner.homeLatitude;
+  const homeLng = partner.homeLongitude;
+  const hasCurrent = curLat != null && curLng != null;
+  const hasHome = homeLat != null && homeLng != null;
+
+  if (hasCurrent || hasHome) {
+    rides = rides
+      .map((ride) => {
+        const pickupLat = ride.donation?.pickupLatitude;
+        const pickupLng = ride.donation?.pickupLongitude;
+        if (pickupLat == null || pickupLng == null) {
+          ride.distanceKm = null;
+          return ride; 
+        }
+        const dCurrent = hasCurrent ? haversineDistance(curLat, curLng, pickupLat, pickupLng) : null;
+        const dHome = hasHome ? haversineDistance(homeLat, homeLng, pickupLat, pickupLng) : null;
+        const inRange =
+          (dCurrent !== null && dCurrent <= 20) ||
+          (dHome !== null && dHome <= 20);
+        if (!inRange) return null;
+        const candidates = [dCurrent, dHome].filter((d) => d !== null);
+        ride.distanceKm = candidates.length
+          ? Math.round(Math.min(...candidates) * 10) / 10
+          : null;
+        return ride;
+      })
+      .filter((ride) => ride !== null);
+  }
 
   if (!rides) {
     return res.status(404).json(new ApiResponse(404, {}, "No rides found"));
@@ -181,7 +213,6 @@ const markPicked = asynchandler(async (req, res) => {
       );
   }
 
-  // Notify the donor and the NGO that the food has been picked up.
   const ride = await Ride.findById(response._id)
     .populate("donor")
     .populate("receiver");
@@ -240,7 +271,6 @@ const markCompeted = asynchandler(async (req, res) => {
     );
   }
 
-  // Re-fetch so we emit accurate points (req.partner is pre-increment).
   const updatedPartner = await Delivery.findByIdAndUpdate(
     partner._id,
     {
@@ -252,7 +282,6 @@ const markCompeted = asynchandler(async (req, res) => {
     { new: true },
   );
 
-  // Notify donor + NGO of completion, and the rider of points earned.
   const ride = await Ride.findById(response._id)
     .populate("donor")
     .populate("receiver");
@@ -295,6 +324,28 @@ const getAllRides = asynchandler(async (req, res) => {
   res
     .status(200)
     .json(new ApiResponse(200, response, "Rides fetched successfully"));
+});
+
+const updateLocation = asynchandler(async (req, res) => {
+  const partner = req.partner;
+
+  if (!partner) {
+    return res.status(401).json(new ApiResponse(401, {}, "Please login to continue"));
+  }
+
+  const { latitude, longitude } = req.body;
+
+  if (latitude == null || longitude == null) {
+    return res.status(400).json(new ApiResponse(400, {}, "Latitude and longitude are required"));
+  }
+
+  await Delivery.findByIdAndUpdate(partner._id, {
+    latitude: Number(latitude),
+    longitude: Number(longitude),
+    lastActiveAt: new Date(),
+  });
+
+  res.status(200).json(new ApiResponse(200, {}, "Location updated"));
 });
 
 const getRewards = asynchandler(async (req, res) => {
@@ -393,8 +444,6 @@ const redeemPoints = asynchandler(async (req, res) => {
 
   console.log("booking code:", await generateBookingCode());
 
-  // Points are spent — create the redemption record. Retry on bookingCode
-  // collision (unique index); if it still fails, refund so the rider isn't charged.
   let redemption;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -421,7 +470,6 @@ const redeemPoints = asynchandler(async (req, res) => {
     }
   }
 
-  // Receipt is best-effort: a missing/failed email must not fail the redemption.
   const emailResult = await sendReceipt({
     redemption,
     rider: updatedRider,
@@ -468,4 +516,5 @@ export {
   getRewards,
   redeemPoints,
   myRedemptions,
+  updateLocation,
 };

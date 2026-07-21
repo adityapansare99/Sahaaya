@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 const registerDonor = asynchandler(async (req, res) => {
   const data = JSON.parse(req.body.data);
 
-  const { name, email, phone, address, pincode, password } = data;
+  const { name, email, phone, address, pincode, password, latitude, longitude } = data;
   const image = req.file;
 
   if ([name, email, password].some((item) => item.trim().length === 0)) {
@@ -39,6 +39,8 @@ const registerDonor = asynchandler(async (req, res) => {
       address: address,
       pincode: pincode,
       password: password,
+      latitude: latitude != null ? Number(latitude) : null,
+      longitude: longitude != null ? Number(longitude) : null,
     });
 
     if (!newdonor) {
@@ -167,7 +169,7 @@ const updateDonorProfile = asynchandler(async (req, res) => {
     return res.status(404).json(new ApiResponse(404, {}, "No donor found"));
   }
 
-  const { name, phone, address, pincode } = req.body;
+  const { name, phone, address, pincode, latitude, longitude } = req.body;
 
   if (
     [name, phone, address, pincode].some(
@@ -186,6 +188,8 @@ const updateDonorProfile = asynchandler(async (req, res) => {
       phone: phone,
       address: address,
       pincode: pincode,
+      ...(latitude != null && { latitude: Number(latitude) }),
+      ...(longitude != null && { longitude: Number(longitude) }),
     },
     { new: true }
   );

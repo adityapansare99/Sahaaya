@@ -54,6 +54,16 @@ const donationSchema = new mongoose.Schema(
         required: true,
     },
 
+    pickupLatitude: {
+        type: Number,
+        default: null,
+    },
+
+    pickupLongitude: {
+        type: Number,
+        default: null,
+    },
+
     ExpiryDate: {
         type: Date,
         required: true,

@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import LocationInput from "../components/LocationInput";
 
 const RiderRegistration = () => {
   const { backendurl, setToken } = useContext(AppContext);
@@ -27,6 +28,7 @@ const RiderRegistration = () => {
   const [image, setImage] = useState(null);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
+  const [addressCoords, setAddressCoords] = useState({ lat: null, lng: null });
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [emergencyNumber, setEmergencyNumber] = useState("");
@@ -53,7 +55,7 @@ const RiderRegistration = () => {
 
     const data = {
       name,
-      address,
+      address: address.address || address,
       phone,
       email,
       password,
@@ -62,6 +64,8 @@ const RiderRegistration = () => {
       licenseNumber,
       vehicleNumber,
       typeOfVehicle,
+      latitude: addressCoords.lat,
+      longitude: addressCoords.lng,
     };
 
     const formData = new FormData();
@@ -265,12 +269,11 @@ const RiderRegistration = () => {
                     </label>
                   </div>
                 </div>
-                <input
-                  className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
-                  placeholder="Complete address with city and state"
-                  type="text"
+                <LocationInput
                   value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                  onChange={setAddress}
+                  onSelect={setAddressCoords}
+                  placeholder="Complete address with city and state"
                 />
               </div>
 

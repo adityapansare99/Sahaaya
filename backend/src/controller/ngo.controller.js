@@ -18,6 +18,8 @@ const registerNgo = asynchandler(async (req, res) => {
     password,
     RegistrationNumber,
     typeofNgo,
+    latitude,
+    longitude,
   } = data;
 
   const image = req.file;
@@ -65,6 +67,8 @@ const registerNgo = asynchandler(async (req, res) => {
       DailyCapacity: DailyCapacity,
       RegistrationNumber: RegistrationNumber,
       typeofNgo: typeofNgo,
+      latitude: latitude != null ? Number(latitude) : null,
+      longitude: longitude != null ? Number(longitude) : null,
     });
 
     if (!newNgo) {
@@ -192,6 +196,8 @@ const updateNgoProfile = asynchandler(async (req, res) => {
     contactPerson,
     DailyCapacity,
     Description,
+    latitude,
+    longitude,
   } = req.body;
 
   if (
@@ -222,6 +228,8 @@ const updateNgoProfile = asynchandler(async (req, res) => {
       contactPerson,
       DailyCapacity,
       Description,
+      ...(latitude != null && { latitude: Number(latitude) }),
+      ...(longitude != null && { longitude: Number(longitude) }),
     },
     { new: true }
   );

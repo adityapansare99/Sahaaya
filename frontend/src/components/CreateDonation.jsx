@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Plus, MapPin, Clock, Package } from "lucide-react";
+import LocationInput from "./LocationInput";
 
 const CreateDonation = ({ onDonationCreate }) => {
   const [donorType, setDonorType] = useState("");
@@ -7,7 +8,8 @@ const CreateDonation = ({ onDonationCreate }) => {
   const [description, setDescription] = useState("");
   const [weightKg, setWeightKg] = useState("");
   const [serves, setServes] = useState("");
-  const [pickupLocation, setPickupLocation] = useState("");
+  const [pickupAddress, setPickupAddress] = useState("");
+  const [pickupCoords, setPickupCoords] = useState({ lat: null, lng: null });
   const [expiryDate, setExpiryDate] = useState("");
   const [expiryTime, setExpiryTime] = useState("");
 
@@ -33,7 +35,9 @@ const CreateDonation = ({ onDonationCreate }) => {
       description,
       weightKg: Number(weightKg) || 0,
       serves: Number(serves) || 0,
-      pickup: pickupLocation,
+      pickup: pickupAddress,
+      pickupLatitude: pickupCoords.lat,
+      pickupLongitude: pickupCoords.lng,
       expiryDate,
       expiryTime,
     };
@@ -45,7 +49,8 @@ const CreateDonation = ({ onDonationCreate }) => {
     setDescription("");
     setWeightKg("");
     setServes("");
-    setPickupLocation("");
+    setPickupAddress("");
+    setPickupCoords({ lat: null, lng: null });
     setExpiryDate("");
     setExpiryTime("");
   };
@@ -160,14 +165,18 @@ const CreateDonation = ({ onDonationCreate }) => {
               <MapPin className="w-4 h-4 inline mr-2" />
               Pickup Location
             </label>
-            <input
-              type="text"
-              value={pickupLocation}
-              onChange={(e) => setPickupLocation(e.target.value)}
+            <LocationInput
+              value={pickupAddress}
+              onChange={setPickupAddress}
+              onSelect={setPickupCoords}
               placeholder="Enter complete address"
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
               required
             />
+            {pickupCoords.lat && pickupCoords.lng && (
+              <p className="mt-1 text-xs text-gray-500">
+                Coordinates: {pickupCoords.lat.toFixed(6)}, {pickupCoords.lng.toFixed(6)}
+              </p>
+            )}
           </div>
 
           {/* Expiry Date & Time */}

@@ -23,6 +23,7 @@ const RiderDashboard = () => {
   const [history, setHistory] = useState([]);
   const [profile, setProfile] = useState({});
   const [name, setName] = useState("");
+  const locationIntervalRef = useRef(null);
 
   const fetchDeliveries = async () => {
     try {
@@ -198,6 +199,41 @@ const RiderDashboard = () => {
       socket.off("pointsAwarded", onPointsAwarded);
     };
   }, [socket, profile]);
+
+  // Location polling for active riders
+  useEffect(() => {
+    if (!profile?._id) return;
+
+    const updateLocation = async () => {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          try {
+            await axios.put(
+              `${backendurl}rider/updateLocation`,
+              { latitude, longitude },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+          } catch (err) {
+            console.error("[rider] Location update failed:", err.message);
+          }
+        },
+        (err) => {
+          console.warn("[rider] Geolocation denied/unavailable:", err.message);
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    };
+
+    // Update immediately, then every 90 seconds
+    updateLocation();
+    locationIntervalRef.current = setInterval(updateLocation, 90 * 1000);
+
+    return () => {
+      if (locationIntervalRef.current) clearInterval(locationIntervalRef.current);
+    };
+  }, [backendurl, token, profile?._id]);
 
   const handleChangeProfile = async (data) => {
     try {

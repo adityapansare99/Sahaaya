@@ -1,7 +1,9 @@
 import { asynchandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import Donation from "../model/donation.model.js";
-import { broadcastToUserType } from "../socket.js";
+import NGO from "../model/ngo.model.js";
+import { sendMessageToSocketId, broadcastToUserType } from "../socket.js";
+import { haversineDistance } from "../utils/haversine.js";
 
 // Coerce a numeric field from req.body into a non-negative Number (defaults to 0).
 const toNonNegativeNumber = (value) => {
@@ -20,6 +22,8 @@ const createDonation = asynchandler(async (req, res) => {
     expiryTime,
     weightKg,
     serves,
+    pickupLatitude,
+    pickupLongitude,
   } = req.body;
   const donor = req.donor;
 
@@ -43,6 +47,8 @@ const createDonation = asynchandler(async (req, res) => {
     typeOfDonor: donorType,
     weightKg: toNonNegativeNumber(weightKg),
     serves: toNonNegativeNumber(serves),
+    pickupLatitude: pickupLatitude != null ? Number(pickupLatitude) : null,
+    pickupLongitude: pickupLongitude != null ? Number(pickupLongitude) : null,
   });
 
   if (!donation) {
@@ -61,7 +67,31 @@ const createDonation = asynchandler(async (req, res) => {
       .json(new ApiResponse(400, {}, "Donation creation failed"));
   }
 
-  broadcastToUserType("ngo", { event: "newDonation", data: { donation: reponse } });
+  // Notify only NGOs within 20km of the pickup location
+  if (reponse.pickupLatitude != null && reponse.pickupLongitude != null) {
+    try {
+      const allNgos = await NGO.find({ approved: true });
+      for (const ngo of allNgos) {
+        const dist = haversineDistance(
+          reponse.pickupLatitude,
+          reponse.pickupLongitude,
+          ngo.latitude,
+          ngo.longitude
+        );
+        if (dist !== null && dist <= 20) {
+          sendMessageToSocketId(ngo.socketId, {
+            event: "newDonation",
+            data: { donation: reponse, distanceKm: Math.round(dist * 10) / 10 },
+          });
+        }
+      }
+    } catch (err) {
+      console.error("[donation] Error sending proximity notifications:", err.message);
+    }
+  } else {
+    // Fallback: no coordinates — broadcast to all
+    broadcastToUserType("ngo", { event: "newDonation", data: { donation: reponse } });
+  }
 
   return res
     .status(201)

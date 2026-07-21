@@ -20,6 +20,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
+import LocationInput from "../components/LocationInput";
 
 const NgoRegistration = () => {
   const { backendurl, setToken } = useContext(AppContext);
@@ -28,6 +29,7 @@ const NgoRegistration = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [addressCoords, setAddressCoords] = useState({ lat: null, lng: null });
   const [contactPerson, setContactPerson] = useState("");
   const [DailyCapacity, setDailyCapacity] = useState("");
   const [RegistrationNumber, setRegistrationNumber] = useState("");
@@ -59,6 +61,8 @@ const NgoRegistration = () => {
       password,
       RegistrationNumber,
       typeofNgo,
+      latitude: addressCoords.lat,
+      longitude: addressCoords.lng,
     };
 
     const formData = new FormData();
@@ -262,12 +266,11 @@ const NgoRegistration = () => {
                     </label>
                   </div>
                 </div>
-                <input
-                  className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
-                  placeholder="Sector 15, Phase 2, Gurgaon, Haryana - 122001"
-                  type="text"
+                <LocationInput
                   value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                  onChange={setAddress}
+                  onSelect={setAddressCoords}
+                  placeholder="Sector 15, Phase 2, Gurgaon, Haryana - 122001"
                   required
                 />
               </div>

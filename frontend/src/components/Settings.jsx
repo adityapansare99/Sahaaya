@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Building, Save, User, Lock, Trash2 } from "lucide-react";
+import LocationInput from "./LocationInput";
 
 const Settings = ({
   profile,
@@ -10,7 +11,7 @@ const Settings = ({
 }) => {
   const [name, setName] = useState(profile.name || "");
   const [phone, setPhone] = useState(profile.phone || "");
-  const [address, setAddress] = useState(profile.address || "");
+  const [address, setAddress] = useState({ address: profile.address || "", lat: profile.latitude || null, lng: profile.longitude || null });
   const [typeofNgo, setTypeofNgo] = useState(profile.typeofNgo || "");
   const [RegistrationNumber, setRegistrationNumber] = useState(
     profile.RegistrationNumber || "",
@@ -32,12 +33,14 @@ const Settings = ({
     const responseData = {
       name,
       phone,
-      address,
+      address: address.address,
       typeofNgo,
       RegistrationNumber,
       contactPerson,
       DailyCapacity,
       Description,
+      latitude: address.lat,
+      longitude: address.lng,
     };
     updateProfile(responseData);
   };
@@ -171,11 +174,12 @@ const Settings = ({
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Address
                   </label>
-                  <textarea
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  <LocationInput
+                    value={address.address ?? ""}
+                    onChange={(val) => setAddress((prev) => ({ ...prev, address: val }))}
+                    onSelect={(coords) => setAddress((prev) => ({ ...prev, ...coords }))}
+                    placeholder="Enter complete address"
+                    required
                   />
                 </div>
                 <div className="mt-4">
