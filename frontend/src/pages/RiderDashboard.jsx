@@ -200,40 +200,61 @@ const RiderDashboard = () => {
     };
   }, [socket, profile]);
 
-  // Location polling for active riders
   useEffect(() => {
     if (!profile?._id) return;
+    const activeRideId = activeOrder?.[0]?._id;
 
-    const updateLocation = async () => {
-      if (!navigator.geolocation) return;
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const { latitude, longitude } = pos.coords;
-          try {
-            await axios.put(
-              `${backendurl}rider/updateLocation`,
-              { latitude, longitude },
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-          } catch (err) {
-            console.error("[rider] Location update failed:", err.message);
-          }
-        },
-        (err) => {
-          console.warn("[rider] Geolocation denied/unavailable:", err.message);
-        },
-        { timeout: 10000, enableHighAccuracy: true }
-      );
+    const getPosition = () =>
+      new Promise((resolve) => {
+        if (!navigator.geolocation) return resolve(null);
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve(pos.coords),
+          (err) => {
+            console.warn("[rider] Geolocation:", err.message);
+            resolve(null);
+          },
+          { timeout: 10000, enableHighAccuracy: true }
+        );
+      });
+
+    const writeDb = async (latitude, longitude) => {
+      try {
+        await axios.put(
+          `${backendurl}rider/updateLocation`,
+          { latitude, longitude },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } catch (err) {
+        console.error("[rider] Location update failed:", err.message);
+      }
     };
 
-    // Update immediately, then every 90 seconds
-    updateLocation();
-    locationIntervalRef.current = setInterval(updateLocation, 90 * 1000);
+    if (locationIntervalRef.current) clearInterval(locationIntervalRef.current);
+
+    if (activeRideId && socket) {
+      let tick = 0;
+      const step = async () => {
+        const c = await getPosition();
+        if (!c) return;
+        socket.emit("updateRiderLocation", { latitude: c.latitude, longitude: c.longitude });
+        if (tick % 4 === 0) writeDb(c.latitude, c.longitude);
+        tick++;
+      };
+      step();
+      locationIntervalRef.current = setInterval(step, 8000);
+    } else {
+      const step = async () => {
+        const c = await getPosition();
+        if (c) writeDb(c.latitude, c.longitude);
+      };
+      step();
+      locationIntervalRef.current = setInterval(step, 90 * 1000);
+    }
 
     return () => {
       if (locationIntervalRef.current) clearInterval(locationIntervalRef.current);
     };
-  }, [backendurl, token, profile?._id]);
+  }, [backendurl, token, profile?._id, socket, activeOrder]);
 
   const handleChangeProfile = async (data) => {
     try {

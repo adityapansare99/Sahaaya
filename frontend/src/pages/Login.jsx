@@ -16,7 +16,7 @@ import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
 
 const Login = () => {
-  const { backendurl, setToken } = useContext(AppContext);
+  const { backendurl, setToken, setRole } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginAs, setLoginAs] = useState("Donor");
@@ -24,6 +24,9 @@ const Login = () => {
   const navigate = useNavigate();
 
   const submitHandler = async () => {
+    setRole(loginAs);
+    localStorage.setItem("role", loginAs);
+
     if (loginAs === "Donor") {
       const response = await axios.post(`${backendurl}donor/login`, {
         email,

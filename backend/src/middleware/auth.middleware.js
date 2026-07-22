@@ -138,4 +138,47 @@ const authRestaurant = asynchandler(async (req, res, next) => {
     }
 });
 
-export {authDonor,authNgo,authPartner, authRestaurant};
+
+const authAnyParty = asynchandler(async (req, res, next) => {
+  const token =
+    req.cookies.refreshtoken ||
+    req.header("Authorization")?.replace("Bearer ", "") ||
+    req.body.refreshtoken;
+
+  if (!token) {
+    return res.status(401).json(new ApiResponse(401, {}, "Please login to continue"));
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, process.env.refreshtoken);
+
+    if (!decodedToken) {
+      return res.status(401).json(new ApiResponse(401, {}, "Invalid Token"));
+    }
+
+    const email = decodedToken.email;
+
+    const [donor, ngo, delivery] = await Promise.all([
+      Donor.findOne({ email }),
+      NGO.findOne({ email }),
+      Delivery.findOne({ email }),
+    ]);
+
+    if (donor) {
+      req.user = { _id: donor._id, role: "donor", doc: donor };
+    } else if (ngo) {
+      req.user = { _id: ngo._id, role: "ngo", doc: ngo };
+    } else if (delivery) {
+      req.user = { _id: delivery._id, role: "delivery", doc: delivery };
+    } else {
+      return res.status(401).json(new ApiResponse(401, {}, "No account found"));
+    }
+
+    next();
+  } catch (error) {
+    console.log(error);
+    return res.status(401).json(new ApiResponse(401, {}, "Invalid Token"));
+  }
+});
+
+export {authDonor,authNgo,authPartner, authRestaurant, authAnyParty};

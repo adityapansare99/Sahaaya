@@ -7,7 +7,7 @@ import Delivery from "../model/delivery.model.js";
 import Redemption from "../model/redemption.model.js";
 import Partner from "../model/partner.model.js";
 import crypto from "crypto";
-import { sendMessageToSocketId } from "../socket.js";
+import { sendMessageToSocketId, broadcastToRide } from "../socket.js";
 import { haversineDistance } from "../utils/haversine.js";
 import { sendReceipt } from "../service/emailService.js";
 
@@ -224,6 +224,10 @@ const markPicked = asynchandler(async (req, res) => {
     event: "statusUpdate",
     data: { ride, status: "picked up" },
   });
+  broadcastToRide(String(ride?._id), {
+    event: "statusUpdate",
+    data: { ride, status: "picked up" },
+  });
 
   res.status(200).json(new ApiResponse(200, {}, "Ride picked up successfully"));
 });
@@ -299,6 +303,10 @@ const markCompeted = asynchandler(async (req, res) => {
       points: updatedPartner?.points ?? 0,
     },
   });
+  broadcastToRide(String(ride?._id), {
+    event: "statusUpdate",
+    data: { ride, status: "completed" },
+  });
 
   res.status(200).json(new ApiResponse(200, {}, "Ride completed successfully"));
 });
@@ -344,6 +352,22 @@ const updateLocation = asynchandler(async (req, res) => {
     longitude: Number(longitude),
     lastActiveAt: new Date(),
   });
+
+  const activeRide = await Ride.findOne({
+    rider: partner._id,
+    status: { $in: ["accepted", "picked up"] },
+  }).lean();
+  if (activeRide) {
+    broadcastToRide(String(activeRide._id), {
+      event: "riderLocation",
+      data: {
+        rideId: String(activeRide._id),
+        latitude: Number(latitude),
+        longitude: Number(longitude),
+        lastActiveAt: new Date().toISOString(),
+      },
+    });
+  }
 
   res.status(200).json(new ApiResponse(200, {}, "Location updated"));
 });

@@ -1,9 +1,31 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Edit3, X, MapPin, Calendar, Package, Clock } from "lucide-react";
-import { useEffect } from "react";
+import axios from "axios";
+import { AppContext } from "../context/AppContext";
 import { formatAmount } from "../utils/formatDonation";
 
 const MyDonations = ({ donations, onEdit, onCancel }) => {
+  const { backendurl, token } = useContext(AppContext);
+  const navigate = useNavigate();
+  const [trackingId, setTrackingId] = useState(null);
+
+  // Donations carry no rideId, so resolve the in-progress ride on click.
+  const handleTrack = async (donationId) => {
+    setTrackingId(donationId);
+    try {
+      const { data } = await axios.get(
+        `${backendurl}track/by-donation/${donationId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (data?.data?.rideId) navigate(`/track/${data.data.rideId}`);
+    } catch {
+      /* no active ride — button is gated on "Accepted" so this is unexpected */
+    } finally {
+      setTrackingId(null);
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case "Pending":
@@ -166,6 +188,23 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                       >
                         <X className="w-4 h-4" />
                         <span>Cancel</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {donation.Status === "Accepted" && (
+                    <div className="flex lg:ml-6">
+                      <button
+                        onClick={() => handleTrack(donation._id)}
+                        disabled={trackingId === donation._id}
+                        className="flex cursor-pointer items-center space-x-2 px-4 py-2 text-green-700 border border-green-300 rounded-2xl hover:bg-green-50 transition-all duration-200 disabled:opacity-60"
+                      >
+                        <MapPin className="w-4 h-4" />
+                        <span>
+                          {trackingId === donation._id
+                            ? "Loading…"
+                            : "Live Location"}
+                        </span>
                       </button>
                     </div>
                   )}

@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Calendar, User, Package, Filter, Star } from "lucide-react";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Calendar, User, Package, Filter, Star, MapPin } from "lucide-react";
+import axios from "axios";
+import { AppContext } from "../context/AppContext";
 import { formatAmount } from "../utils/formatDonation";
 
 const StarRating = ({ rideId, onRate }) => {
@@ -50,7 +53,27 @@ const StarRating = ({ rideId, onRate }) => {
 };
 
 const DonationHistory = ({ acceptedOrder, filtered, setFiltered, completedDeliveries = [], onRateDelivery }) => {
+  const { backendurl, token } = useContext(AppContext);
+  const navigate = useNavigate();
+  const [trackingId, setTrackingId] = useState(null);
   const [filter, setFilter] = useState("all");
+
+  // In-progress donations carry no rideId here (completedDeliveries only covers
+  // completed rides), so resolve the active ride on click.
+  const handleTrack = async (donationId) => {
+    setTrackingId(donationId);
+    try {
+      const { data } = await axios.get(
+        `${backendurl}track/by-donation/${donationId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (data?.data?.rideId) navigate(`/track/${data.data.rideId}`);
+    } catch {
+      /* no active ride */
+    } finally {
+      setTrackingId(null);
+    }
+  };
 
   // Build a lookup: donationId → { riderName, rideId, riderRating }
   const deliveryLookup = {};
@@ -240,6 +263,15 @@ const DonationHistory = ({ acceptedOrder, filtered, setFiltered, completedDelive
                         ) : (
                           <span className="text-xs text-gray-400">No rider data</span>
                         )
+                      ) : donation.Status === "Accepted" ? (
+                        <button
+                          onClick={() => handleTrack(donation._id)}
+                          disabled={trackingId === donation._id}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-700 border border-green-300 rounded-lg px-2.5 py-1.5 hover:bg-green-50 transition-colors cursor-pointer disabled:opacity-60"
+                        >
+                          <MapPin className="w-3.5 h-3.5" />
+                          {trackingId === donation._id ? "Loading…" : "Live Location"}
+                        </button>
                       ) : (
                         <span className="text-xs text-gray-300">—</span>
                       )}

@@ -14,6 +14,7 @@ import RiderDashboard from "./pages/RiderDashboard";
 import PartnerRegistration from "./pages/PartnerRegistration";
 import PartnerDashboard from "./pages/PartnerDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
+import TrackOrder from "./pages/TrackOrder";
 import ChatPanel from "./components/ChatPanel";
 
 //Version 1 completed
@@ -35,6 +36,7 @@ const App = () => {
         <Route path="/Registration-Partner" element={<PartnerRegistration />} />
         <Route path="/PartnerDashboard" element={<PartnerDashboard />} />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
+        <Route path="/track/:rideId" element={<TrackOrder />} />
       </Routes>
       <ChatPanel />
     </>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   MapPin,
   Navigation,
@@ -14,6 +15,7 @@ const ActiveDelivery = ({
   handlepickup,
   handlecomplete,
 }) => {
+  const navigate = useNavigate();
   const [loadingId, setLoadingId] = useState(null);
 
   const handleStatusUpdate = async (order) => {
@@ -176,6 +178,17 @@ const ActiveDelivery = ({
                     </div>
                   </div>
                 </div>
+
+                {/* Live location — visible only while the ride is in progress */}
+                {["accepted", "picked up"].includes(order.status) && (
+                  <button
+                    onClick={() => navigate(`/track/${order._id}`)}
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition-colors cursor-pointer"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    Live Location
+                  </button>
+                )}
 
                 {/* Status action */}
                 <button

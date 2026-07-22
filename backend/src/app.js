@@ -41,4 +41,7 @@ app.use('/admin', adminRoute);
 import forgotRoute from './route/forgot.route.js';
 app.use('/forgot', forgotRoute);
 
+import trackRoute from './route/track.route.js';
+app.use('/track', trackRoute);
+
 export default app;
