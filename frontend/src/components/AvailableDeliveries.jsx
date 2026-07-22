@@ -1,17 +1,15 @@
-import React, { useState } from "react";
-import {
-  MapPin,
-  Clock,
-  Package,
-  Navigation,
-  CheckCircle,
-  XCircle,
-} from "lucide-react";
+import React from "react";
+import { Package, Navigation } from "lucide-react";
+import DonationCard from "./DonationCard";
 
-const AvailableDeliveries = ({deliveries,handleAcceptDelivery,setDeliveries}) => {
-  
+const AvailableDeliveries = ({
+  deliveries,
+  handleAcceptDelivery,
+  setDeliveries,
+}) => {
+  // Reject is local-only: just hides the card from this rider's list.
   const handleRejectDelivery = (id) => {
-   setDeliveries(deliveries.filter((delivery) => delivery._id !== id));
+    setDeliveries(deliveries.filter((delivery) => delivery._id !== id));
   };
 
   return (
@@ -21,7 +19,9 @@ const AvailableDeliveries = ({deliveries,handleAcceptDelivery,setDeliveries}) =>
           <h2 className="text-2xl font-bold text-gray-900">
             Available Deliveries
           </h2>
-          <p className="text-gray-600">Choose from nearby donation requests</p>
+          <p className="text-gray-600">
+            Choose from nearby donation requests
+          </p>
         </div>
         <div className="bg-green-100 text-green-800 px-4 py-2 rounded-xl font-medium">
           {deliveries.length} Available
@@ -37,99 +37,35 @@ const AvailableDeliveries = ({deliveries,handleAcceptDelivery,setDeliveries}) =>
           <p className="text-gray-400">Check back soon for new requests!</p>
         </div>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid gap-4">
           {deliveries.map((delivery) => (
-            <div
+            <DonationCard
               key={delivery._id}
-              className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="p-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-1">
-                        {delivery.donor.name}
-                      </h3>
-                      <p className="text-gray-600 font-medium">
-                        {delivery.donation?.FoodType}
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                          <MapPin className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">
-                            Pickup
-                          </p>
-                          <p className="text-gray-600">
-                            {delivery.pickup}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start space-x-3">
-                        <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                          <Navigation className="w-4 h-4 text-green-600" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">
-                            Drop-off
-                          </p>
-                          <p className="text-gray-600">
-                            {delivery.destination}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Clock className="w-5 h-5 text-orange-500" />
-                        <span className="text-orange-600 font-medium">
-                          {delivery.timeLeft} left
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {delivery.donation?.weightKg > 0 && (
-                          <div className="bg-purple-100 px-3 py-1 rounded-lg flex items-center space-x-1">
-                            <Package className="w-4 h-4 text-purple-600" />
-                            <span className="text-purple-700 font-medium">{delivery.donation.weightKg} kg</span>
-                          </div>
-                        )}
-                        <div className="bg-gray-100 px-3 py-1 rounded-lg">
-                          <span className="text-gray-700 font-medium">
-                            {delivery?.distanceKm != null ? `${delivery.distanceKm} km` : "—"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex space-x-3">
-                      <button
-                        onClick={() => handleAcceptDelivery(delivery._id)}
-                        className="flex-1 cursor-pointer bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 hover:shadow-lg"
-                      >
-                        <CheckCircle className="w-5 h-5" />
-                        <span>Accept Delivery</span>
-                      </button>
-
-                      <button
-                        onClick={() => handleRejectDelivery(delivery._id)}
-                        className="px-6 py-3 cursor-pointer rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 text-gray-600 hover:text-red-500 hover:bg-red-50 border border-gray-200 hover:border-red-200"
-                      >
-                        <XCircle className="w-5 h-5" />
-                        <span>Reject</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              title={delivery.donor?.name}
+              foodType={delivery.donation?.FoodType}
+              timeLeft={delivery.timeLeft}
+              pickup={delivery.pickup}
+              destination={delivery.destination}
+              meta={[
+                Number(delivery.donation?.weightKg) > 0
+                  ? {
+                      icon: <Package className="w-3.5 h-3.5 text-gray-400" />,
+                      text: `${delivery.donation.weightKg} kg`,
+                    }
+                  : null,
+                delivery.distanceKm != null
+                  ? {
+                      icon: (
+                        <Navigation className="w-3.5 h-3.5 text-gray-400" />
+                      ),
+                      text: `${delivery.distanceKm} km`,
+                    }
+                  : null,
+              ].filter(Boolean)}
+              acceptLabel="Accept Delivery"
+              onAccept={() => handleAcceptDelivery(delivery._id)}
+              onReject={() => handleRejectDelivery(delivery._id)}
+            />
           ))}
         </div>
       )}

@@ -8,7 +8,12 @@ import {
   Truck,
 } from "lucide-react";
 
-const ActiveDelivery = ({ setActiveSection, activeOrder, handlepickup,handlecomplete }) => {
+const ActiveDelivery = ({
+  setActiveSection,
+  activeOrder,
+  handlepickup,
+  handlecomplete,
+}) => {
   const [loadingId, setLoadingId] = useState(null);
 
   const handleStatusUpdate = async (order) => {
@@ -33,7 +38,7 @@ const ActiveDelivery = ({ setActiveSection, activeOrder, handlepickup,handlecomp
           buttonText: "Mark as Picked Up",
           buttonColor: "bg-blue-500 hover:bg-blue-600",
           statusColor: "text-blue-600",
-          bgColor: "bg-blue-50"
+          bgColor: "bg-blue-50",
         };
       case "picked up":
         return {
@@ -58,7 +63,7 @@ const ActiveDelivery = ({ setActiveSection, activeOrder, handlepickup,handlecomp
     }
   };
 
-  if (!activeOrder || activeOrder.length===0) {
+  if (!activeOrder || activeOrder.length === 0) {
     return (
       <div className="space-y-6">
         <div>
@@ -75,9 +80,7 @@ const ActiveDelivery = ({ setActiveSection, activeOrder, handlepickup,handlecomp
           </h3>
           <p className="text-gray-400 mb-6">Ready to accept a new delivery?</p>
           <button
-            onClick={() => {
-              setActiveSection("deliveries");
-            }}
+            onClick={() => setActiveSection("deliveries")}
             className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors"
           >
             Browse Available Deliveries
@@ -94,149 +97,127 @@ const ActiveDelivery = ({ setActiveSection, activeOrder, handlepickup,handlecomp
         <p className="text-gray-600">Your current delivery status</p>
       </div>
 
-      <div className="grid gap-10">
-        {activeOrder.map((order) => (
-          <div key={order._id} className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className={`${getStatusConfig(order).bgColor} p-6 border-b`}>
-              <div className="flex items-center justify-between">
+      <div className="grid gap-4">
+        {activeOrder.map((order) => {
+          const cfg = getStatusConfig(order);
+          return (
+            <div
+              key={order._id}
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+            >
+              {/* Status header — distance shown once, here */}
+              <div
+                className={`${cfg.bgColor} px-5 py-3 border-b flex items-center justify-between`}
+              >
                 <div>
-                  <h3
-                    className={`text-xl font-bold ${getStatusConfig(order).statusColor}`}
-                  >
-                    {getStatusConfig(order).title}
+                  <h3 className={`text-base font-bold ${cfg.statusColor}`}>
+                    {cfg.title}
                   </h3>
-                  <p className="text-gray-600 mt-1">{getStatusConfig(order).subtitle}</p>
+                  <p className="text-xs text-gray-600">{cfg.subtitle}</p>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-medium text-gray-700">
-                    {order?.distance != null ? `${order.distance} km` : "—"}
+                {order?.distance != null && (
+                  <span className="text-sm font-medium text-gray-700">
+                    {order.distance} km
                   </span>
-                </div>
+                )}
               </div>
-            </div>
 
-            <div className="p-6">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="text-lg font-bold text-gray-900 mb-4">
-                      Delivery Details
-                    </h4>
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 mb-1">
-                          Donor
-                        </p>
-                        <p className="text-gray-900 font-medium">
-                          {order.donor.name}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 mb-1">
-                          Food Type
-                        </p>
-                        <p className="text-gray-900">
-                          {order.donation.FoodType}
-                          {order.donation?.weightKg > 0 && (
-                            <span className="ml-2 text-purple-600 font-medium">
-                              · {order.donation.weightKg} kg
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 mb-1">
-                          Distance
-                        </p>
-                        <p className="text-gray-900">
-                          {order?.distance != null ? `${order.distance} km` : "—"}
-                        </p>
-                      </div>
+              <div className="p-5 space-y-4">
+                {/* Donor + food */}
+                <div className="min-w-0">
+                  <p className="font-bold text-gray-900 truncate">
+                    {order.donor?.name}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {order.donation?.FoodType}
+                    {order.donation?.weightKg > 0 && (
+                      <span className="ml-1 text-purple-600 font-medium">
+                        · {order.donation.weightKg} kg
+                      </span>
+                    )}
+                  </p>
+                </div>
+
+                {/* Pickup + drop-off (phones kept — required mid-delivery) */}
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-xl">
+                    <MapPin className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-blue-800">Pickup</p>
+                      <p className="text-sm text-blue-700 truncate">
+                        {order.pickup}
+                      </p>
+                      <a
+                        href={`tel:${order.donor?.phone}`}
+                        className="inline-flex items-center gap-1 text-xs text-blue-600 font-medium mt-1 hover:underline"
+                      >
+                        <Phone className="w-3 h-3" />
+                        {order.donor?.phone}
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2 p-3 bg-green-50 rounded-xl">
+                    <Navigation className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-green-800">
+                        Drop-off
+                      </p>
+                      <p className="text-sm text-green-700 truncate">
+                        {order.destination}
+                      </p>
+                      <a
+                        href={`tel:${order.receiver?.phone}`}
+                        className="inline-flex items-center gap-1 text-xs text-green-600 font-medium mt-1 hover:underline"
+                      >
+                        <Phone className="w-3 h-3" />
+                        {order.receiver?.phone}
+                      </a>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="text-lg font-bold text-gray-900 mb-4">
-                      Locations
-                    </h4>
-                    <div className="space-y-4">
-                      <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-xl">
-                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <MapPin className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-blue-800 mb-1">
-                            Pickup
-                          </p>
-                          <p className="text-blue-700">
-                            {order.pickup}
-                          </p>
-                          <div className="flex items-center space-x-2 mt-2">
-                            <Phone className="w-4 h-4 text-blue-600" />
-                            <a
-                              href={`tel:${order.donor.phone}`}
-                              className="text-blue-600 font-medium hover:underline"
-                            >
-                              {order.donor.phone}
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start space-x-3 p-4 bg-green-50 rounded-xl">
-                        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Navigation className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-green-800 mb-1">
-                            Drop-off
-                          </p>
-                          <p className="text-green-700">
-                            {order.destination}
-                          </p>
-                          <div className="flex items-center space-x-2 mt-2">
-                            <Phone className="w-4 h-4 text-green-600" />
-                            <a
-                              href={`tel:${order.receiver.phone}`}
-                              className="text-green-600 font-medium hover:underline"
-                            >
-                              {order.receiver.phone}
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-6 border-t">
+                {/* Status action */}
                 <button
                   onClick={() => handleStatusUpdate(order)}
                   disabled={loadingId === order._id}
-                  className={`w-full ${getStatusConfig(order).buttonColor} text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-200 flex items-center justify-center space-x-3 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`w-full ${cfg.buttonColor} text-white py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {loadingId === order._id ? (
-                    <span className="flex items-center space-x-2">
-                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    <span className="flex items-center gap-2">
+                      <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                        />
                       </svg>
                       <span>Processing...</span>
                     </span>
                   ) : (
                     <>
-                      <CheckCircle2 className="w-6 h-6" />
-                      <span>{getStatusConfig(order).buttonText}</span>
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>{cfg.buttonText}</span>
                     </>
                   )}
                 </button>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
