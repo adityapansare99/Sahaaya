@@ -1,8 +1,23 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Gift, Award, Tag, CheckCircle, X, Utensils, Ticket, Flame, History, Calendar, MapPin } from "lucide-react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import {
+  Gift,
+  Award,
+  Tag,
+  CheckCircle,
+  X,
+  Utensils,
+  Ticket,
+  Flame,
+  History,
+  Calendar,
+  MapPin,
+  Search,
+  Navigation,
+} from "lucide-react";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
+import { haversineDistance } from "../utils/haversine";
 
 const placeholderLogo =
   "https://cdn-icons-png.flaticon.com/512/149/149071.png";
@@ -18,19 +33,31 @@ const RedeemPoints = () => {
   const [success, setSuccess] = useState(null);
   const [history, setHistory] = useState([]);
 
+  // Rider profile — home coords for near-me
+  const [profile, setProfile] = useState(null);
+
+  // View toggle & search
+  const [view, setView] = useState("all"); // "all" | "nearme"
+  const [search, setSearch] = useState("");
+
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [listRes, rewardsRes, topRes, historyRes] = await Promise.all([
-          axios.get(`${backendurl}partner/list`),
-          axios.get(`${backendurl}rider/rewards`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${backendurl}partner/top`),
-          axios.get(`${backendurl}rider/myRedemptions`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+        const [listRes, rewardsRes, topRes, historyRes, profileRes] =
+          await Promise.all([
+            axios.get(`${backendurl}partner/list`),
+            axios.get(`${backendurl}rider/rewards`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`${backendurl}partner/top`),
+            axios.get(`${backendurl}rider/myRedemptions`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.get(`${backendurl}delivery/profile`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
+
         if (listRes.data.success) {
           setPartners(listRes.data.data);
         }
@@ -43,6 +70,9 @@ const RedeemPoints = () => {
         if (historyRes.data.success) {
           setHistory(historyRes.data.data);
         }
+        if (profileRes.data.success) {
+          setProfile(profileRes.data.data);
+        }
       } catch (error) {
         toast.error("Error loading partners");
       } finally {
@@ -52,16 +82,57 @@ const RedeemPoints = () => {
     fetchAll();
   }, [backendurl, token]);
 
+  // ── Derived: near-me partners ──────────────────────────────
+  const homeLat = profile?.homeLatitude ?? profile?.latitude ?? null;
+  const homeLng = profile?.homeLongitude ?? profile?.longitude ?? null;
+  const hasHome = homeLat != null && homeLng != null;
+
+  const partnersWithDistance = useMemo(
+    () =>
+      partners.map((p) => {
+        let dist = null;
+        if (hasHome && p.latitude != null && p.longitude != null) {
+          const d = haversineDistance(homeLat, homeLng, p.latitude, p.longitude);
+          dist = d !== null ? Math.round(d * 10) / 10 : null;
+        }
+        return { ...p, distanceKm: dist };
+      }),
+    [partners, homeLat, homeLng, hasHome],
+  );
+
+  const nearMePartners = useMemo(
+    () =>
+      partnersWithDistance
+        .filter((p) => p.distanceKm !== null && p.distanceKm <= 20)
+        .sort((a, b) => a.distanceKm - b.distanceKm),
+    [partnersWithDistance],
+  );
+
+  // ── Search filtering (city/address/name — case-insensitive) ─
+  const searchLower = search.toLowerCase().trim();
+  const filteredPartners = useMemo(
+    () =>
+      partners.filter(
+        (p) =>
+          !searchLower ||
+          p.name?.toLowerCase().includes(searchLower) ||
+          p.address?.toLowerCase().includes(searchLower),
+      ),
+    [partners, searchLower],
+  );
+
+  const displayPartners =
+    view === "nearme" && hasHome ? nearMePartners : filteredPartners;
+
+  // ── Handlers ───────────────────────────────────────────────
   const handleRedeem = async () => {
-    if (!selected) {
-      return;
-    }
+    if (!selected) return;
     setRedeeming(true);
     try {
       const response = await axios.post(
         `${backendurl}rider/redeemPoints`,
         { partnerId: selected._id },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       if (response.data.success) {
         setPoints(response.data.data.remainingPoints);
@@ -78,19 +149,17 @@ const RedeemPoints = () => {
     }
   };
 
+  // ── Loading skeleton ───────────────────────────────────────
   if (loading) {
     return (
       <div>
         <div className="mb-8">
-          <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
-          <div className="h-4 w-64 bg-gray-200 rounded-lg animate-pulse"></div>
+          <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-2" />
+          <div className="h-4 w-64 bg-gray-200 rounded-lg animate-pulse" />
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="rounded-2xl p-6 animate-pulse bg-gray-100 h-56"
-            ></div>
+            <div key={i} className="rounded-2xl p-6 animate-pulse bg-gray-100 h-56" />
           ))}
         </div>
       </div>
@@ -100,13 +169,15 @@ const RedeemPoints = () => {
   return (
     <div>
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Redeem Points</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+          Redeem Points
+        </h2>
         <p className="text-gray-600">
           Turn your delivery points into discounts at partner restaurants
         </p>
       </div>
 
-      {/* Points balance */}
+      {/* ── Points balance ─────────────────────────────────── */}
       <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 rounded-2xl p-6 md:p-8 text-white mb-8">
         <div className="flex items-start justify-between">
           <div>
@@ -126,7 +197,7 @@ const RedeemPoints = () => {
         </div>
       </div>
 
-      {/* Top redeemed */}
+      {/* ── Top redeemed ───────────────────────────────────── */}
       {topPartners.length > 0 && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
           <div className="flex items-center gap-2 mb-5">
@@ -201,7 +272,7 @@ const RedeemPoints = () => {
         </div>
       )}
 
-      {/* Redemption History */}
+      {/* ── Redemption History ──────────────────────────────── */}
       {history.length > 0 && (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
           <div className="flex items-center gap-2 mb-5">
@@ -215,32 +286,67 @@ const RedeemPoints = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100">
-                  <th className="text-left p-3 font-semibold text-gray-900">Date</th>
-                  <th className="text-left p-3 font-semibold text-gray-900">Restaurant</th>
-                  <th className="text-left p-3 font-semibold text-gray-900">Location</th>
-                  <th className="text-left p-3 font-semibold text-gray-900">Discount</th>
-                  <th className="text-left p-3 font-semibold text-gray-900">Points</th>
-                  <th className="text-left p-3 font-semibold text-gray-900">Code</th>
-                  <th className="text-left p-3 font-semibold text-gray-900">Status</th>
+                  <th className="text-left p-3 font-semibold text-gray-900">
+                    Date
+                  </th>
+                  <th className="text-left p-3 font-semibold text-gray-900">
+                    Restaurant
+                  </th>
+                  <th className="text-left p-3 font-semibold text-gray-900">
+                    Location
+                  </th>
+                  <th className="text-left p-3 font-semibold text-gray-900">
+                    Discount
+                  </th>
+                  <th className="text-left p-3 font-semibold text-gray-900">
+                    Points
+                  </th>
+                  <th className="text-left p-3 font-semibold text-gray-900">
+                    Code
+                  </th>
+                  <th className="text-left p-3 font-semibold text-gray-900">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((r) => (
-                  <tr key={r._id} className="border-b border-gray-50 hover:bg-gray-50">
+                  <tr
+                    key={r._id}
+                    className="border-b border-gray-50 hover:bg-gray-50"
+                  >
                     <td className="p-3 text-gray-500 whitespace-nowrap">
-                      {new Date(r.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                      {new Date(r.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </td>
-                    <td className="p-3 font-medium text-gray-900">{r.partner?.name || "—"}</td>
-                    <td className="p-3 text-gray-600">{r.partner?.address || "—"}</td>
-                    <td className="p-3 text-green-600 font-medium">{r.discountPercentage}%</td>
+                    <td className="p-3 font-medium text-gray-900">
+                      {r.partner?.name || "—"}
+                    </td>
+                    <td className="p-3 text-gray-600">
+                      {r.partner?.address || "—"}
+                    </td>
+                    <td className="p-3 text-green-600 font-medium">
+                      {r.discountPercentage}%
+                    </td>
                     <td className="p-3 text-gray-900">{r.pointsUsed}</td>
-                    <td className="p-3 font-mono text-xs text-gray-700">{r.bookingCode}</td>
+                    <td className="p-3 font-mono text-xs text-gray-700">
+                      {r.bookingCode}
+                    </td>
                     <td className="p-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${
-                        r.status === "active" ? "bg-green-100 text-green-700" :
-                        r.status === "used" ? "bg-gray-100 text-gray-600" :
-                        "bg-red-100 text-red-600"
-                      }`}>{r.status || "active"}</span>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${
+                          r.status === "active"
+                            ? "bg-green-100 text-green-700"
+                            : r.status === "used"
+                              ? "bg-gray-100 text-gray-600"
+                              : "bg-red-100 text-red-600"
+                        }`}
+                      >
+                        {r.status || "active"}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -250,20 +356,100 @@ const RedeemPoints = () => {
         </div>
       )}
 
-      {/* Partner grid */}
-      {partners.length === 0 ? (
+      {/* ── Toggle + Search bar ─────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        {/* View toggle */}
+        <div className="flex bg-gray-100 rounded-xl p-1">
+          <button
+            onClick={() => {
+              setView("all");
+              setSearch("");
+            }}
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+              view === "all"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            All Partners
+          </button>
+          <button
+            onClick={() => {
+              setView("nearme");
+              setSearch("");
+            }}
+            disabled={!hasHome}
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+              view === "nearme"
+                ? "bg-white text-gray-900 shadow-sm"
+                : !hasHome
+                  ? "text-gray-300 cursor-not-allowed"
+                  : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <Navigation className="w-3.5 h-3.5" />
+            Near Me
+          </button>
+        </div>
+
+        {/* Search — only in All mode */}
+        {view === "all" && (
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by restaurant or city..."
+              className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
+            />
+          </div>
+        )}
+
+        {/* Near-me count */}
+        {view === "nearme" && hasHome && (
+          <span className="text-sm text-gray-500">
+            {nearMePartners.length} partner
+            {nearMePartners.length !== 1 ? "s" : ""} within 20 km
+            <span className="text-gray-300 mx-1">·</span>
+            <button
+              onClick={() => setView("all")}
+              className="text-red-500 hover:text-red-600 font-medium cursor-pointer"
+            >
+              Show all
+            </button>
+          </span>
+        )}
+
+        {view === "nearme" && !hasHome && (
+          <span className="text-sm text-amber-600">
+            Set your home address in Profile to use Near Me
+          </span>
+        )}
+      </div>
+
+      {/* ── Partner grid ───────────────────────────────────── */}
+      {displayPartners.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
           <Utensils className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No partner restaurants yet
+            {view === "nearme"
+              ? "No partners near you"
+              : search
+                ? "No matching partners"
+                : "No partner restaurants yet"}
           </h3>
           <p className="text-gray-500">
-            Check back soon — new restaurants are joining all the time.
+            {view === "nearme"
+              ? "Try switching to All Partners to browse all available restaurants."
+              : search
+                ? "Try a different city or restaurant name."
+                : "Check back soon — new restaurants are joining all the time."}
           </p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {partners.map((p) => {
+          {displayPartners.map((p) => {
             const cost = p.pointsRequired || 0;
             const affordable = points >= cost;
             return (
@@ -282,17 +468,31 @@ const RedeemPoints = () => {
                     className="w-16 h-16 rounded-2xl object-cover border border-gray-200"
                   />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 truncate">{p.name}</h3>
-                    <h3 className="font-semibold text-sm pb-2 text-gray-500 truncate">{p.address}</h3>
+                    <h3 className="font-bold text-gray-900 truncate">
+                      {p.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 truncate">
+                      {p.address}
+                    </p>
                     {p.description ? (
-                      <p className="text-sm text-gray-500 line-clamp-2">
+                      <p className="text-sm text-gray-500 line-clamp-2 mt-1">
                         {p.description}
                       </p>
                     ) : (
-                      <p className="text-sm text-gray-400">Restaurant partner</p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Restaurant partner
+                      </p>
                     )}
                   </div>
                 </div>
+
+                {/* Distance badge (only in near-me view) */}
+                {view === "nearme" && p.distanceKm != null && (
+                  <div className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-full mb-3 self-start">
+                    <MapPin className="w-3 h-3" />
+                    {p.distanceKm} km
+                  </div>
+                )}
 
                 <div className="flex items-center gap-2 mb-4">
                   <span className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
@@ -324,7 +524,7 @@ const RedeemPoints = () => {
         </div>
       )}
 
-      {/* Confirmation modal */}
+      {/* ── Confirmation modal ──────────────────────────────── */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
@@ -358,7 +558,9 @@ const RedeemPoints = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Your balance</span>
-                <span className="font-semibold text-gray-900">{points} pts</span>
+                <span className="font-semibold text-gray-900">
+                  {points} pts
+                </span>
               </div>
               <div className="flex justify-between border-t border-gray-200 pt-2">
                 <span className="text-gray-500">After redeem</span>
@@ -388,7 +590,7 @@ const RedeemPoints = () => {
         </div>
       )}
 
-      {/* Success modal */}
+      {/* ── Success modal ───────────────────────────────────── */}
       {success && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center relative">

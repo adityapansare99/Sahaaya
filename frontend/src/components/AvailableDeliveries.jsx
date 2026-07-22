@@ -94,10 +94,18 @@ const AvailableDeliveries = ({deliveries,handleAcceptDelivery,setDeliveries}) =>
                           {delivery.timeLeft} left
                         </span>
                       </div>
-                      <div className="bg-gray-100 px-3 py-1 rounded-lg">
-                        <span className="text-gray-700 font-medium">
-                          {delivery?.distanceKm != null ? `${delivery.distanceKm} km` : "—"}
-                        </span>
+                      <div className="flex items-center space-x-2">
+                        {delivery.donation?.weightKg > 0 && (
+                          <div className="bg-purple-100 px-3 py-1 rounded-lg flex items-center space-x-1">
+                            <Package className="w-4 h-4 text-purple-600" />
+                            <span className="text-purple-700 font-medium">{delivery.donation.weightKg} kg</span>
+                          </div>
+                        )}
+                        <div className="bg-gray-100 px-3 py-1 rounded-lg">
+                          <span className="text-gray-700 font-medium">
+                            {delivery?.distanceKm != null ? `${delivery.distanceKm} km` : "—"}
+                          </span>
+                        </div>
                       </div>
                     </div>
 

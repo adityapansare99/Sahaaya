@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "backfill:partners": "node scripts/backfill-partner-coords.js"
   },
   "keywords": [],
   "author": "",

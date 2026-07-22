@@ -124,12 +124,26 @@ const acceptOrder = asynchandler(async (req, res) => {
     .populate("Donor")
     .populate("Ngo");
 
+  // Calculate distance from pickup coordinates → NGO
+  let rideDistance = null;
+  const pLat = donationResponse.pickupLatitude;
+  const pLng = donationResponse.pickupLongitude;
+  const ngoLat = donationResponse.Ngo?.latitude;
+  const ngoLng = donationResponse.Ngo?.longitude;
+  if (pLat != null && pLng != null && ngoLat != null && ngoLng != null) {
+    const dist = haversineDistance(pLat, pLng, ngoLat, ngoLng);
+    if (dist !== null && dist >= 0) {
+      rideDistance = Math.round(dist * 10) / 10;
+    }
+  }
+
   const ride = await Ride.create({
     donor: donationResponse.Donor._id,
     receiver: donationResponse.Ngo._id,
     pickup: donationResponse.PickupLocation,
     destination: donationResponse.Ngo.address,
     donation: donationResponse._id,
+    distance: rideDistance,
   });
 
 

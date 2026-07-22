@@ -57,8 +57,8 @@ const registerPartner = asynchandler(async (req, res) => {
       discountPercentage: discountPercentage || 10,
       pointsRequired: pointsRequired || 50,
       description: description || "",
-      latitude: latitude != null ? Number(latitude) : null,
-      longitude: longitude != null ? Number(longitude) : null,
+      latitude: latitude != null && !isNaN(Number(latitude)) ? Number(latitude) : null,
+      longitude: longitude != null && !isNaN(Number(longitude)) ? Number(longitude) : null,
     });
 
     if (!partner) {
@@ -191,8 +191,8 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     ...(name && { name }),
     ...(phone && { phone }),
     ...(address && { address }),
-    ...(latitude != null && { latitude: Number(latitude) }),
-    ...(longitude != null && { longitude: Number(longitude) }),
+    ...(latitude != null && !isNaN(Number(latitude)) && { latitude: Number(latitude) }),
+    ...(longitude != null && !isNaN(Number(longitude)) && { longitude: Number(longitude) }),
     ...(discountPercentage && { discountPercentage }),
     ...(pointsRequired && { pointsRequired }),
     ...(description !== undefined && { description }),

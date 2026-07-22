@@ -14,6 +14,7 @@ import {
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
+import LocationInput from "./LocationInput";
 
 const PartnerProfile = ({ profile, handleChangeProfile }) => {
   const { backendurl, token } = useContext(AppContext);
@@ -24,6 +25,7 @@ const PartnerProfile = ({ profile, handleChangeProfile }) => {
   const [name, setName] = useState(profile.name || "");
   const [phone, setPhone] = useState(profile.phone || "");
   const [address, setAddress] = useState(profile.address || "");
+  const [addresscor,setAddressCoords]=useState({ lat: profile.latitude ?? null, lng: profile.longitude ?? null });
   const [discountPercentage, setDiscountPercentage] = useState(profile.discountPercentage ?? "");
   const [pointsRequired, setPointsRequired] = useState(profile.pointsRequired ?? "");
   const [description, setDescription] = useState(profile.description || "");
@@ -36,7 +38,7 @@ const PartnerProfile = ({ profile, handleChangeProfile }) => {
 
   const handleSave = () => {
     setIsEditing(false);
-    handleChangeProfile({ name, phone, address, discountPercentage, pointsRequired, description });
+    handleChangeProfile({ name, phone, address, discountPercentage, pointsRequired, description, latitude: addresscor.lat, longitude: addresscor.lng });
   };
 
   const handlePasswordSubmit = async (e) => {
@@ -175,7 +177,12 @@ const PartnerProfile = ({ profile, handleChangeProfile }) => {
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">Address</label>
                   {isEditing ? (
-                    <textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={3} className={inputClass} />
+                    <LocationInput
+                      value={address}
+                      onChange={(val) => setAddress(val)}
+                      onSelect={(coords) => setAddressCoords(coords)}
+                      placeholder="Enter complete address"
+                    />
                   ) : (
                     <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-xl">
                       <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />

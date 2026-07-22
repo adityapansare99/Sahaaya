@@ -3,7 +3,6 @@ import {
   MapPin,
   Navigation,
   Phone,
-  Clock,
   Package,
   CheckCircle2,
   Truck,
@@ -109,9 +108,8 @@ const ActiveDelivery = ({ setActiveSection, activeOrder, handlepickup,handlecomp
                   <p className="text-gray-600 mt-1">{getStatusConfig(order).subtitle}</p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-gray-500" />
                   <span className="font-medium text-gray-700">
-                    Est. {order?.estimatedTime||"--"}
+                    {order?.distance != null ? `${order.distance} km` : "—"}
                   </span>
                 </div>
               </div>
@@ -139,6 +137,11 @@ const ActiveDelivery = ({ setActiveSection, activeOrder, handlepickup,handlecomp
                         </p>
                         <p className="text-gray-900">
                           {order.donation.FoodType}
+                          {order.donation?.weightKg > 0 && (
+                            <span className="ml-2 text-purple-600 font-medium">
+                              · {order.donation.weightKg} kg
+                            </span>
+                          )}
                         </p>
                       </div>
                       <div>
@@ -146,7 +149,7 @@ const ActiveDelivery = ({ setActiveSection, activeOrder, handlepickup,handlecomp
                           Distance
                         </p>
                         <p className="text-gray-900">
-                          {order?.distance || "0.0 km"}
+                          {order?.distance != null ? `${order.distance} km` : "—"}
                         </p>
                       </div>
                     </div>

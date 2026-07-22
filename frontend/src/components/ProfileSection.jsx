@@ -39,6 +39,10 @@ const ProfileSection = ({ profile, handleChangeProfile }) => {
   ];
 
   const handleSave = () => {
+    if (address && (addressCoords.lat == null || addressCoords.lng == null)) {
+      toast.error("Please select your address from the dropdown suggestions so we can map your location");
+      return;
+    }
     setIsEditing(false);
     handleChangeProfile({ name, address, phone, emergencyNumber: emergencyContact, vehicleCapacity, licenseNumber, vehicleNumber, typeOfVehicle: vehicleType, latitude: addressCoords.lat, longitude: addressCoords.lng });
   };

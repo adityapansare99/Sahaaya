@@ -49,11 +49,16 @@ const PartnerRegistration = () => {
       return;
     }
 
+    if (addressCoords.lat == null || addressCoords.lng == null) {
+      toast.error("Please select your address from the dropdown suggestions");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("address", address);
-    formData.append("latitude", addressCoords.lat);
-    formData.append("longitude", addressCoords.lng);
+    if (addressCoords.lat != null) formData.append("latitude", addressCoords.lat);
+    if (addressCoords.lng != null) formData.append("longitude", addressCoords.lng);
     formData.append("phone", phone);
     formData.append("email", email);
     formData.append("password", password);
