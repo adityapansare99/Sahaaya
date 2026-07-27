@@ -90,6 +90,9 @@ const donations = asynchandler(async (req, res) => {
       .json(new ApiResponse(200, result, "Donations fetched successfully"));
   } catch (error) {
     console.log(error);
+    return res
+      .status(500)
+      .json(new ApiResponse(500, {}, "Failed to fetch donations"));
   }
 });
 
@@ -106,6 +109,26 @@ const acceptOrder = asynchandler(async (req, res) => {
 
   if (!donationId || !donationId.trim()) {
     return res.status(401).json(new ApiResponse(401, {}, "Donation not found"));
+  }
+
+  const donation = await Donation.findById(donationId);
+  if (!donation) {
+    return res.status(404).json(new ApiResponse(404, {}, "Donation not found"));
+  }
+
+  // Check if donation has expired
+  const combineDateAndTime = (dateStr, timeStr) => {
+    const date = new Date(dateStr);
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes, 0, 0);
+  };
+  const expiry = combineDateAndTime(donation.ExpiryDate, donation.ExpiryTime);
+  if (expiry <= new Date()) {
+    return res.status(400).json(new ApiResponse(400, {}, "Donation has expired"));
+  }
+
+  if (donation.Status !== "Pending") {
+    return res.status(409).json(new ApiResponse(409, {}, "Donation is no longer available"));
   }
 
   const reponse = await Donation.findOneAndUpdate(

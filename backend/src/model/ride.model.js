@@ -59,7 +59,7 @@ const rideSchema = new mongoose.Schema({
         min: 0,
         max: 5,
     },
-})
+}, { timestamps: true })
 
 const Ride=mongoose.model("Ride",rideSchema);
 

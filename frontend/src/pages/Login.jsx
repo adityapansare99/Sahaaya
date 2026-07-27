@@ -270,7 +270,7 @@ const Login = () => {
               <div className="absolute inset-0 bg-linear-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               <span className="relative flex items-center justify-center space-x-3">
                 <UserCheck className="w-6 h-6" />
-                <span className="tracking-wide text-gray-800 font-bold">Sign in to Continue</span>
+                <span className="tracking-wide text-white font-bold">Sign in to Continue</span>
               </span>
             </button>
 

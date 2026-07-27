@@ -144,32 +144,32 @@ const editDonation = asynchandler(async (req, res) => {
       .json(new ApiResponse(400, {}, "All fields are required"));
   }
 
-  const donation = await Donation.findByIdAndUpdate(donationId, {
-    FoodType: foodType,
-    FoodDescription: description,
-    PickupLocation: pickup,
-    ExpiryDate: expiryDate,
-    ExpiryTime: expiryTime,
-    weightKg: toNonNegativeNumber(weightKg),
-    serves: toNonNegativeNumber(serves),
-  });
-
-  donation.save();
-
-  const updatedDonation = await Donation.findById(donation._id)
+  const donation = await Donation.findOneAndUpdate(
+    { _id: donationId, Donor: donor._id },
+    {
+      FoodType: foodType,
+      FoodDescription: description,
+      PickupLocation: pickup,
+      ExpiryDate: expiryDate,
+      ExpiryTime: expiryTime,
+      weightKg: toNonNegativeNumber(weightKg),
+      serves: toNonNegativeNumber(serves),
+    },
+    { new: true },
+  )
     .populate("Ngo")
     .populate("Donor");
 
-  if (!updatedDonation) {
+  if (!donation) {
     return res
-      .status(400)
-      .json(new ApiResponse(400, {}, "Donation creation failed"));
+      .status(404)
+      .json(new ApiResponse(404, {}, "Donation not found or not owned by you"));
   }
 
   return res
     .status(200)
     .json(
-      new ApiResponse(200, updatedDonation, "Donation updated successfully")
+      new ApiResponse(200, donation, "Donation updated successfully")
     );
 });
 
@@ -188,7 +188,10 @@ const deleteDonation = asynchandler(async (req, res) => {
     return res.status(400).json(new ApiResponse(400, {}, "Donation not found"));
   }
 
-  const donation = await Donation.findByIdAndDelete(donationId);
+  const donation = await Donation.findOneAndDelete({
+    _id: donationId,
+    Donor: donor._id,
+  });
 
   if (!donation) {
     return res.status(400).json(new ApiResponse(400, {}, "Donation not found"));

@@ -5,7 +5,12 @@ import { uploadoncloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 
 const registerPartner = asynchandler(async (req, res) => {
-  const data=JSON.parse(req.body.data);
+  let data;
+  try {
+    data = JSON.parse(req.body.data);
+  } catch {
+    return res.status(400).json(new ApiResponse(400, {}, "Invalid JSON in request body"));
+  }
 
   const {
     name,
@@ -213,7 +218,16 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
   }
 
   // Support both JSON and multipart/form-data
-  const body = req.body?.data ? JSON.parse(req.body.data) : req.body;
+  let body;
+  if (req.body?.data) {
+    try {
+      body = JSON.parse(req.body.data);
+    } catch {
+      return res.status(400).json(new ApiResponse(400, {}, "Invalid JSON in request body"));
+    }
+  } else {
+    body = req.body;
+  }
 
   const {
     name,

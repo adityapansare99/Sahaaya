@@ -7,10 +7,13 @@ import Ride from "./model/ride.model.js";
 let io;
 
 const initializeSocket = (server) => {
+  const allowedOrigins = process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : ["http://localhost:5173"];
+
   io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: allowedOrigins,
       methods: ["GET", "POST"],
+      credentials: true,
     },
   });
 

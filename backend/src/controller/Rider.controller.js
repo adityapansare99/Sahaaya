@@ -56,9 +56,6 @@ const allRides = asynchandler(async (req, res) => {
 
   rides = rides
     .map((ride) => {
-      if (donations === null) {
-        console.log(ride);
-      }
       const expiry = combineDateAndTime(
         ride.donation.ExpiryDate,
         ride.donation.ExpiryTime,
@@ -536,6 +533,7 @@ export {
   getRides,
   markPicked,
   markCompeted,
+  markCompeted as markCompleted,
   getAllRides,
   getRewards,
   redeemPoints,

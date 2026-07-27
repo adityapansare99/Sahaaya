@@ -16,16 +16,22 @@ const combineDateAndTime = (dateStr, timeStr) => {
 
 const cancelExpiredDonations = async () => {
   try {
-    const pendingDonations = await Donation.find({ Status: "Pending" });
     const now = new Date();
-    let cancelledCount = 0;
+    // Query for donations that are still pending AND have already expired
+    // We use a JavaScript filter after fetching since we can't easily query combined date+time in MongoDB
+    // But we can at least filter by ExpiryDate <= today to reduce the set
+    const todayStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
 
-    for (const donation of pendingDonations) {
+    const potentiallyExpired = await Donation.find({
+      Status: "Pending",
+      ExpiryDate: { $lte: todayStr }
+    }).select('ExpiryDate ExpiryTime _id');
+
+    let cancelledCount = 0;
+    for (const donation of potentiallyExpired) {
       const expiry = combineDateAndTime(donation.ExpiryDate, donation.ExpiryTime);
       if (expiry <= now) {
-        await Donation.findByIdAndUpdate(donation._id, {
-          Status: "Cancelled",
-        });
+        await Donation.findByIdAndUpdate(donation._id, { Status: "Cancelled" });
         cancelledCount++;
       }
     }
@@ -39,9 +45,9 @@ const cancelExpiredDonations = async () => {
 };
 
 const startExpiryCleanup = () => {
-  // Run immediately on startup, then every 60 seconds
+  // Run immediately on startup, then every 5 minutes (more efficient than 60s)
   cancelExpiredDonations();
-  setInterval(cancelExpiredDonations, 60 * 1000);
+  setInterval(cancelExpiredDonations, 5 * 60 * 1000);
 };
 
 export default startExpiryCleanup;

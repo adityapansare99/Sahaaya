@@ -9,8 +9,7 @@ import Partner from "../model/partner.model.js";
 const authDonor = asynchandler(async (req, res, next) => {
   const token =
     req.cookies.refreshtoken ||
-    req.header("Authorization")?.replace("Bearer ", "") ||
-    req.body.refreshtoken;
+    req.header("Authorization")?.replace("Bearer ", "");
 
     if(!token){
         return res.status(401).json(new ApiResponse(401,{},"Please login to continue"));
@@ -42,8 +41,7 @@ const authDonor = asynchandler(async (req, res, next) => {
 const authNgo = asynchandler(async (req, res, next) => {
   const token =
     req.cookies.refreshtoken ||
-    req.header("Authorization")?.replace("Bearer ", "") ||
-    req.body.refreshtoken;
+    req.header("Authorization")?.replace("Bearer ", "");
 
     if(!token){
         return res.status(401).json(new ApiResponse(401,{},"Please login to continue"));
@@ -75,8 +73,7 @@ const authNgo = asynchandler(async (req, res, next) => {
 const authPartner = asynchandler(async (req, res, next) => {
   const token =
     req.cookies.refreshtoken ||
-    req.header("Authorization")?.replace("Bearer ", "") ||
-    req.body.refreshtoken;
+    req.header("Authorization")?.replace("Bearer ", "");
 
     if(!token){
         return res.status(401).json(new ApiResponse(401,{},"Please login to continue"));
@@ -108,8 +105,7 @@ const authPartner = asynchandler(async (req, res, next) => {
 const authRestaurant = asynchandler(async (req, res, next) => {
   const token =
     req.cookies.refreshtoken ||
-    req.header("Authorization")?.replace("Bearer ", "") ||
-    req.body.refreshtoken;
+    req.header("Authorization")?.replace("Bearer ", "");
 
     if(!token){
         return res.status(401).json(new ApiResponse(401,{},"Please login to continue"));
@@ -142,8 +138,7 @@ const authRestaurant = asynchandler(async (req, res, next) => {
 const authAnyParty = asynchandler(async (req, res, next) => {
   const token =
     req.cookies.refreshtoken ||
-    req.header("Authorization")?.replace("Bearer ", "") ||
-    req.body.refreshtoken;
+    req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
     return res.status(401).json(new ApiResponse(401, {}, "Please login to continue"));

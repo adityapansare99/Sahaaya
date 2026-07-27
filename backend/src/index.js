@@ -2,6 +2,7 @@ import app from "./app.js";
 import connectdb from "./db/index.js";
 import dotenv from "dotenv";
 import {createServer} from "http";
+import mongoose from "mongoose";
 import { initializeSocket } from "./socket.js";
 import startExpiryCleanup from "./utils/expiryCleanup.js";
 
@@ -24,3 +25,16 @@ connectdb()
   .catch((err) => {
     console.log("Failed to connect to database", err);
   });
+
+// Graceful shutdown
+const shutdown = async (signal) => {
+  console.log(`\n[${signal}] Shutting down gracefully...`);
+  await new Promise((resolve) => server.close(resolve));
+  console.log("HTTP server closed");
+  await mongoose.connection.close();
+  console.log("MongoDB connection closed");
+  process.exit(0);
+};
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

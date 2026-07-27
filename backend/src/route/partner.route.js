@@ -12,11 +12,20 @@ import {
 } from "../controller/partner.controller.js";
 import { authRestaurant } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
+import rateLimit from 'express-rate-limit';
 
 const partnerRoute = Router();
 
-partnerRoute.route("/register").post(upload.single("image"), registerPartner);
-partnerRoute.route("/login").post(loginPartner);
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { success: false, message: "Too many login attempts, please try again later" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+partnerRoute.route("/register").post(authLimiter, upload.single("image"), registerPartner);
+partnerRoute.route("/login").post(authLimiter, loginPartner);
 partnerRoute.route("/list").get(getActivePartners);
 partnerRoute.route("/top").get(getTopPartners);
 partnerRoute.route("/profile").get(authRestaurant, getPartnerProfile);

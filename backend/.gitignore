@@ -19,3 +19,7 @@ dist/
 build/
 
 public
+
+/src/__tests__
+jest.config.mjs
+jest.setup.js
