@@ -1,8 +1,258 @@
 @import "tailwindcss";
-@tailwind utilities;
 
-/* *{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-} */
+/* ============================================================================
+   SAHAAAYA — FLOW DESIGN SYSTEM · Phase 0 foundation
+   Direction: Flow (donor → NGO → rider → people pipeline)
+   UI-only: tokens, fonts, motion. No component logic touched.
+   Reference: docs/design-templates.html (Flow-only)
+   Plan:      docs/plans/2026-07-28-flow-ui-revamp.md
+   ========================================================================= */
+
+/* ---- Tailwind v4 theme tokens ----------------------------------------------
+   Generate utilities (bg-*, text-*, border-*, from-*, font-*, ease-*, animate-*)
+   AND emit the --color-* / --font-* vars to :root. */
+@theme {
+  /* canvas / ink / surface / lines / mute */
+  --color-canvas:      #e9f1eb;
+  --color-canvas-deep: #e2eee5;
+  --color-ink:         #0e1f1a;
+  --color-ink-2:       #2a3b34;
+  --color-ink-3:       #3c4d46;
+  --color-surface:     #ffffff;
+  --color-surface-2:   #f4f9f5;
+  --color-line:        #dbe5dd;
+  --color-line-2:      #e8efea;
+  --color-mute:        #697a72;
+  --color-mute-2:      #94a39b;
+
+  /* role colors — the pipeline spine (amber ≠ warning; urgency has its own red) */
+  --color-donor:       #e08423;   /* donor · amber — origin of surplus   */
+  --color-donor-2:     #bd6a10;
+  --color-donor-soft:  #fbeed7;
+  --color-ngo:         #0fa968;   /* NGO · emerald — destination/success */
+  --color-ngo-2:       #0a8552;
+  --color-ngo-soft:    #d5f1e2;
+  --color-rider:       #0d9488;   /* rider · teal — transport            */
+  --color-rider-2:     #0a6f66;
+  --color-rider-soft:  #d1efec;
+  --color-people:      #c2485f;   /* people fed · rose — outcome         */
+  --color-people-2:    #9d2f45;
+  --color-urgent:      #e0382f;   /* the ONLY red — urgency              */
+  --color-partner:     #5b6cb8;   /* proposed — confirm owner (Phase 2)   */
+
+  /* typography */
+  --font-sans:    "Inter", ui-sans-serif, system-ui, sans-serif;          /* override default sans → Inter */
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;  /* display / numbers             */
+
+  /* easing — transition-timing-function utilities (ease-out / ease-spring / ease-flow) */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-flow:   cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* animation registrations → animate-flow-* utilities (keyframes defined below) */
+  --animate-flow-dash:    d4flowdash 0.7s linear infinite;
+  --animate-flow-travel:  d4travel 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  --animate-flow-ping:    d4ping 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  --animate-flow-route:   d4drawdash 1.2s linear infinite;
+  --animate-flow-shimmer: d4shimmer 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  --animate-flow-spin:    d4spin 0.9s linear infinite;
+  --animate-flow-ring:    d4ring 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+/* ---- plain :root vars ------------------------------------------------------
+   Aliases that match the Flow reference names, so component CSS copied from
+   docs/design-templates.html works unchanged. Canonical hex lives in @theme above. */
+:root {
+  --canvas:      var(--color-canvas);
+  --canvas-deep: var(--color-canvas-deep);
+  --ink:         var(--color-ink);
+  --ink-2:       var(--color-ink-2);
+  --ink-3:       var(--color-ink-3);
+  --surface:     var(--color-surface);
+  --surface-2:   var(--color-surface-2);
+  --line:        var(--color-line);
+  --line-2:      var(--color-line-2);
+  --mute:        var(--color-mute);
+  --mute-2:      var(--color-mute-2);
+
+  --donor:       var(--color-donor);
+  --donor-2:     var(--color-donor-2);
+  --donor-soft:  var(--color-donor-soft);
+  --ngo:         var(--color-ngo);
+  --ngo-2:       var(--color-ngo-2);
+  --ngo-soft:    var(--color-ngo-soft);
+  --rider:       var(--color-rider);
+  --rider-2:     var(--color-rider-2);
+  --rider-soft:  var(--color-rider-soft);
+  --people:      var(--color-people);
+  --people-2:    var(--color-people-2);
+  --urgent:      var(--color-urgent);
+  --partner:     var(--color-partner);
+
+  /* the reference uses var(--font) for the display face */
+  --font: var(--font-display);
+  /* reference easing names */
+  --ease-in-out: var(--ease-flow);
+
+  /* rgb triplets for rgba() — e.g. rgba(var(--ngo-rgb), .28) */
+  --donor-rgb:   224, 132, 35;
+  --ngo-rgb:     15, 169, 104;
+  --rider-rgb:   13, 148, 136;
+  --people-rgb:  194, 72, 95;
+  --urgent-rgb:  224, 56, 47;
+  --partner-rgb: 91, 108, 184;
+
+  /* radii + shadows (reference names) */
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-2xl: 26px;
+  --sh-sm: 0 1px 2px rgba(14, 31, 26, .05);
+  --sh-md: 0 6px 18px -6px rgba(14, 31, 26, .10), 0 2px 6px -2px rgba(14, 31, 26, .05);
+  --sh-lg: 0 24px 50px -20px rgba(14, 31, 26, .16), 0 10px 22px -10px rgba(14, 31, 26, .08);
+}
+
+/* ---- base ------------------------------------------------------------------ */
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- helpers --------------------------------------------------------------- */
+.nums { font-variant-numeric: tabular-nums; } /* apply to every figure (counts, ETA, ₹, kg, pts) */
+
+/* ---- Flow keyframes (faithful to docs/design-templates.html) --------------- */
+@keyframes d4ping     { 0%{ box-shadow:0 0 0 0 rgba(var(--ngo-rgb),.55);} 70%{ box-shadow:0 0 0 7px rgba(var(--ngo-rgb),0);} 100%{ box-shadow:0 0 0 0 rgba(var(--ngo-rgb),0);} }
+@keyframes d4pingw    { 0%{ box-shadow:0 0 0 0 rgba(255,255,255,.6);} 70%{ box-shadow:0 0 0 7px rgba(255,255,255,0);} 100%{ box-shadow:0 0 0 0 rgba(255,255,255,0);} }
+@keyframes d4ripple   { to{ transform:scale(2.8); opacity:0; } }
+@keyframes d4hpIn     { to{ opacity:1; transform:none; } }
+@keyframes d4ring     { 0%,100%{ transform:scale(1); opacity:.4; } 50%{ transform:scale(1.16); opacity:0; } }
+@keyframes d4flowdash { to{ background-position:12px 0; } }
+@keyframes d4travel   { 0%{ left:-3%; opacity:0; } 12%{ opacity:1; } 88%{ opacity:1; } 100%{ left:103%; opacity:0; } }
+@keyframes d4capfill  { to{ width:var(--p, 68%); } }
+@keyframes d4shimmer  { 100%{ transform:translateX(100%); } }
+@keyframes d4drawdash { to{ stroke-dashoffset:-13; } }
+@keyframes d4spin     { to{ transform:rotate(360deg); } }
+@keyframes d4slidein  { from{ opacity:0; transform:translateY(-8px) scale(.98); } to{ opacity:1; transform:none; } }
+@keyframes d4sheen    { 0%{ left:-60%; } 55%,100%{ left:130%; } }
+@keyframes d4fillring { to{ stroke-dashoffset:var(--off, 52); } }
+
+/* ---- motion gating --------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================================
+   FLOW COMPONENTS (Phase 1+) — reusable presentational classes + motifs
+   ========================================================================= */
+
+/* ---- Flow button (.fbtn) — use on any <button>/<a> ---- */
+.fbtn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.5em;
+  font-family:var(--font-display); font-weight:600; letter-spacing:-.1px;
+  border-radius:100px; padding:.72em 1.5em; cursor:pointer;
+  border:1px solid transparent; text-decoration:none;
+  transition:transform .14s var(--ease-out), box-shadow .2s var(--ease-out),
+             background .2s var(--ease-out), color .2s var(--ease-out), filter .2s var(--ease-out);
+  -webkit-tap-highlight-color:transparent;
+}
+.fbtn:active{ transform:scale(.97); }
+.fbtn-sm{ padding:.5em 1.05em; font-size:.85rem; }
+.fbtn-p{ background:var(--color-ink); color:#eaf3ee; }
+.fbtn-g{ background:transparent; color:var(--color-mute); border-color:var(--color-line); }
+.fbtn-flow{ background:linear-gradient(135deg, var(--color-rider), var(--color-ngo)); color:#fff; box-shadow:0 10px 24px -10px rgba(var(--rider-rgb),.5); }
+@media (hover:hover) and (pointer:fine){
+  .fbtn-p:hover{ background:#16302a; box-shadow:0 12px 24px -12px rgba(14,31,26,.55); transform:translateY(-1px); }
+  .fbtn-g:hover{ color:var(--color-ink); border-color:var(--color-mute-2); background:var(--color-surface-2); transform:translateY(-1px); }
+  .fbtn-flow:hover{ filter:brightness(1.06); box-shadow:0 16px 30px -10px rgba(var(--rider-rgb),.62); transform:translateY(-1px); }
+}
+
+/* ---- Live chip ---- */
+.livechip{
+  display:inline-flex; align-items:center; gap:.5em;
+  font-family:var(--font-display); font-size:.7rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+  padding:.42em .85em; border-radius:100px;
+  background:rgba(var(--ngo-rgb),.12); color:var(--color-ngo-2); border:1px solid rgba(var(--ngo-rgb),.25);
+}
+.livechip .lc-dot{ position:relative; width:7px; height:7px; border-radius:50%; background:var(--color-ngo); flex-shrink:0; }
+.livechip .lc-dot::after{ content:""; position:absolute; inset:-3px; border-radius:50%; border:2px solid var(--color-ngo); opacity:.45; animation:d4ring 2.4s var(--ease-out) infinite; }
+.livechip.dark{ background:rgba(255,255,255,.06); color:rgba(234,243,238,.82); border-color:rgba(255,255,255,.14); }
+.livechip.dark .lc-dot{ background:#fff; }
+.livechip.dark .lc-dot::after{ border-color:#fff; }
+.livechip.amber{ background:rgba(var(--donor-rgb),.12); color:var(--color-donor-2); border-color:rgba(var(--donor-rgb),.25); }
+.livechip.amber .lc-dot, .livechip.amber .lc-dot::after{ background:var(--color-donor); border-color:var(--color-donor); }
+.livechip.rider{ background:rgba(var(--rider-rgb),.12); color:var(--color-rider-2); border-color:rgba(var(--rider-rgb),.25); }
+.livechip.rider .lc-dot, .livechip.rider .lc-dot::after{ background:var(--color-rider); border-color:var(--color-rider); }
+.livechip.urgent{ background:rgba(var(--urgent-rgb),.12); color:var(--color-urgent); border-color:rgba(var(--urgent-rgb),.25); }
+.livechip.urgent .lc-dot, .livechip.urgent .lc-dot::after{ background:var(--color-urgent); border-color:var(--color-urgent); }
+
+/* ---- gradient text accent ---- */
+.flow-grad-text{ background:linear-gradient(120deg, var(--color-ngo), var(--color-rider)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+/* ---- section divider (numbered) ---- */
+.sec-divider{ display:flex; align-items:baseline; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
+.sec-divider .sd-num{ font-family:var(--font-display); font-size:13px; font-weight:700; letter-spacing:1.4px; color:var(--color-mute-2); }
+.sec-divider .sd-title{ font-family:var(--font-display); font-size:clamp(22px,3vw,32px); font-weight:700; letter-spacing:-.6px; color:var(--color-ink); }
+.sec-divider .sd-rule{ flex:1; height:1px; background:linear-gradient(90deg, var(--color-line), transparent); min-width:40px; }
+
+/* ---- surface tile ---- */
+.flow-tile{ background:var(--color-surface); border:1px solid var(--color-line); border-radius:var(--r-xl); box-shadow:var(--sh-sm); transition:transform .25s var(--ease-out), box-shadow .25s var(--ease-out); }
+@media (hover:hover) and (pointer:fine){ .flow-tile:hover{ transform:translateY(-3px); box-shadow:var(--sh-md); } }
+
+/* ---- Flow dark hero ---- */
+.flow-hero{ position:relative; min-height:100vh; overflow:hidden; background:linear-gradient(162deg, #0e1f1a 0%, #122821 55%, #0b1a15 100%); color:#eaf3ee; }
+.flow-hero::before{ content:""; position:absolute; inset:0; background:radial-gradient(60% 50% at 88% -6%, rgba(15,169,104,.18), transparent 60%), radial-gradient(50% 40% at 4% 102%, rgba(13,148,136,.16), transparent 55%); pointer-events:none; }
+.flow-hero::after{ content:""; position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size:26px 26px; -webkit-mask-image:radial-gradient(120% 80% at 50% 0%, #000, transparent 70%); mask-image:radial-gradient(120% 80% at 50% 0%, #000, transparent 70%); pointer-events:none; }
+.flow-hero .fh-stmt{ font-family:var(--font-display); font-weight:700; font-size:clamp(34px,5.4vw,60px); line-height:1.02; letter-spacing:-1.6px; color:#eaf3ee; }
+.flow-hero .fh-sub{ font-size:clamp(15px,1.6vw,19px); color:rgba(234,243,238,.72); max-width:46ch; line-height:1.55; }
+
+/* ---- Typo band (giant impact number) ---- */
+.typo-band{ position:relative; overflow:hidden; background:linear-gradient(135deg, #0fa968 0%, #0d9488 60%, #0a6f66 100%); color:#fff; text-align:center; padding:clamp(44px,7vw,84px) 24px; }
+.typo-band .tb-num{ font-family:var(--font-display); font-weight:700; font-size:clamp(48px,9vw,112px); line-height:.9; letter-spacing:-3px; font-variant-numeric:tabular-nums; margin-top:14px; }
+.typo-band .tb-sub{ font-family:var(--font-display); font-weight:600; font-size:clamp(14px,1.6vw,18px); letter-spacing:.3px; color:rgba(255,255,255,.88); margin-top:10px; }
+
+/* ---- Flow ribbon (donor -> NGO -> rider -> people pipeline) ---- */
+.flow-ribbon{ display:flex; align-items:center; gap:0; }
+.flow-ribbon .fr-node{ display:flex; flex-direction:column; align-items:center; gap:9px; flex-shrink:0; }
+.flow-ribbon .fr-ic{ width:56px; height:56px; border-radius:16px; display:grid; place-items:center; color:#fff; position:relative; box-shadow:0 10px 24px -10px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.28); }
+.flow-ribbon .fr-ic svg{ width:26px; height:26px; }
+.flow-ribbon .fr-ic::after{ content:""; position:absolute; inset:-6px; border-radius:20px; border:2px solid var(--nc, var(--color-ngo)); opacity:.4; animation:d4ring 2.8s var(--ease-out) infinite; }
+.flow-ribbon .fr-node.n-donor .fr-ic{ background:linear-gradient(140deg, var(--color-donor), var(--color-donor-2)); --nc:var(--color-donor); }
+.flow-ribbon .fr-node.n-ngo .fr-ic{ background:linear-gradient(140deg, var(--color-ngo), var(--color-ngo-2)); --nc:var(--color-ngo); }
+.flow-ribbon .fr-node.n-rider .fr-ic{ background:linear-gradient(140deg, var(--color-rider), var(--color-rider-2)); --nc:var(--color-rider); }
+.flow-ribbon .fr-node.n-people .fr-ic{ background:linear-gradient(140deg, #3c4d46, #2a3b34); --nc:var(--color-people); }
+.flow-ribbon .fr-lbl{ font-family:var(--font-display); font-size:11px; font-weight:600; letter-spacing:.5px; color:rgba(234,243,238,.7); text-transform:uppercase; }
+.flow-ribbon .fr-track{ position:relative; height:3px; width:clamp(26px,5vw,60px); border-radius:3px; background:rgba(255,255,255,.14); overflow:visible; }
+.flow-ribbon .fr-track .fr-fill{ position:absolute; inset:0; border-radius:3px; background:repeating-linear-gradient(90deg, var(--tc, var(--color-ngo)) 0 6px, transparent 6px 12px); background-size:12px 3px; animation:d4flowdash .7s linear infinite; }
+.flow-ribbon .fr-track .fr-dot{ position:absolute; top:50%; left:0; width:9px; height:9px; border-radius:50%; background:var(--tc, var(--color-ngo)); transform:translate(-50%,-50%); box-shadow:0 0 0 3px rgba(var(--tc-rgb, 15,169,104),.22), 0 0 12px rgba(var(--tc-rgb, 15,169,104),.85); animation:d4travel 2.6s var(--ease-flow) infinite; }
+.flow-ribbon .fr-track .fr-dot.b{ animation-delay:1.3s; }
+.flow-ribbon .fr-track.t-ngo{ --tc:var(--color-ngo); --tc-rgb:var(--ngo-rgb); }
+.flow-ribbon .fr-track.t-rider{ --tc:var(--color-rider); --tc-rgb:var(--rider-rgb); }
+.flow-ribbon .fr-track.t-people{ --tc:var(--color-people); --tc-rgb:var(--people-rgb); }
+.flow-ribbon-scroll{ overflow-x:auto; padding:10px 10px 10px; -webkit-overflow-scrolling:touch; }
+.flow-ribbon-scroll::-webkit-scrollbar{ height:0; }
+@media (prefers-reduced-motion: reduce){
+  .flow-ribbon .fr-ic::after, .flow-ribbon .fr-track .fr-fill, .flow-ribbon .fr-track .fr-dot, .livechip .lc-dot::after{ animation:none; }
+}
+
+/* ---- Flow brand logo mark ---- */
+.flow-logo-mark{
+  border-radius:10px;
+  background:conic-gradient(from 140deg, var(--color-donor), var(--color-ngo), var(--color-rider), var(--color-donor));
+  display:inline-grid; place-items:center; color:#fff; flex-shrink:0;
+  box-shadow:0 6px 16px -6px rgba(13,148,136,.45), inset 0 1px 0 rgba(255,255,255,.4);
+  transition:transform .3s var(--ease-out);
+}
+.flow-logo-mark svg{ width:54%; height:54%; }
+@media (hover:hover) and (pointer:fine){
+  .flow-logo-mark:hover{ transform:rotate(8deg) scale(1.05); }
+}

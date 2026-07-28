@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Partner from "../components/Partner";
 import Footer from "../components/Footer";
+import FlowRibbon from "../components/flow/FlowRibbon";
+import CountUp from "../components/flow/CountUp";
+import LiveChip from "../components/flow/LiveChip";
 import axios from "axios";
 
 const Home = () => {
@@ -39,99 +42,114 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
-      <div className="w-full h-screen relative">
-        <img
-          className="w-full h-full object-cover"
-          src="https://res.cloudinary.com/dvdwjzjvf/image/upload/v1757965856/project/Sahaaya/image_ipc2mm.png"
-          alt=""
+    <div className="bg-canvas">
+      {/* ===================== HERO ===================== */}
+      <section className="flow-hero">
+        <Navbar
+          aboutusRef={aboutusRef}
+          ourworkRef={ourworkRef}
+          partnerwithusRef={partnerwithusRef}
         />
 
-        {/* navbar */}
-        <Navbar aboutusRef={aboutusRef} ourworkRef={ourworkRef} partnerwithusRef={partnerwithusRef}/>
-
-        <div className="absolute bottom-[10vh] z-10  px-4 md:px-0 md:left-[20vw]">
-          <h2 className="text-white text-2xl md:text-5xl mb-2 font-bold text-center md:text-left">
-            Hunger Free India
-          </h2>
-          <p className="text-white text-lg md:text-2xl font-medium text-center md:text-left">
-            Serving meals daily to those in need, everywhere in India.
-          </p>
-          <div className="flex justify-center md:justify-start">
-            <button
-              onClick={() => {
-                navigate("/Role");
-              }}
-              type="button"
-              className="cursor-pointer text-base md:text-lg py-2 md:py-3 px-4 md:px-6 mt-4 bg-red-500 text-white rounded-lg"
-            >
-              JOIN US
-            </button>
+        <div className="relative z-10 mx-auto max-w-[1200px] px-5 md:px-8 pt-32 md:pt-44">
+          <div className="max-w-2xl">
+            <LiveChip dark>Live · food on the move</LiveChip>
+            <h1 className="fh-stmt mt-5">
+              Hunger Free <span className="flow-grad-text">India</span>
+            </h1>
+            <p className="fh-sub mt-4">
+              Serving meals daily to those in need, everywhere in India.
+            </p>
+            <div className="mt-7">
+              <button
+                onClick={() => {
+                  navigate("/Role");
+                }}
+                type="button"
+                className="fbtn fbtn-flow"
+              >
+                Join us
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* about us */}
-      <div
+        <div className="relative z-10 mx-auto max-w-[1200px] px-5 md:px-8 pt-14 pb-16 md:pb-24">
+          <div className="flow-ribbon-scroll">
+            <FlowRibbon />
+          </div>
+        </div>
+      </section>
+
+      {/* ===================== ABOUT (Mission / Vision) ===================== */}
+      <section
         ref={aboutusRef}
-        className="min-h-screen flex flex-col px-4 md:px-[20vw] mt-20 md:mt-40"
+        className="mx-auto max-w-[1200px] px-5 md:px-8 py-20 md:py-28"
       >
-        <div className="flex flex-col md:flex-row align-center justify-between gap-6 mb-10 md:mb-20">
-          <div className="w-full md:w-1/2 flex flex-col justify-center">
-            <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">
+        <div className="sec-divider">
+          <span className="sd-num">01</span>
+          <span className="sd-title">Who we are</span>
+          <span className="sd-rule" />
+        </div>
+
+        <div className="grid gap-5 md:gap-6 md:grid-cols-2">
+          <div className="flow-tile p-6 md:p-8 flex flex-col">
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-ink">
               Mission
-            </h1>
-            <p className="text-base md:text-lg">
+            </h2>
+            <span className="inline-block w-10 h-1 rounded-full bg-donor mt-3" />
+            <p className="text-ink-2 leading-relaxed mt-4">
               To reduce food waste and fight hunger by connecting restaurants,
               event organizers, and individuals with leftover food to verified
               NGOs who can distribute it to those in need.
             </p>
+            <img
+              className="mt-5 rounded-xl h-40 md:h-48 w-full object-cover"
+              src="https://media.cntraveller.in/wp-content/uploads/2020/02/Feeding-India-Zomato.jpg"
+              alt=""
+            />
           </div>
-          <img
-            className="w-full md:w-1/2 h-40 md:h-70 rounded-xl mt-6 md:mt-0 object-cover"
-            src="https://media.cntraveller.in/wp-content/uploads/2020/02/Feeding-India-Zomato.jpg"
-            alt=""
-          />
-        </div>
 
-        <div className="flex flex-col md:flex-row align-center justify-between gap-6 mt-10 md:mt-20">
-          <img
-            className="w-full md:w-1/2 h-40 md:h-70 rounded-xl object-cover"
-            src="https://tatsatchronicle.com/wp-content/uploads/2022/01/Akshaya-Patra-Foundation-.jpg"
-            alt=""
-          />
-          <div className="w-full md:w-1/2 flex flex-col justify-center ml-0 md:ml-5 mt-6 md:mt-0">
-            <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">
+          <div className="flow-tile p-6 md:p-8 flex flex-col">
+            <img
+              className="rounded-xl h-40 md:h-48 w-full object-cover"
+              src="https://tatsatchronicle.com/wp-content/uploads/2022/01/Akshaya-Patra-Foundation-.jpg"
+              alt=""
+            />
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-ink mt-5">
               Vision
-            </h1>
-            <p className="text-base md:text-lg">
+            </h2>
+            <span className="inline-block w-10 h-1 rounded-full bg-ngo mt-3" />
+            <p className="text-ink-2 leading-relaxed mt-4">
               To build a sustainable ecosystem where no edible food goes to
               waste and every extra meal becomes a lifeline for someone in need
               — creating a hunger-free and compassionate India.
             </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* our work */}
-      <div ref={ourworkRef} className="flex flex-col px-4 md:px-[20vw]">
-        <h1 className="text-2xl md:text-4xl font-bold text-center mt-10 md:mt-20">
-          The Journey So Far
-        </h1>
-
-        <div className="mt-8 md:mt-15 bg-[#f8f8f8] h-24 md:h-40 rounded-lg px-4 md:px-10 flex flex-col justify-center items-center tracking-wider">
-          <p className="text-xl md:text-4xl font-semibold">
-            Total meals served:{" "}
-            <span className="text-red-500">{formatNumber(totalMeals)}</span> and counting....
-          </p>
+      {/* ===================== OUR WORK (impact typo-band) ===================== */}
+      <section ref={ourworkRef} className="typo-band">
+        <LiveChip dark>The journey so far</LiveChip>
+        <div className="tb-num">
+          <CountUp value={totalMeals} />
         </div>
-      </div>
+        <p className="tb-sub">total meals served · and counting</p>
+        <p className="mt-2 text-sm text-white/60 nums">
+          {formatNumber(totalMeals)}
+        </p>
+      </section>
 
       {/* PARTNER WITH US */}
       <Partner partnerwithusRef={partnerwithusRef} />
 
       {/* Footer */}
-      <Footer aboutusRef={aboutusRef} ourworkRef={ourworkRef} partnerwithusRef={partnerwithusRef}/>
+      <Footer
+        aboutusRef={aboutusRef}
+        ourworkRef={ourworkRef}
+        partnerwithusRef={partnerwithusRef}
+      />
     </div>
   );
 };

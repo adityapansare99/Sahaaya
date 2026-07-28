@@ -19,36 +19,43 @@ const Partner = (props) => {
   }, []);
 
   return (
-    <div>
-      <div
-        ref={props.partnerwithusRef}
-        className="flex flex-col px-4 md:px-[20vw] items-center mb-20"
-      >
-        <h1 className="text-2xl md:text-4xl font-bold text-center mt-20 md:mt-40">
-          Hands Together for a Better Tomorrow
-        </h1>
-        <div className="mt-10 md:mt-20 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6 w-full">
-          {partners.length === 0 ? (
-            <p className="col-span-full text-center text-gray-400 py-10 text-lg">
-              No partner restaurants yet
-            </p>
-          ) : (
-            partners.map((p, i) => (
-              <div key={p._id || i} className="flex flex-col items-center gap-2 md:gap-4 mb-6 md:mb-10">
-                <img
-                  className="rounded-full w-24 h-24 md:w-32 md:h-32 object-cover border border-gray-200"
-                  src={p.logo || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
-                  alt={p.name}
-                />
-                <h1 className="text-sm md:text-lg font-semibold text-center text-gray-800 mt-2">
-                  {p.name}
-                </h1>
-              </div>
-            ))
-          )}
-        </div>
+    <section
+      ref={props.partnerwithusRef}
+      className="mx-auto max-w-[1200px] px-5 md:px-8 py-20 md:py-28"
+    >
+      <div className="sec-divider">
+        <span className="sd-num">02</span>
+        <span className="sd-title">Hands Together for a Better Tomorrow</span>
+        <span className="sd-rule" />
       </div>
-    </div>
+
+      {partners.length === 0 ? (
+        <div
+          className="flow-tile p-10 text-center"
+          style={{ borderStyle: "dashed" }}
+        >
+          <p className="text-mute text-lg">No partner restaurants yet</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+          {partners.map((p, i) => (
+            <div
+              key={p._id || i}
+              className="flow-tile p-4 md:p-5 flex flex-col items-center text-center"
+            >
+              <img
+                className="rounded-2xl w-20 h-20 md:w-24 md:h-24 object-cover border border-line"
+                src={p.logo || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+                alt={p.name}
+              />
+              <h3 className="font-display text-sm md:text-base font-semibold text-ink mt-3">
+                {p.name}
+              </h3>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 };
 

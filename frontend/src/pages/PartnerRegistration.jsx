@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import Logo from "../components/flow/Logo";
 import {
   Upload,
   Store,
@@ -132,11 +133,9 @@ const PartnerRegistration = () => {
               }}
               className="relative cursor-pointer"
             >
-              <img
-                className="w-64 mx-auto drop-shadow-xl hover:scale-105 transition-all duration-700 ease-out filter brightness-110"
-                src="https://res.cloudinary.com/dvdwjzjvf/image/upload/v1758366445/project/Sahaaya/Minimalistic_Sahaaya_Logo_Design_cxghbe_skvums.png"
-                alt="Sahaaya Logo"
-              />
+              <div className="flex justify-center">
+                <Logo size="lg" />
+              </div>
             </div>
             <div className="mt-8 space-y-3">
               <h2 className="text-2xl font-light text-gray-800 tracking-wide">
