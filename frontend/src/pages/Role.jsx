@@ -1,7 +1,8 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, Heart, Truck, ChevronRight, UserCheck, Store } from "lucide-react";
+import { Heart, Users, Truck, Store, ChevronRight } from "lucide-react";
 import { AppContext } from "../context/AppContext";
+import Logo from "../components/flow/Logo";
 
 const Role = () => {
   const navigate = useNavigate();
@@ -15,40 +16,28 @@ const Role = () => {
       title: "Food Donor",
       description: "Share surplus food and make a difference in your community",
       icon: Heart,
-      color: "from-rose-400 to-pink-500",
-      bgColor: "bg-gradient-to-br from-rose-50 to-pink-50",
-      borderColor: "border-rose-200",
-      selectedBorder: "border-rose-400",
+      tone: "donor",
     },
     {
       id: "Receiver",
       title: "Food Receiver",
       description: "Connect with donors and receive fresh food donations",
       icon: Users,
-      color: "from-blue-400 to-indigo-500",
-      bgColor: "bg-gradient-to-br from-blue-50 to-indigo-50",
-      borderColor: "border-blue-200",
-      selectedBorder: "border-blue-400",
+      tone: "ngo",
     },
     {
       id: "Rider",
       title: "Delivery Partner",
       description: "Bridge the gap by delivering food from donors to receivers",
       icon: Truck,
-      color: "from-emerald-400 to-teal-500",
-      bgColor: "bg-gradient-to-br from-emerald-50 to-teal-50",
-      borderColor: "border-emerald-200",
-      selectedBorder: "border-emerald-400",
+      tone: "rider",
     },
     {
       id: "Partner",
       title: "Restaurant Partner",
       description: "Offer discounts to riders and grow your reach",
       icon: Store,
-      color: "from-amber-400 to-orange-500",
-      bgColor: "bg-gradient-to-br from-amber-50 to-orange-50",
-      borderColor: "border-amber-200",
-      selectedBorder: "border-amber-400",
+      tone: "partner",
     },
   ];
 
@@ -67,36 +56,32 @@ const Role = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen bg-canvas flex items-center justify-center p-4 py-12">
       <div className="w-full max-w-2xl">
-        {/* Header Section */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full mb-6 shadow-lg">
-            <UserCheck className="w-8 h-8 text-white" />
+        {/* Header */}
+        <div className="text-center mb-9">
+          <div className="flex justify-center mb-6">
+            <div onClick={() => navigate("/")} className="inline-flex cursor-pointer">
+              <Logo size="lg" />
+            </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-            Join{" "}
-            <span
-              onClick={() => {
-                navigate("/");
-              }}
-              className="bg-gradient-to-r from-red-500 to-red-600 cursor-pointer bg-clip-text text-transparent"
-            >
-              Sahaaya
-            </span>
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-ink">
+            Join the movement
           </h1>
-          <p className="text-lg text-gray-600 max-w-md mx-auto leading-relaxed">
-            Choose your role and become part of a community dedicated to
-            reducing food waste and fighting hunger
+          <p className="text-mute max-w-md mx-auto leading-relaxed mt-3">
+            Choose your role and become part of a community dedicated to reducing
+            food waste and fighting hunger
           </p>
         </div>
 
-        {/* Role Selection Cards */}
-        <div className="space-y-4 mb-8">
+        {/* Role cards */}
+        <div className="space-y-3 mb-7">
           {roles.map((role) => {
             const Icon = role.icon;
             const isSelected = selectedRole === role.id;
-
+            const c1 = `var(--color-${role.tone})`;
+            const c2 = `var(--color-${role.tone}-2, var(--color-${role.tone}))`;
+            const soft = `var(--color-${role.tone}-soft)`;
             return (
               <div
                 key={role.id}
@@ -105,82 +90,56 @@ const Role = () => {
                   setSelectedRole(role.id);
                   localStorage.setItem("role", role.id);
                 }}
-                className={`
-                  relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl
-                  ${
-                    isSelected
-                      ? `${role.bgColor} ${role.selectedBorder} shadow-lg scale-[1.02]`
-                      : `bg-white ${role.borderColor} hover:${role.bgColor} shadow-md`
-                  }
-                `}
+                className="flow-tile p-5 flex items-center gap-4 cursor-pointer"
+                style={isSelected ? { borderColor: c1, background: soft } : undefined}
               >
-                <div className="flex items-center space-x-4">
-                  <div
-                    className={`flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br ${role.color} flex items-center justify-center shadow-md`}
-                  >
-                    <Icon className="w-7 h-7 text-white" />
-                  </div>
-
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                      {role.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {role.description}
-                    </p>
-                  </div>
-
-                  <div
-                    className={`
-                    w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200
-                    ${
-                      isSelected
-                        ? `bg-gradient-to-br ${role.color} border-transparent`
-                        : "border-gray-300 bg-white"
-                    }
-                  `}
-                  >
-                    {isSelected && (
-                      <div className="w-2 h-2 bg-white rounded-full" />
-                    )}
-                  </div>
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: `linear-gradient(140deg, ${c1}, ${c2})` }}
+                >
+                  <Icon className="w-7 h-7 text-white" />
                 </div>
-
-                {isSelected && (
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse pointer-events-none" />
-                )}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-display text-lg font-bold text-ink">
+                    {role.title}
+                  </h3>
+                  <p className="text-sm text-mute leading-snug">{role.description}</p>
+                </div>
+                <div
+                  className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                  style={
+                    isSelected
+                      ? { borderColor: c1, background: c1 }
+                      : { borderColor: "var(--color-line)" }
+                  }
+                >
+                  {isSelected && <span className="w-2 h-2 bg-white rounded-full" />}
+                </div>
               </div>
             );
           })}
         </div>
 
-        {/* Action Buttons */}
-        <div className="space-y-4">
-          <button
-            onClick={submitHandler}
-            className="w-full bg-gradient-to-r from-red-500 to-red-600 cursor-pointer text-white font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2 text-lg"
-          >
-            <span>Start Your Journey</span>
-            <ChevronRight className="w-5 h-5" />
-          </button>
+        {/* Submit */}
+        <button onClick={submitHandler} className="fbtn fbtn-flow w-full">
+          Start your journey <ChevronRight className="w-5 h-5" />
+        </button>
 
-          <div className="text-center">
-            <p className="text-gray-600 mb-2">Already have an account?</p>
+        <div className="text-center mt-6">
+          <p className="text-sm text-mute">
+            Already have an account?{" "}
             <button
               onClick={() => navigate("/Login")}
-              className="text-red-500 cursor-pointer font-semibold hover:text-red-600 transition-colors duration-200 underline decoration-2 underline-offset-4"
+              className="text-ngo font-semibold hover:underline cursor-pointer"
             >
-              Sign in here
+              Sign in
             </button>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center mt-10 text-gray-500 text-sm">
-          <p>
-            By continuing, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>
+
+        <p className="text-center mt-8 text-xs text-mute-2">
+          By continuing, you agree to our Terms of Service and Privacy Policy
+        </p>
       </div>
     </div>
   );

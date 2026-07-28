@@ -38,7 +38,9 @@
   --color-people:      #c2485f;   /* people fed · rose — outcome         */
   --color-people-2:    #9d2f45;
   --color-urgent:      #e0382f;   /* the ONLY red — urgency              */
-  --color-partner:     #5b6cb8;   /* proposed — confirm owner (Phase 2)   */
+  --color-partner:     #5b6cb8;
+  --color-partner-2:   #4451a0;
+  --color-partner-soft:#e8ebf6;   /* proposed — confirm owner (Phase 2)   */
 
   /* typography */
   --font-sans:    "Inter", ui-sans-serif, system-ui, sans-serif;          /* override default sans → Inter */
@@ -88,6 +90,18 @@
   --people-2:    var(--color-people-2);
   --urgent:      var(--color-urgent);
   --partner:     var(--color-partner);
+
+  /* role shades emitted directly here — Tailwind v4 tree-shakes @theme vars that are
+     only read via var() in inline styles (e.g. partner-2). Plain :root is always kept. */
+  --color-donor-2:     #bd6a10;
+  --color-donor-soft:  #fbeed7;
+  --color-ngo-2:       #0a8552;
+  --color-ngo-soft:    #d5f1e2;
+  --color-rider-2:     #0a6f66;
+  --color-rider-soft:  #d1efec;
+  --color-people-2:    #9d2f45;
+  --color-partner-2:   #4451a0;
+  --color-partner-soft:#e8ebf6;
 
   /* the reference uses var(--font) for the display face */
   --font: var(--font-display);
@@ -256,3 +270,17 @@ body {
 @media (hover:hover) and (pointer:fine){
   .flow-logo-mark:hover{ transform:rotate(8deg) scale(1.05); }
 }
+
+/* ---- Flow form input ---- */
+.flow-input{
+  width:100%; padding:.72em .9em; border-radius:var(--r-lg);
+  background:var(--color-surface); border:1px solid var(--color-line);
+  color:var(--color-ink); font-family:var(--font-sans); font-size:.95rem;
+  transition:border-color .2s var(--ease-out), box-shadow .2s var(--ease-out);
+}
+.flow-input::placeholder{ color:var(--color-mute-2); }
+.flow-input:hover{ border-color:var(--color-mute-2); }
+.flow-input:focus{ outline:none; border-color:var(--color-ngo); box-shadow:0 0 0 3px rgba(var(--ngo-rgb),.18); }
+select.flow-input{ cursor:pointer; }
+.flow-input:disabled{ opacity:.5; cursor:not-allowed; }
+.fbtn:disabled{ opacity:.55; cursor:not-allowed; }

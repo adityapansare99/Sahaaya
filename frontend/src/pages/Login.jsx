@@ -1,20 +1,12 @@
 import React, { useContext, useState } from "react";
 import Logo from "../components/flow/Logo";
-import {
-  Mail,
-  Lock,
-  Users,
-  Heart,
-  Star,
-  Sparkles,
-  ArrowRight,
-  LogIn,
-  UserCheck,
-} from "lucide-react";
+import { Mail, Lock, Users, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
+import FlowRibbon from "../components/flow/FlowRibbon";
+import LiveChip from "../components/flow/LiveChip";
 
 const Login = () => {
   const { backendurl, setToken, setRole } = useContext(AppContext);
@@ -91,203 +83,107 @@ const Login = () => {
     }
   };
 
+  const labelCls =
+    "font-display text-xs font-semibold uppercase tracking-wider text-ink-2 flex items-center gap-1.5 mb-1.5";
+
   return (
-    <div className="bg-white min-h-screen relative overflow-hidden">
-      {/* Elegant Background Elements */}
-      <div className="absolute inset-0 bg-linear-gradient-to-br from-red-50/20 via-white to-red-50/10"></div>
-      <div className="absolute top-0 left-0 w-full h-px bg-linear-gradient-to-r from-transparent via-red-200 to-transparent"></div>
-      <div className="absolute bottom-0 right-0 w-full h-px bg-linear-gradient-to-l from-transparent via-red-200 to-transparent"></div>
-
-      {/* Floating Decorative Elements */}
-      <div className="absolute top-20 left-10 opacity-10">
-        <Heart className="w-8 h-8 text-red-500 animate-pulse" />
-      </div>
-      <div className="absolute top-40 right-20 opacity-10">
-        <Star
-          className="w-6 h-6 text-red-500 animate-pulse"
-          style={{ animationDelay: "1s" }}
-        />
-      </div>
-      <div className="absolute bottom-40 left-20 opacity-10">
-        <Sparkles
-          className="w-7 h-7 text-red-500 animate-pulse"
-          style={{ animationDelay: "2s" }}
-        />
-      </div>
-
-      <div className="relative md:grid md:grid-cols-7 md:w-full md:min-h-screen">
-        {/* Left Side - Elegant Logo Section */}
-        <div className="w-full md:col-span-3 md:flex items-center justify-center min-h-[50vh] md:min-h-screen hidden bg-linear-gradient-to-br from-red-50/30 via-white to-red-50/20 relative">
-          {/* Subtle Geometric Patterns */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-red-300 rounded-full"></div>
-            <div className="absolute top-1/2 right-1/3 w-24 h-24 border border-red-200 rounded-full"></div>
-            <div className="absolute bottom-1/3 left-1/2 w-16 h-16 border border-red-400 rounded-full"></div>
+    <div className="min-h-screen bg-canvas md:grid md:grid-cols-2">
+      {/* LEFT — Flow dark panel */}
+      <div className="flow-hero hidden md:flex flex-col justify-center px-10 lg:px-16">
+        <div className="relative z-10 max-w-md">
+          <div onClick={() => navigate("/")} className="inline-flex cursor-pointer">
+            <Logo light />
           </div>
-
-          <div className="text-center fixed top-[40vh] h-screen z-10 px-8">
-            <div
-              onClick={() => {
-                navigate("/");
-              }}
-              className="relative cursor-pointer"
-            >
-              <div className="flex justify-center">
-                <Logo size="lg" />
-              </div>
-            </div>
-            <div className="mt-8 space-y-3">
-              <h2 className="text-2xl font-light text-gray-800 tracking-wide">
-                Welcome back to{" "}
-                <span className="font-bold text-red-500">Sahaaya</span>
-              </h2>
-              <p className="text-gray-600 font-light leading-relaxed max-w-sm mx-auto">
-                Continue your journey of generous giving
-              </p>
-              <div className="flex justify-center space-x-2 mt-4">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                <div
-                  className="w-2 h-2 bg-red-400 rounded-full animate-pulse"
-                  style={{ animationDelay: "0.5s" }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-red-300 rounded-full animate-pulse"
-                  style={{ animationDelay: "1s" }}
-                ></div>
-              </div>
-            </div>
+          <div className="mt-8">
+            <LiveChip dark>Live · food on the move</LiveChip>
+          </div>
+          <h2 className="fh-stmt mt-5">Welcome back.</h2>
+          <p className="fh-sub mt-3">Continue your journey of generous giving.</p>
+          <div className="mt-10 flow-ribbon-scroll">
+            <FlowRibbon />
           </div>
         </div>
+      </div>
 
-        {/* Right Side - Login Content */}
-        <div className="flex md:mx-10 md:px-10 mx-4 md:col-span-4 my-6 md:my-8 flex-col items-center justify-center relative">
-          <div className="w-full bg-white/95 max-w-2xl backdrop-blur-sm md:px-15 px-6 md:py-12 py-8 shadow-2xl rounded-3xl border border-gray-100/80 relative overflow-hidden">
-            {/* Elegant Header Accent */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-linear-gradient-to-r from-red-500/80 via-red-400 to-red-500/80"></div>
-            <div className="absolute top-1 left-0 right-0 h-px bg-linear-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+      {/* RIGHT — form */}
+      <div className="flex items-center justify-center px-5 py-12 md:py-10">
+        <div className="w-full max-w-md flow-tile p-7 md:p-9">
+          <div className="md:hidden mb-7 flex justify-center">
+            <Logo />
+          </div>
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-ink">Sign in</h1>
+          <p className="text-mute text-sm mt-1">to continue your generous journey</p>
 
-            {/* Login Header */}
-            <div className="text-center mb-8">
-              <div className="flex justify-center mb-4">
-                <div className="p-4 bg-linear-gradient-to-r from-red-50 to-red-100 rounded-2xl">
-                  <LogIn className="w-12 h-12 text-red-500" />
-                </div>
-              </div>
-              <h1 className="text-3xl font-bold text-red-500 mb-2 tracking-tight">
-                Welcome Back
-              </h1>
-              <div className="w-20 h-1 bg-linear-gradient-to-r from-red-500 to-red-400 mx-auto rounded-full mb-3"></div>
-              <p className="text-gray-700 font-light leading-relaxed">
-                Sign in to continue your generous journey
-              </p>
+          <div className="mt-7 space-y-4">
+            <div>
+              <label className={labelCls}>
+                <Mail className="w-3.5 h-3.5 text-ngo" /> Email
+              </label>
+              <input
+                className="flow-input"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-
-            {/* Elegant Form Fields */}
-            <div className="space-y-5 mb-6">
-              <div className="group" style={{ animationDelay: `${1 * 0.1}s` }}>
-                <div className="flex items-center mb-2">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
-                      <Mail className="w-4 h-4 text-red-500" />
-                    </div>
-                    <label className="font-semibold text-gray-700 tracking-wide">
-                      Email Address
-                      <span className="text-red-500 ml-1">*</span>
-                    </label>
-                  </div>
-                </div>
-                <input
-                  className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
-                  placeholder="example@gmail.com"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-
-              <div className="group" style={{ animationDelay: `${1 * 0.1}s` }}>
-                <div className="flex items-center mb-2">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
-                      <Lock className="w-4 h-4 text-red-500" />
-                    </div>
-                    <label className="font-semibold text-gray-700 tracking-wide">
-                      Password
-                      <span className="text-red-500 ml-1">*</span>
-                    </label>
-                  </div>
-                </div>
-                <input id="password"
-                  className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
-                  placeholder="••••••••"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-
-              {/* Login As Selection */}
-              <div className="group">
-                <div className="flex items-center mb-2">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-300">
-                      <Users className="w-4 h-4 text-red-500" />
-                    </div>
-                    <label className="font-semibold text-gray-700 tracking-wide">
-                      Login as <span className="text-red-500 ml-1">*</span>
-                    </label>
-                  </div>
-                </div>
-                <select
-                  value={loginAs}
-                  onChange={(e) => setLoginAs(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 cursor-pointer font-medium"
-                >
-                  <option value="Donor">Food Donor</option>
-                  <option value="Receiver">Food Receiver</option>
-                  <option value="Rider">Delivery Partner</option>
-                  <option value="Partner">Restaurant Partner</option>
-                </select>
-              </div>
+            <div>
+              <label className={labelCls}>
+                <Lock className="w-3.5 h-3.5 text-ngo" /> Password
+              </label>
+              <input
+                id="password"
+                className="flow-input"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
-
-            {/* Forgot Password Link */}
-            <div className="text-right mb-6">
-              <span onClick={() => navigate("/ForgotPassword")} className="text-red-500 cursor-pointer font-medium hover:text-red-600 hover:underline transition-all duration-200">
-                Forgot Password?
-              </span>
-            </div>
-
-            {/* Elegant Submit Button */}
-            <button
-              onClick={() => {
-                submitHandler();
-              }}
-              className="relative w-full p-4 cursor-pointer text-lg text-center rounded-2xl bg-linear-gradient-to-r from-red-500 to-red-600 text-white font-bold mb-6 shadow-xl hover:shadow-2xl hover:scale-[1.02] transform transition-all duration-300 hover:from-red-600 hover:to-red-700 group overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-linear-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-              <span className="relative flex items-center justify-center space-x-3">
-                <UserCheck className="w-6 h-6" />
-                <span className="tracking-wide text-white font-bold">Sign in to Continue</span>
-              </span>
-            </button>
-
-            {/* Elegant Registration Link */}
-            <div className="text-center">
-              <p className="text-gray-700 font-light">
-                Don't have an account?{" "}
-                <span
-                  onClick={() => navigate("/Role")}
-                  className="text-red-500 cursor-pointer font-semibold hover:text-red-600 hover:underline transition-all duration-200 inline-flex items-center group"
-                >
-                  Register here
-                  <span className="ml-2 group-hover:translate-x-1 transition-transform duration-200">
-                    →
-                  </span>
-                </span>
-              </p>
+            <div>
+              <label className={labelCls}>
+                <Users className="w-3.5 h-3.5 text-ngo" /> Login as
+              </label>
+              <select
+                className="flow-input"
+                value={loginAs}
+                onChange={(e) => setLoginAs(e.target.value)}
+              >
+                <option value="Donor">Food Donor</option>
+                <option value="Receiver">Food Receiver</option>
+                <option value="Rider">Delivery Partner</option>
+                <option value="Partner">Restaurant Partner</option>
+              </select>
             </div>
           </div>
+
+          <div className="text-right mt-3">
+            <span
+              onClick={() => navigate("/ForgotPassword")}
+              className="text-sm text-ngo font-semibold cursor-pointer hover:underline"
+            >
+              Forgot password?
+            </span>
+          </div>
+
+          <button
+            onClick={() => {
+              submitHandler();
+            }}
+            className="fbtn fbtn-flow w-full mt-5"
+          >
+            Sign in <ArrowRight className="w-4 h-4" />
+          </button>
+
+          <p className="text-center text-sm text-mute mt-6">
+            Don't have an account?{" "}
+            <span
+              onClick={() => navigate("/Role")}
+              className="text-ngo font-semibold cursor-pointer hover:underline inline-flex items-center gap-1"
+            >
+              Register <ArrowRight className="w-3.5 h-3.5" />
+            </span>
+          </p>
         </div>
       </div>
     </div>
