@@ -1,9 +1,47 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, User, Package, Filter, Star, MapPin } from "lucide-react";
+import { Calendar, Package, Filter, Star, MapPin } from "lucide-react";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { formatAmount } from "../utils/formatDonation";
+
+// Flow status pill — same pipeline mapping used across the app:
+// Completed = NGO-emerald (destination/success), Accepted = rider-teal (transport),
+// Cancelled = urgent-red, default = muted.
+const StatusPill = ({ status }) => {
+  if (status === "Cancelled") {
+    return (
+      <span
+        className="text-[11px] font-semibold capitalize nums whitespace-nowrap px-2 py-0.5 rounded-full"
+        style={{ background: "rgba(var(--urgent-rgb),.12)", color: "var(--color-urgent)" }}
+      >
+        {status}
+      </span>
+    );
+  }
+  const cls = {
+    Pending: "bg-donor-soft text-donor-2",
+    Accepted: "bg-rider-soft text-rider-2",
+    Completed: "bg-ngo-soft text-ngo-2",
+  }[status];
+  return (
+    <span className={`text-[11px] font-semibold capitalize nums whitespace-nowrap px-2 py-0.5 rounded-full ${cls || "bg-surface-2 text-mute"}`}>
+      {status}
+    </span>
+  );
+};
+
+const FlowStars = ({ rating }) => (
+  <div className="flex items-center gap-0.5">
+    {[1, 2, 3, 4, 5].map((s) => (
+      <Star
+        key={s}
+        className={`w-3.5 h-3.5 flow-star${s > rating ? " empty" : ""}`}
+        fill={s <= rating ? "currentColor" : "none"}
+      />
+    ))}
+  </div>
+);
 
 const StarRating = ({ rideId, onRate }) => {
   const [hovered, setHovered] = useState(0);
@@ -12,20 +50,15 @@ const StarRating = ({ rideId, onRate }) => {
 
   if (selected > 0) {
     return (
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={`w-4 h-4 ${star <= selected ? "text-yellow-400 fill-yellow-400" : "text-gray-200"}`}
-          />
-        ))}
-        <span className="text-xs text-gray-400 ml-1">Rated</span>
+      <div className="flex items-center gap-1.5">
+        <FlowStars rating={selected} />
+        <span className="text-[11px] text-mute ml-1">Rated</span>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => (
         <button
           key={star}
@@ -40,14 +73,29 @@ const StarRating = ({ rideId, onRate }) => {
           className="cursor-pointer transition-transform hover:scale-110 disabled:opacity-50"
         >
           <Star
-            className={`w-5 h-5 ${
-              star <= (hovered || selected)
-                ? "text-yellow-400 fill-yellow-400"
-                : "text-gray-300 hover:text-yellow-300"
-            }`}
+            className={`w-4 h-4 flow-star${star > (hovered || selected) ? " empty" : ""}`}
+            fill={star <= (hovered || selected) ? "currentColor" : "none"}
           />
         </button>
       ))}
+    </div>
+  );
+};
+
+// Compact stat tile (Flow).
+const HistStat = ({ value, label, tint }) => {
+  const T = {
+    ink: { bg: "var(--color-surface-2)", fg: "var(--color-ink)" },
+    ngo: { bg: "var(--color-ngo-soft)", fg: "var(--color-ngo-2)" },
+    rider: { bg: "var(--color-rider-soft)", fg: "var(--color-rider-2)" },
+    urgent: { bg: "rgba(var(--urgent-rgb),.1)", fg: "var(--color-urgent)" },
+  }[tint];
+  return (
+    <div className="flow-tile p-4">
+      <div className="font-display text-2xl font-bold nums" style={{ color: T.fg }}>
+        {value}
+      </div>
+      <div className="text-xs text-mute mt-0.5">{label}</div>
     </div>
   );
 };
@@ -89,19 +137,6 @@ const DonationHistory = ({ acceptedOrder, filtered, setFiltered, completedDelive
     }
   }
 
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "accepted":
-        return "bg-yellow-100 text-yellow-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   useEffect(() => {
     filteredDonations();
   }, [filter]);
@@ -117,81 +152,59 @@ const DonationHistory = ({ acceptedOrder, filtered, setFiltered, completedDelive
   };
 
   return (
-    <div className="space-y-6 md:ml-2">
+    <div className="space-y-6">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold text-gray-900">Received Donations</h2>
+        <div>
+          <h2 className="font-display text-3xl font-bold text-ink mb-2">Received Donations</h2>
+          <p className="text-mute">Every delivery that's flowed into your care</p>
+        </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="border cursor-pointer border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            >
-              <option value="all">All Status</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="accepted">Accepted</option>
-            </select>
-          </div>
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-mute" />
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="flow-input cursor-pointer !py-2 !w-auto"
+          >
+            <option value="all">All Status</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="accepted">Accepted</option>
+          </select>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="text-2xl font-bold text-gray-900">
-            {acceptedOrder.total}
-          </div>
-          <div className="text-sm text-gray-500">Total Received</div>
-        </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="text-2xl font-bold text-green-600">
-            {acceptedOrder.completed}
-          </div>
-          <div className="text-sm text-gray-500">Successfully Completed</div>
-        </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="text-2xl font-bold text-yellow-600">
-            {acceptedOrder.pending}
-          </div>
-          <div className="text-sm text-gray-500">Successfully Accepted</div>
-        </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="text-2xl font-bold text-red-600">
-            {acceptedOrder?.cancelled || 0}
-          </div>
-          <div className="text-sm text-gray-500">Cancelled Donations</div>
-        </div>
+        <HistStat value={acceptedOrder.total} label="Total Received" tint="ink" />
+        <HistStat value={acceptedOrder.completed} label="Completed" tint="ngo" />
+        <HistStat value={acceptedOrder.pending} label="Accepted" tint="rider" />
+        <HistStat value={acceptedOrder?.cancelled || 0} label="Cancelled" tint="urgent" />
       </div>
 
       {/* Donations Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="flow-panel overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
+          <table className="flow-table">
+            <thead>
               <tr>
-                <th className="text-left p-4 font-semibold text-gray-900">Date</th>
-                <th className="text-left p-4 font-semibold text-gray-900">Donor</th>
-                <th className="text-left p-4 font-semibold text-gray-900">Food Type</th>
-                <th className="text-left p-4 font-semibold text-gray-900">Amount</th>
-                <th className="text-left p-4 font-semibold text-gray-900">Status</th>
-                <th className="text-left p-4 font-semibold text-gray-900">Rider Rating</th>
+                <th>Date</th>
+                <th>Donor</th>
+                <th>Food Type</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Rider Rating</th>
               </tr>
             </thead>
             <tbody>
-              {filtered?.map((donation, index) => {
+              {filtered?.map((donation) => {
                 const delivery = deliveryLookup[donation._id];
                 return (
-                  <tr
-                    key={donation._id}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-25"}
-                  >
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-900">
+                  <tr key={donation._id}>
+                    <td>
+                      <div className="flex items-center gap-2 nums">
+                        <Calendar className="w-3.5 h-3.5 text-mute-2" />
+                        <span>
                           {new Date(donation.updatedAt).toLocaleDateString(
                             "en-US",
                             { month: "short", day: "numeric", year: "numeric" }
@@ -199,81 +212,48 @@ const DonationHistory = ({ acceptedOrder, filtered, setFiltered, completedDelive
                         </span>
                       </div>
                     </td>
-                    <td className="p-4">
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {donation.Donor?.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {donation.typeOfDonor}
-                        </div>
-                      </div>
+                    <td>
+                      <div className="font-medium text-ink">{donation.Donor?.name}</div>
+                      <div className="text-xs text-mute">{donation.typeOfDonor}</div>
                     </td>
-                    <td className="p-4">
+                    <td>
                       <div className="flex items-center gap-2">
-                        <Package className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-900">
-                          {donation.FoodType}
-                        </span>
+                        <Package className="w-3.5 h-3.5 text-mute-2" />
+                        <span>{donation.FoodType}</span>
                       </div>
                     </td>
-                    <td className="p-4">
-                      <span className="font-medium text-gray-900">
-                        {formatAmount(donation)}
-                      </span>
-                    </td>
+                    <td className="font-medium text-ink nums">{formatAmount(donation)}</td>
 
-                    <td className="p-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          donation.Status
-                        )}`}
-                      >
-                        {donation.Status}
-                      </span>
-                    </td>
+                    <td><StatusPill status={donation.Status} /></td>
 
-                    <td className="p-4">
+                    <td>
                       {donation.Status === "Completed" ? (
                         delivery ? (
                           <div className="flex flex-col gap-1">
-                            <span className="text-xs text-gray-400">
-                              {delivery.riderName}
-                            </span>
+                            <span className="text-xs text-mute">{delivery.riderName}</span>
                             {delivery.riderRating > 0 ? (
-                              <div className="flex items-center gap-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <Star
-                                    key={star}
-                                    className={`w-4 h-4 ${
-                                      star <= delivery.riderRating
-                                        ? "text-yellow-400 fill-yellow-400"
-                                        : "text-gray-200"
-                                    }`}
-                                  />
-                                ))}
-                                <span className="text-xs text-gray-400 ml-1">
-                                  {delivery.riderRating}/5
-                                </span>
+                              <div className="flex items-center gap-1.5">
+                                <FlowStars rating={delivery.riderRating} />
+                                <span className="text-xs text-mute nums">{delivery.riderRating}/5</span>
                               </div>
                             ) : (
                               <StarRating rideId={delivery.rideId} onRate={onRateDelivery} />
                             )}
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-400">No rider data</span>
+                          <span className="text-xs text-mute-2">No rider data</span>
                         )
                       ) : donation.Status === "Accepted" ? (
                         <button
                           onClick={() => handleTrack(donation._id)}
                           disabled={trackingId === donation._id}
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-700 border border-green-300 rounded-lg px-2.5 py-1.5 hover:bg-green-50 transition-colors cursor-pointer disabled:opacity-60"
+                          className="fbtn fbtn-g fbtn-sm"
                         >
                           <MapPin className="w-3.5 h-3.5" />
                           {trackingId === donation._id ? "Loading…" : "Live Location"}
                         </button>
                       ) : (
-                        <span className="text-xs text-gray-300">—</span>
+                        <span className="text-xs text-mute-2">—</span>
                       )}
                     </td>
                   </tr>

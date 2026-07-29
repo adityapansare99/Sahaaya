@@ -4,25 +4,28 @@ import DonationCard from "./DonationCard";
 
 const FoodRequests = ({ donations, acceptOrder, rejectOrder }) => {
   return (
-    <div className="space-y-6 md:ml-2">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">
-          Incoming Food Donations
-        </h2>
-        <div className="text-sm text-gray-500">
-          {donations.length} donations available nearby
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="font-display text-3xl font-bold text-ink mb-2">
+            Incoming Food Donations
+          </h2>
+          <p className="text-mute">Fresh surplus nearby, waiting to be received</p>
         </div>
+        <span className="livechip">
+          {donations.length} available
+        </span>
       </div>
 
       {donations.length === 0 ? (
-        <div className="bg-white rounded-2xl p-8 text-center">
-          <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No donations available
-          </h3>
-          <p className="text-gray-500">
-            Check back later for new food donation opportunities.
-          </p>
+        <div className="flow-empty flex-col items-center text-center py-14">
+          <div className="ei">
+            <Package className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="et">No donations available</div>
+            <div className="ed">Check back later for new food donation opportunities.</div>
+          </div>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -31,6 +34,7 @@ const FoodRequests = ({ donations, acceptOrder, rejectOrder }) => {
             return (
               <DonationCard
                 key={d._id}
+                tone="donor"
                 title={d.Donor?.name}
                 badge={d.typeOfDonor}
                 foodType={d.FoodType}
@@ -40,19 +44,19 @@ const FoodRequests = ({ donations, acceptOrder, rejectOrder }) => {
                 meta={[
                   Number(d.serves) > 0
                     ? {
-                        icon: <Users className="w-3.5 h-3.5 text-gray-400" />,
+                        icon: <Users className="w-3.5 h-3.5 text-mute" />,
                         text: `${d.serves} serves`,
                       }
                     : null,
                   Number(d.weightKg) > 0
                     ? {
-                        icon: <Package className="w-3.5 h-3.5 text-gray-400" />,
+                        icon: <Package className="w-3.5 h-3.5 text-mute" />,
                         text: `${d.weightKg} kg`,
                       }
                     : null,
                   distance != null
                     ? {
-                        icon: <MapPin className="w-3.5 h-3.5 text-gray-400" />,
+                        icon: <MapPin className="w-3.5 h-3.5 text-mute" />,
                         text: `${distance} km`,
                       }
                     : null,

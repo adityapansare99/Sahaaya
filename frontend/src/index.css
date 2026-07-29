@@ -323,6 +323,8 @@ select.flow-input{ cursor:pointer; }
 .flow-card{ position:relative; background:var(--color-surface); border:1px solid var(--color-line); border-radius:var(--r-lg); box-shadow:var(--sh-sm); transition:box-shadow .25s var(--ease-out), border-color .25s var(--ease-out); }
 @media (hover:hover) and (pointer:fine){ .flow-card:hover{ box-shadow:var(--sh-md); border-color:var(--color-mute-2); } }
 .flow-card.role-donor::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:3px 0 0 3px; background:linear-gradient(var(--color-donor), var(--color-donor-2)); }
+.flow-card.role-ngo::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:3px 0 0 3px; background:linear-gradient(var(--color-ngo), var(--color-ngo-2)); }
+.flow-card.role-rider::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:3px 0 0 3px; background:linear-gradient(var(--color-rider), var(--color-rider-2)); }
 
 /* ---- micro A->B route (pickup -> NGO) with hover-advance ---- */
 .flow-route-mini{ display:flex; align-items:center; gap:9px; }
@@ -357,6 +359,25 @@ select.flow-input{ cursor:pointer; }
 .flow-ach.locked{ opacity:.55; }
 .flow-ach.locked .ic{ background:var(--color-line-2); color:var(--color-mute); }
 @media (hover:hover) and (pointer:fine){ .flow-ach:hover{ transform:translateY(-2px); } }
+
+/* ---- dense table (Flow row-hover left-bar) ---- */
+.flow-table{ width:100%; border-collapse:collapse; }
+.flow-table thead th{
+  text-align:left; font-family:var(--font-display); font-size:11px; font-weight:700;
+  letter-spacing:.4px; text-transform:uppercase; color:var(--color-mute-2);
+  padding:14px 18px; border-bottom:1px solid var(--color-line); background:var(--color-surface-2);
+}
+.flow-table tbody td{ padding:14px 18px; border-bottom:1px solid var(--color-line-2); font-size:13.5px; color:var(--color-ink-2); vertical-align:middle; }
+.flow-table tbody tr{ position:relative; transition:background .15s var(--ease-out); }
+.flow-table tbody tr:hover{ background:var(--color-surface-2); }
+.flow-table tbody tr:last-child td{ border-bottom:none; }
+@media (hover:hover) and (pointer:fine){
+  .flow-table tbody tr:hover td:first-child{ box-shadow:inset 3px 0 0 0 var(--color-ngo); }
+}
+
+/* ---- star rating (Flow) ---- */
+.flow-star{ color:var(--color-donor); }
+.flow-star.empty{ color:var(--color-line); }
 
 /* ---- empty state (dashed) ---- */
 .flow-empty{ display:flex; align-items:center; gap:14px; padding:20px 22px; background:var(--color-surface); border:1px dashed var(--color-line); border-radius:var(--r-xl); }

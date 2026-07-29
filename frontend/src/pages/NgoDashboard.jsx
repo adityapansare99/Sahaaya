@@ -1,10 +1,13 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { Menu } from "lucide-react";
 import Sidebar from "../components/Sidebar.jsx";
 import FoodRequests from "../components/FoodRequests";
 import DonationHistory from "../components/DonationHistory";
 import Analytics from "../components/Analytics";
 import Settings from "../components/Settings";
 import ApprovalPending from "../components/ApprovalPending";
+import Logo from "../components/flow/Logo";
+import LiveChip from "../components/flow/LiveChip";
 import axios from "axios";
 import { AppContext } from "../context/AppContext.jsx";
 import { toast } from "react-toastify";
@@ -285,7 +288,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas flex">
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -293,9 +296,40 @@ function App() {
         setIsMobileOpen={setIsMobileOpen}
       />
 
-      {/* Main Content */}
-      <div className="lg:ml-64">
-        <main className="p-6 lg:p-8 pt-16 lg:pt-8">{renderContent()}</main>
+      <div className="flex-1 lg:ml-64">
+        {/* Mobile Header */}
+        <div className="lg:hidden bg-surface border-b border-line p-4 flex items-center justify-between sticky top-0 z-30">
+          <button
+            onClick={() => setIsMobileOpen(!isMobileOpen)}
+            className="p-2 rounded-xl text-ink-2 hover:bg-surface-2 transition-colors duration-200"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <Logo size="sm" subtitle={false} />
+          <div className="w-7"></div>
+        </div>
+
+        {/* Main Content */}
+        <main className="p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Desktop greet bar */}
+            <div className="hidden lg:flex items-center justify-between mb-7">
+              <div className="flex items-center gap-2.5">
+                <span className="font-display text-[11px] font-bold tracking-[0.18em] uppercase text-mute-2">
+                  NGO
+                </span>
+                <span className="h-3 w-px bg-line" />
+                <span className="font-display text-sm font-semibold text-ink">
+                  {profile?.name
+                    ? `Welcome back, ${profile.name.split(" ")[0]}`
+                    : "NGO dashboard"}
+                </span>
+              </div>
+              <LiveChip>Live</LiveChip>
+            </div>
+            {renderContent()}
+          </div>
+        </main>
       </div>
     </div>
   );

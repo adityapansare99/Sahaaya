@@ -244,7 +244,7 @@ const receivedDonations = asynchandler(async (req, res) => {
 
   const NgoId = Ngo._id;
 
-  const response = await Donation.find({ Ngo: NgoId }).populate("Donor");
+  const response = await Donation.find({ Ngo: NgoId }).populate("Donor").sort({ createdAt: -1 });
 
   if (!response) {
     return res.status(401).json(new ApiResponse(401, {}, "No donations found"));

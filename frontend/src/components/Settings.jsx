@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Building, Save, User, Lock, Trash2 } from "lucide-react";
+import { Building, Save, Lock, Trash2 } from "lucide-react";
 import LocationInput from "./LocationInput";
 
 const Settings = ({
@@ -53,91 +53,110 @@ const Settings = ({
     setConfirmNewPassword("");
   };
 
+  const tabs = [
+    { id: "profile", label: "Profile", icon: Building },
+    { id: "password", label: "Security", icon: Lock },
+    { id: "danger", label: "Danger", icon: Trash2 },
+  ];
+
+  const labelCls = "block text-sm font-medium text-ink-2 mb-2";
+
+  const OrgStats = () => (
+    <div className="flow-panel p-6">
+      <h3 className="font-display text-base font-semibold text-ink mb-4">
+        Organization Stats
+      </h3>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-mute">Member since</span>
+          <span className="font-semibold text-ink nums">
+            {profile.createdAt
+              ? new Date(profile.createdAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  year: "numeric",
+                })
+              : "—"}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-mute">Total food collections</span>
+          <span className="font-semibold text-ink nums">{totalCollections || 0}</span>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="space-y-6 md:ml-2">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Account & Settings</h2>
+    <div>
+      <div className="mb-7">
+        <h2 className="font-display text-3xl font-bold text-ink mb-2">Account & Settings</h2>
+        <p className="text-mute">Manage your organization and preferences</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-4 border-b border-gray-200 pb-2">
-        <button
-          onClick={() => setActiveSection("profile")}
-          className={`cursor-pointer px-4 py-2 font-medium rounded-t-lg transition-colors ${activeSection === "profile" ? "text-red-500 border-b-2 border-red-500" : "text-gray-500 hover:text-gray-700"}`}
-        >
-          <Building className="w-4 h-4 inline mr-2" />
-          Profile
-        </button>
-        <button
-          onClick={() => setActiveSection("password")}
-          className={`cursor-pointer px-4 py-2 font-medium rounded-t-lg transition-colors ${activeSection === "password" ? "text-red-500 border-b-2 border-red-500" : "text-gray-500 hover:text-gray-700"}`}
-        >
-          <Lock className="w-4 h-4 inline mr-2" />
-          Change Password
-        </button>
-        <button
-          onClick={() => setActiveSection("danger")}
-          className={`cursor-pointer px-4 py-2 font-medium rounded-t-lg transition-colors ${activeSection === "danger" ? "text-red-500 border-b-2 border-red-500" : "text-gray-500 hover:text-gray-700"}`}
-        >
-          <Trash2 className="w-4 h-4 inline mr-2" />
-          Delete Account
-        </button>
-      </div>
+      <div className="flow-panel overflow-hidden">
+        {/* Tabs */}
+        <div className="border-b border-line">
+          <nav className="flex gap-7 px-6">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeSection === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveSection(tab.id)}
+                  className={`flex cursor-pointer items-center gap-2 py-4 border-b-2 font-display font-medium text-sm transition-all duration-200 ${
+                    isActive
+                      ? "border-ngo text-ngo"
+                      : "border-transparent text-mute hover:text-ink"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Profile Section */}
-        {activeSection === "profile" && (
-          <>
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-3 mb-6">
-                  <Building className="w-5 h-5 text-red-500" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    NGO Information
-                  </h3>
-                </div>
+        <div className="p-6">
+          {/* Profile Section */}
+          {activeSection === "profile" && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      NGO Name
-                    </label>
+                    <label className={labelCls}>NGO Name</label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="flow-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Registration Number
-                    </label>
+                    <label className={labelCls}>Registration Number</label>
                     <input
                       type="text"
                       value={RegistrationNumber}
                       onChange={(e) => setRegistrationNumber(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="flow-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Person
-                    </label>
+                    <label className={labelCls}>Contact Person</label>
                     <input
                       type="text"
                       value={contactPerson}
                       onChange={(e) => setContactPerson(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="flow-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Type of NGO
-                    </label>
+                    <label className={labelCls}>Type of NGO</label>
                     <select
                       value={typeofNgo}
                       onChange={(e) => setTypeofNgo(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="flow-input cursor-pointer"
                     >
                       <option value="trust">Trust</option>
                       <option value="society">Society</option>
@@ -147,33 +166,27 @@ const Settings = ({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone
-                    </label>
+                    <label className={labelCls}>Phone</label>
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="flow-input nums"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Daily Capacity
-                    </label>
+                    <label className={labelCls}>Daily Capacity</label>
                     <input
                       type="text"
                       value={DailyCapacity}
                       onChange={(e) => setDailyCapacity(e.target.value)}
                       placeholder="e.g., 500 meals per day"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="flow-input"
                     />
                   </div>
                 </div>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Address
-                  </label>
+                <div>
+                  <label className={labelCls}>Address</label>
                   <LocationInput
                     value={address.address ?? ""}
                     onChange={(val) => setAddress((prev) => ({ ...prev, address: val }))}
@@ -182,166 +195,102 @@ const Settings = ({
                     required
                   />
                 </div>
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    NGO Description
-                  </label>
+                <div>
+                  <label className={labelCls}>NGO Description</label>
                   <textarea
                     value={Description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="flow-input resize-none"
                   />
                 </div>
-                <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={submitHandler}
-                    className="px-6 py-2 cursor-pointer bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors flex items-center gap-2"
-                  >
-                    <Save className="w-4 h-4" /> Save Changes
+                <div className="flex justify-end pt-1">
+                  <button onClick={submitHandler} className="fbtn fbtn-flow">
+                    <Save className="w-4 h-4" />
+                    <span>Save Changes</span>
                   </button>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-6">
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Organization Stats
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Member since</span>
-                    <span className="font-semibold text-gray-900">
-                      {profile.createdAt
-                        ? new Date(profile.createdAt).toLocaleDateString(
-                            "en-US",
-                            { month: "short", year: "numeric" },
-                          )
-                        : "—"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">
-                      Total food collections
-                    </span>
-                    <span className="font-semibold text-gray-900">
-                      {totalCollections || 0}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <div><OrgStats /></div>
             </div>
-          </>
-        )}
+          )}
 
-        {/* Delete Account Section */}
-        {activeSection === "danger" && (
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-red-200">
-              <div className="flex items-center gap-3 mb-6">
-                <Trash2 className="w-5 h-5 text-red-500" />
-                <h3 className="text-lg font-semibold text-gray-900">Delete Account</h3>
-              </div>
-              <p className="text-gray-600 mb-6">This action is permanent. Your NGO profile and all donation history will be removed.</p>
-              <button onClick={() => deleteAccountHandler?.()}
-                className="px-6 py-2 cursor-pointer bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors font-medium">
-                Delete My Account
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Change Password Section */}
-        {activeSection === "password" && (
-          <>
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-3 mb-6">
-                  <Lock className="w-5 h-5 text-red-500" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Change Password
-                  </h3>
-                </div>
-                <form
-                  onSubmit={handlePasswordSubmit}
-                  className="space-y-4 max-w-md"
-                >
+          {/* Password Section */}
+          {activeSection === "password" && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <h3 className="font-display text-base font-semibold text-ink mb-4">Change Password</h3>
+                <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-md">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Current Password
-                    </label>
+                    <label className={labelCls}>Current Password</label>
                     <input
                       type="password"
                       value={oldpassword}
                       onChange={(e) => setOldPassword(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="flow-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      New Password
-                    </label>
+                    <label className={labelCls}>New Password</label>
                     <input
                       type="password"
                       value={newpassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="flow-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Confirm New Password
-                    </label>
+                    <label className={labelCls}>Confirm New Password</label>
                     <input
                       type="password"
                       value={confirmNewPassword}
                       onChange={(e) => setConfirmNewPassword(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="flow-input"
                     />
                   </div>
-                  <button
-                    type="submit"
-                    className="px-6 py-2 cursor-pointer bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors font-medium"
-                  >
+                  <button type="submit" className="fbtn fbtn-flow">
                     Update Password
                   </button>
                 </form>
               </div>
+              <div><OrgStats /></div>
             </div>
-            <div className="space-y-6">
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Organization Stats
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Member since</span>
-                    <span className="font-semibold text-gray-900">
-                      {profile.createdAt
-                        ? new Date(profile.createdAt).toLocaleDateString(
-                            "en-US",
-                            { month: "short", year: "numeric" },
-                          )
-                        : "—"}
-                    </span>
+          )}
+
+          {/* Danger Section */}
+          {activeSection === "danger" && (
+            <div className="max-w-2xl">
+              <div
+                className="rounded-[var(--r-lg)] p-6"
+                style={{ border: "1px dashed rgba(var(--urgent-rgb),.4)", background: "rgba(var(--urgent-rgb),.04)" }}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className="grid place-items-center w-10 h-10 rounded-xl"
+                    style={{ background: "rgba(var(--urgent-rgb),.1)", color: "var(--color-urgent)" }}
+                  >
+                    <Trash2 className="w-5 h-5" />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">
-                      Total food collections
-                    </span>
-                    <span className="font-semibold text-gray-900">
-                      {totalCollections || 0}
-                    </span>
-                  </div>
+                  <h3 className="font-display text-base font-semibold text-ink">Delete Account</h3>
                 </div>
+                <p className="text-sm text-mute mb-5">
+                  This action is permanent. Your NGO profile and all donation history will be removed.
+                </p>
+                <button
+                  onClick={() => deleteAccountHandler?.()}
+                  className="fbtn fbtn-g fbtn-sm"
+                  style={{ color: "var(--color-urgent)", borderColor: "rgba(var(--urgent-rgb),.35)" }}
+                >
+                  <span>Delete My Account</span>
+                </button>
               </div>
             </div>
-          </>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
