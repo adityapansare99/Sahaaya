@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Building, Save, Lock, Trash2 } from "lucide-react";
 import LocationInput from "./LocationInput";
+import ConfirmModal from "./ConfirmModal";
 
 const Settings = ({
   profile,
@@ -24,6 +25,8 @@ const Settings = ({
   );
   const [Description, setDescription] = useState(profile.Description || "");
   const [activeSection, setActiveSection] = useState("profile");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [oldpassword, setOldPassword] = useState("");
   const [newpassword, setNewPassword] = useState("");
@@ -51,6 +54,16 @@ const Settings = ({
     setOldPassword("");
     setNewPassword("");
     setConfirmNewPassword("");
+  };
+
+  const handleConfirmDelete = async () => {
+    setDeleting(true);
+    try {
+      await deleteAccountHandler?.();
+    } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
+    }
   };
 
   const tabs = [
@@ -281,7 +294,7 @@ const Settings = ({
                   This action is permanent. Your NGO profile and all donation history will be removed.
                 </p>
                 <button
-                  onClick={() => deleteAccountHandler?.()}
+                  onClick={() => setConfirmOpen(true)}
                   className="fbtn fbtn-g fbtn-sm"
                   style={{ color: "var(--color-urgent)", borderColor: "rgba(var(--urgent-rgb),.35)" }}
                 >
@@ -292,6 +305,16 @@ const Settings = ({
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        loading={deleting}
+        title="Delete your account?"
+        description="This action is permanent. Your NGO profile and all donation history will be removed."
+        confirmLabel="Yes, delete account"
+      />
     </div>
   );
 };

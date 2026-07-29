@@ -13,7 +13,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
 import { SocketContext } from "../context/SocketContext";
-import Swal from "sweetalert2";
 
 const DonorDashboard = () => {
   const { backendurl, token } = useContext(AppContext);
@@ -226,21 +225,6 @@ const DonorDashboard = () => {
   };
 
   const deleteAccountHandler = async () => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This action will permanently delete your account.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    });
-
-    if (!result.isConfirmed) {
-      toast.info("Account deletion cancelled");
-      return;
-    }
-
     try {
       const response = await axios.delete(`${backendurl}donor/deleteaccount`, {
         headers: {

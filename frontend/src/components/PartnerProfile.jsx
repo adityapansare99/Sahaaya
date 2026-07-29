@@ -15,12 +15,15 @@ import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import LocationInput from "./LocationInput";
+import ConfirmModal from "./ConfirmModal";
 
 const PartnerProfile = ({ profile, handleChangeProfile }) => {
   const { backendurl, token } = useContext(AppContext);
   const fileInputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [name, setName] = useState(profile.name || "");
   const [phone, setPhone] = useState(profile.phone || "");
@@ -56,14 +59,19 @@ const PartnerProfile = ({ profile, handleChangeProfile }) => {
   };
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm("Delete your restaurant account? This cannot be undone.")) return;
+    setDeleting(true);
     try {
       await axios.delete(`${backendurl}partner/deleteaccount`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Account deleted");
       window.location.href = "/";
-    } catch { toast.error("Error deleting account"); }
+    } catch {
+      toast.error("Error deleting account");
+    } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
+    }
   };
 
   const tabs = [
@@ -303,13 +311,23 @@ const PartnerProfile = ({ profile, handleChangeProfile }) => {
                 <h3 className="font-display text-base font-semibold text-ink">Delete Account</h3>
               </div>
               <p className="text-sm text-mute mb-5">This action is permanent. Your restaurant profile and all redemption history will be removed.</p>
-              <button onClick={handleDeleteAccount} className="fbtn fbtn-g fbtn-sm" style={{ color: "var(--color-urgent)", borderColor: "rgba(var(--urgent-rgb),.35)" }}>
+              <button onClick={() => setConfirmOpen(true)} className="fbtn fbtn-g fbtn-sm" style={{ color: "var(--color-urgent)", borderColor: "rgba(var(--urgent-rgb),.35)" }}>
                 <span>Delete My Account</span>
               </button>
             </div>
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleDeleteAccount}
+        loading={deleting}
+        title="Delete your account?"
+        description="This action is permanent. Your restaurant profile and all redemption history will be removed."
+        confirmLabel="Yes, delete account"
+      />
     </div>
   );
 };

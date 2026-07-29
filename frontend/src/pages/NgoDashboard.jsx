@@ -122,7 +122,6 @@ function App() {
   };
 
   const deleteAccountHandler = async () => {
-    if (!window.confirm("Delete your NGO account? This cannot be undone.")) return;
     try {
       const response = await axios.delete(`${backendurl}ngo/deleteaccount`, {
         headers: { Authorization: `Bearer ${token}` },
