@@ -320,7 +320,7 @@ const getAllRides = asynchandler(async (req, res) => {
   const response = await Ride.find({ rider: partner._id })
     .populate("donor")
     .populate("receiver")
-    .populate("donation");
+    .populate("donation").sort({ createdAt: -1 });
 
   if (!response) {
     return res.status(401).json(new ApiResponse(401, {}, "No rides found"));
@@ -381,7 +381,7 @@ const getRewards = asynchandler(async (req, res) => {
   const totalDeliveries = partner.totalDeliveries || 0;
 
   const MILESTONES = [
-    { milestone: "50 Deliveries", threshold: 50, reward: "500 Points" },
+    { milestone: "25 Deliveries", threshold: 25, reward: "500 Points" },
     { milestone: "100 Deliveries", threshold: 100, reward: "1000 Points" },
     { milestone: "250 Deliveries", threshold: 250, reward: "2500 Points" },
     { milestone: "500 Deliveries", threshold: 500, reward: "5000 Points" },

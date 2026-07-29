@@ -4,10 +4,41 @@ import {
   MapPin,
   Navigation,
   Phone,
-  Package,
   CheckCircle2,
   Truck,
 } from "lucide-react";
+
+// Flow accent per status. The whole active ride is "transport" (rider-teal);
+// completion flips to NGO-emerald (destination reached / success).
+const STATUS_CONFIG = {
+  accepted: {
+    title: "Delivery Accepted",
+    subtitle: "Head to pickup location",
+    buttonText: "Mark as Picked Up",
+    accent: "donor",
+  },
+  "picked up": {
+    title: "Food Picked Up",
+    subtitle: "Delivering to NGO",
+    buttonText: "Mark as Delivered",
+    accent: "rider",
+  },
+  completed: {
+    title: "Delivery Complete",
+    subtitle: "Great job! 🎉",
+    buttonText: "Find New Delivery",
+    accent: "ngo",
+  },
+};
+
+// accent → Flow tints. The active ride walks the pipeline:
+// accepted = donor-amber (origin) → picked up = rider-teal (transport) →
+// completed = ngo-emerald (destination).
+const ACCENT = {
+  donor: { bg: "rgba(var(--donor-rgb),.08)", fg: "var(--color-donor-2)" },
+  rider: { bg: "rgba(var(--rider-rgb),.08)", fg: "var(--color-rider-2)" },
+  ngo: { bg: "rgba(var(--ngo-rgb),.08)", fg: "var(--color-ngo-2)" },
+};
 
 const ActiveDelivery = ({
   setActiveSection,
@@ -31,60 +62,23 @@ const ActiveDelivery = ({
     }
   };
 
-  const getStatusConfig = (order) => {
-    switch (order.status) {
-      case "accepted":
-        return {
-          title: "Delivery Accepted",
-          subtitle: "Head to pickup location",
-          buttonText: "Mark as Picked Up",
-          buttonColor: "bg-blue-500 hover:bg-blue-600",
-          statusColor: "text-blue-600",
-          bgColor: "bg-blue-50",
-        };
-      case "picked up":
-        return {
-          title: "Food Picked Up",
-          subtitle: "Delivering to NGO",
-          buttonText: "Mark as Delivered",
-          buttonColor: "bg-green-500 hover:bg-green-600",
-          statusColor: "text-green-600",
-          bgColor: "bg-green-50",
-        };
-      case "completed":
-        return {
-          title: "Delivery Complete",
-          subtitle: "Great job! 🎉",
-          buttonText: "Find New Delivery",
-          buttonColor: "bg-red-500 hover:bg-red-600",
-          statusColor: "text-green-600",
-          bgColor: "bg-green-50",
-        };
-      default:
-        return {};
-    }
-  };
-
   if (!activeOrder || activeOrder.length === 0) {
     return (
       <div className="space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Active Delivery</h2>
-          <p className="text-gray-600">Your current delivery status</p>
+          <h2 className="font-display text-3xl font-bold text-ink mb-2">Active Delivery</h2>
+          <p className="text-mute">Your current delivery status</p>
         </div>
 
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Truck className="w-8 h-8 text-gray-400" />
+        <div className="flow-empty flex-col items-center text-center py-14">
+          <div className="ei">
+            <Truck className="w-6 h-6" />
           </div>
-          <h3 className="text-xl font-medium text-gray-500 mb-2">
-            No active delivery
-          </h3>
-          <p className="text-gray-400 mb-6">Ready to accept a new delivery?</p>
-          <button
-            onClick={() => setActiveSection("deliveries")}
-            className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors"
-          >
+          <div>
+            <div className="et">No active delivery</div>
+            <div className="ed">Ready to accept a new delivery?</div>
+          </div>
+          <button onClick={() => setActiveSection("deliveries")} className="fbtn fbtn-flow fbtn-sm mt-4">
             Browse Available Deliveries
           </button>
         </div>
@@ -95,45 +89,42 @@ const ActiveDelivery = ({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Active Delivery</h2>
-        <p className="text-gray-600">Your current delivery status</p>
+        <h2 className="font-display text-3xl font-bold text-ink mb-2">Active Delivery</h2>
+        <p className="text-mute">Your current delivery status</p>
       </div>
 
       <div className="grid gap-4">
         {activeOrder.map((order) => {
-          const cfg = getStatusConfig(order);
+          const cfg = STATUS_CONFIG[order.status] || {};
+          const accent = ACCENT[cfg.accent] || ACCENT.rider;
           return (
-            <div
-              key={order._id}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
-            >
+            <div key={order._id} className="flow-panel role-rider overflow-hidden">
               {/* Status header — distance shown once, here */}
               <div
-                className={`${cfg.bgColor} px-5 py-3 border-b flex items-center justify-between`}
+                className="px-5 py-3.5 border-b border-line flex items-center justify-between"
+                style={{ background: accent.bg }}
               >
                 <div>
-                  <h3 className={`text-base font-bold ${cfg.statusColor}`}>
+                  <h3 className="font-display text-base font-bold" style={{ color: accent.fg }}>
                     {cfg.title}
                   </h3>
-                  <p className="text-xs text-gray-600">{cfg.subtitle}</p>
+                  <p className="text-xs text-ink-2">{cfg.subtitle}</p>
                 </div>
                 {order?.distance != null && (
-                  <span className="text-sm font-medium text-gray-700">
-                    {order.distance} km
-                  </span>
+                  <span className="text-sm font-medium text-ink-2 nums">{order.distance} km</span>
                 )}
               </div>
 
               <div className="p-5 space-y-4">
                 {/* Donor + food */}
                 <div className="min-w-0">
-                  <p className="font-bold text-gray-900 truncate">
+                  <p className="font-bold text-ink truncate font-display">
                     {order.donor?.name}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-mute">
                     {order.donation?.FoodType}
                     {order.donation?.weightKg > 0 && (
-                      <span className="ml-1 text-purple-600 font-medium">
+                      <span className="ml-1 font-medium" style={{ color: "var(--color-ngo-2)" }}>
                         · {order.donation.weightKg} kg
                       </span>
                     )}
@@ -142,16 +133,18 @@ const ActiveDelivery = ({
 
                 {/* Pickup + drop-off (phones kept — required mid-delivery) */}
                 <div className="grid sm:grid-cols-2 gap-3">
-                  <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-xl">
-                    <MapPin className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                  <div
+                    className="flex items-start gap-2 p-3 rounded-xl"
+                    style={{ background: "rgba(var(--donor-rgb),.07)" }}
+                  >
+                    <MapPin className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--color-donor)" }} />
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-blue-800">Pickup</p>
-                      <p className="text-sm text-blue-700 truncate">
-                        {order.pickup}
-                      </p>
+                      <p className="text-xs font-semibold" style={{ color: "var(--color-donor-2)" }}>Pickup</p>
+                      <p className="text-sm text-ink-2 truncate">{order.pickup}</p>
                       <a
                         href={`tel:${order.donor?.phone}`}
-                        className="inline-flex items-center gap-1 text-xs text-blue-600 font-medium mt-1 hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-medium mt-1 hover:underline nums"
+                        style={{ color: "var(--color-donor-2)" }}
                       >
                         <Phone className="w-3 h-3" />
                         {order.donor?.phone}
@@ -159,18 +152,18 @@ const ActiveDelivery = ({
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-2 p-3 bg-green-50 rounded-xl">
-                    <Navigation className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
+                  <div
+                    className="flex items-start gap-2 p-3 rounded-xl"
+                    style={{ background: "rgba(var(--ngo-rgb),.07)" }}
+                  >
+                    <Navigation className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "var(--color-ngo)" }} />
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-green-800">
-                        Drop-off
-                      </p>
-                      <p className="text-sm text-green-700 truncate">
-                        {order.destination}
-                      </p>
+                      <p className="text-xs font-semibold" style={{ color: "var(--color-ngo-2)" }}>Drop-off</p>
+                      <p className="text-sm text-ink-2 truncate">{order.destination}</p>
                       <a
                         href={`tel:${order.receiver?.phone}`}
-                        className="inline-flex items-center gap-1 text-xs text-green-600 font-medium mt-1 hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-medium mt-1 hover:underline nums"
+                        style={{ color: "var(--color-ngo-2)" }}
                       >
                         <Phone className="w-3 h-3" />
                         {order.receiver?.phone}
@@ -183,35 +176,35 @@ const ActiveDelivery = ({
                 {["accepted", "picked up"].includes(order.status) && (
                   <button
                     onClick={() => navigate(`/track/${order._id}`)}
-                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition-colors cursor-pointer"
+                    className="fbtn fbtn-g w-full"
                   >
                     <MapPin className="w-4 h-4" />
                     Live Location
                   </button>
                 )}
 
-                {/* Status action */}
+                {/* Status action — colour reflects the pipeline stage */}
                 <button
                   onClick={() => handleStatusUpdate(order)}
                   disabled={loadingId === order._id}
-                  className={`w-full ${cfg.buttonColor} text-white py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className="fbtn w-full"
+                  style={
+                    order.status === "completed"
+                      ? { background: "var(--color-ink)", color: "#fff" }
+                      : order.status === "picked up"
+                        ? { background: "linear-gradient(135deg, var(--color-rider), var(--color-ngo))", color: "#fff" }
+                        : { background: "linear-gradient(135deg, var(--color-donor), var(--color-donor-2))", color: "#fff" }
+                  }
                 >
                   {loadingId === order._id ? (
                     <span className="flex items-center gap-2">
                       <svg
-                        className="animate-spin h-4 w-4 text-white"
+                        className="animate-spin h-4 w-4"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
                       >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path
                           className="opacity-75"
                           fill="currentColor"
