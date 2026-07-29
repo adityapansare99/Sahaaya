@@ -97,11 +97,11 @@ const QUICK_ACTIONS = [
 
 // ─── Source file colors ────────────────────────────────────
 const SOURCE_COLORS = {
-  "faq.txt": { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-400", border: "border-blue-100" },
-  "food-safety.txt": { bg: "bg-green-50", text: "text-green-700", dot: "bg-green-400", border: "border-green-100" },
-  "compliance.txt": { bg: "bg-purple-50", text: "text-purple-700", dot: "bg-purple-400", border: "border-purple-100" },
-  "platform-features.txt": { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-400", border: "border-amber-100" },
-  "hunger-waste.txt": { bg: "bg-rose-50", text: "text-rose-700", dot: "bg-rose-400", border: "border-rose-100" },
+  "faq.txt": { bg: "var(--color-surface-2)", text: "var(--color-ngo-2)", dot: "var(--color-ngo)", border: "var(--color-line)" },
+  "food-safety.txt": { bg: "var(--color-donor-soft)", text: "var(--color-donor-2)", dot: "var(--color-donor)", border: "var(--color-line)" },
+  "compliance.txt": { bg: "var(--color-rider-soft)", text: "var(--color-rider-2)", dot: "var(--color-rider)", border: "var(--color-line)" },
+  "platform-features.txt": { bg: "var(--color-partner-soft)", text: "var(--color-partner-2)", dot: "var(--color-partner)", border: "var(--color-line)" },
+  "hunger-waste.txt": { bg: "rgba(var(--people-rgb),.08)", text: "var(--color-people)", dot: "var(--color-people)", border: "var(--color-line)" },
 };
 
 const getSourceColor = (source) => {
@@ -260,14 +260,15 @@ const ChatPanel = () => {
       {/* Trigger FAB */}
       <button
         onClick={() => setOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center group ${open ? "hidden" : ""}`}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 text-white rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center group"
+        style={{ background: "linear-gradient(135deg, var(--color-rider), var(--color-ngo))" }}
         aria-label="Open support chat"
       >
         <MessageCircle className="w-6 h-6 group-hover:rotate-6 transition-transform" />
         {/* Pulse ring */}
-        <span className="absolute inset-0 rounded-2xl border-2 border-red-400/40 animate-ping" />
+        <span className="absolute inset-0 rounded-2xl animate-ping" style={{ border: "2px solid rgba(var(--ngo-rgb),.4)" }} />
         {/* Online dot */}
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full" />
+        <span className="absolute -top-1 -right-1 w-4 h-4 border-2 border-surface rounded-full" style={{ background: "var(--color-ngo)" }} />
       </button>
 
       {/* Chat Panel */}
@@ -284,7 +285,7 @@ const ChatPanel = () => {
             style={{ animation: "slideUp 0.25s ease-out" }}
           >
             {/* Header */}
-            <div className="bg-gradient-to-br from-red-500 to-red-600 p-4 flex-shrink-0">
+            <div className="p-4 flex-shrink-0" style={{ background: "linear-gradient(135deg, var(--color-rider), var(--color-ngo))" }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-white/15 backdrop-blur-sm rounded-xl flex items-center justify-center ring-2 ring-white/20">
@@ -297,7 +298,7 @@ const ChatPanel = () => {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse" />
-                      <span className="text-xs text-red-100">
+                      <span className="text-xs text-white/70">
                         {llmActive ? "AI assistant • Online" : "Knowledge base • Online"}
                       </span>
                     </div>
@@ -317,8 +318,8 @@ const ChatPanel = () => {
               {/* Empty state */}
               {messages.length === 0 && !loading && (
                 <div className="flex flex-col items-center justify-center h-full py-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl flex items-center justify-center mb-4 ring-8 ring-red-50/50">
-                    <Bot className="w-8 h-8 text-red-500" />
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(var(--ngo-rgb),.1)" }}>
+                    <Bot className="w-8 h-8" style={{ color: "var(--color-ngo)" }} />
                   </div>
                   <h4 className="text-gray-800 font-semibold text-lg mb-1">Hi, how can I help?</h4>
                   <p className="text-gray-400 text-sm mb-6 text-center max-w-xs">
@@ -329,7 +330,7 @@ const ChatPanel = () => {
                       <button
                         key={action.label}
                         onClick={() => handleSuggestionClick(action.question)}
-                        className="flex flex-col items-center gap-1.5 p-3 bg-white rounded-xl border border-gray-100 hover:border-red-200 hover:shadow-sm hover:bg-red-50/30 transition-all duration-200 cursor-pointer group"
+                        className="flex flex-col items-center gap-1.5 p-3 bg-white rounded-xl border border-gray-100 hover:border-[var(--color-ngo)] hover:shadow-sm hover:bg-[rgba(var(--ngo-rgb),.04)] transition-all duration-200 cursor-pointer group"
                       >
                         <span className="text-xl">{action.icon}</span>
                         <span className="text-xs text-gray-500 group-hover:text-red-600 font-medium text-center leading-tight">
@@ -348,11 +349,11 @@ const ChatPanel = () => {
                     {/* Avatar */}
                     <div className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 ${
                       m.role === "user"
-                        ? "bg-red-100"
+                        ? ""
                         : "bg-white border border-gray-100 shadow-sm"
-                    }`}>
+                    }`} style={m.role === "user" ? { background: "rgba(var(--ngo-rgb),.12)" } : undefined}>
                       {m.role === "user" ? (
-                        <User className="w-4 h-4 text-red-500" />
+                        <User className="w-4 h-4" style={{ color: "var(--color-ngo-2)" }} />
                       ) : (
                         <Bot className="w-4 h-4 text-gray-500" />
                       )}
@@ -362,9 +363,9 @@ const ChatPanel = () => {
                       {/* Bubble */}
                       <div className={`px-4 py-3 text-sm leading-relaxed ${
                         m.role === "user"
-                          ? "bg-gradient-to-br from-red-500 to-red-600 text-white rounded-2xl rounded-tr-md shadow-sm"
+                          ? "text-white rounded-2xl rounded-tr-md shadow-sm"
                           : "bg-white border border-gray-100 rounded-2xl rounded-tl-md shadow-sm"
-                      }`}>
+                      }`} style={m.role === "user" ? { background: "linear-gradient(135deg, var(--color-rider), var(--color-ngo))" } : undefined}>
                         {m.role === "bot" ? (
                           <div className="text-gray-700" style={{ whiteSpace: "pre-wrap" }}>
                             {renderMarkdown(m.text)}
@@ -383,9 +384,10 @@ const ChatPanel = () => {
                               <div key={si}>
                                 <button
                                   onClick={() => toggleSource(idx, si)}
-                                  className={`text-[11px] px-2.5 py-1 rounded-full border cursor-pointer transition-all duration-150 flex items-center gap-1.5 ${colors.bg} ${colors.text} ${colors.border} hover:shadow-sm`}
+                                  className="text-[11px] px-2.5 py-1 rounded-full border cursor-pointer transition-all duration-150 flex items-center gap-1.5 hover:shadow-sm"
+                                  style={{ background: colors.bg, color: colors.text, borderColor: colors.border }}
                                 >
-                                  <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
+                                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: colors.dot }} />
                                   {getSourceLabel(s.source)}
                                   {expandedSources[`${idx}-${si}`] ? (
                                     <ChevronUp className="w-3 h-3 opacity-60" />
@@ -456,7 +458,7 @@ const ChatPanel = () => {
                       <button
                         key={s}
                         onClick={() => handleSuggestionClick(s)}
-                        className="text-xs px-3 py-1.5 bg-white border border-gray-200 rounded-full text-gray-500 hover:border-red-300 hover:text-red-600 hover:bg-red-50/30 transition-all duration-200 cursor-pointer"
+                        className="text-xs px-3 py-1.5 bg-white border border-gray-200 rounded-full text-gray-500 hover:border-[var(--color-ngo)] hover:text-[var(--color-ngo-2)] hover:bg-[rgba(var(--ngo-rgb),.04)] transition-all duration-200 cursor-pointer"
                       >
                         {s}
                       </button>
@@ -470,7 +472,7 @@ const ChatPanel = () => {
 
             {/* Input */}
             <div className="border-t border-gray-100 p-3 bg-white flex-shrink-0">
-              <div className="flex items-end gap-2 bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-red-300 focus-within:ring-2 focus-within:ring-red-100 transition-all duration-200 px-3 py-2">
+              <div className="flex items-end gap-2 bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-[var(--color-ngo)] focus-within:ring-2 focus-within:ring-[rgba(var(--ngo-rgb),.18)] transition-all duration-200 px-3 py-2">
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -484,7 +486,8 @@ const ChatPanel = () => {
                 <button
                   onClick={() => handleSend()}
                   disabled={loading || !input.trim()}
-                  className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white flex items-center justify-center flex-shrink-0 hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-40 disabled:scale-100 disabled:shadow-none cursor-pointer"
+                  className="w-9 h-9 rounded-xl text-white flex items-center justify-center flex-shrink-0 hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-40 disabled:scale-100 disabled:shadow-none cursor-pointer"
+                  style={{ background: "linear-gradient(135deg, var(--color-rider), var(--color-ngo))" }}
                 >
                   <Send className="w-4 h-4" />
                 </button>

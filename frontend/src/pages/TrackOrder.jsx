@@ -208,10 +208,7 @@ const TrackOrder = () => {
         }
         if (snap.destination?.lat != null && snap.destination?.lng != null) {
           markersRef.current.dest = new g.Marker({
-            position: {
-              lat: snap.destination.lat,
-              lng: snap.destination.lng,
-            },
+            position: { lat: snap.destination.lat, lng: snap.destination.lng },
             map: mapRef.current,
             label: { text: "B", color: "#fff", fontSize: "11px" },
             title: snap.destination.label,
@@ -270,7 +267,7 @@ const TrackOrder = () => {
         icon: {
           path: g.SymbolPath.CIRCLE,
           scale: 8,
-          fillColor: "#ef4444",
+          fillColor: "var(--color-rider)",
           fillOpacity: 1,
           strokeColor: "#fff",
           strokeWeight: 2,
@@ -316,30 +313,35 @@ const TrackOrder = () => {
   const delivered = status === "completed";
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div className="min-h-screen bg-canvas">
+      <div className="bg-surface border-b border-line sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <button
             onClick={() => navigate(DASH_BY_ROLE[snap?.viewerRole] || "/")}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-2 hover:text-ink cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" /> Back
+            <ArrowLeft className="w-4 h-4" />
+            Back
           </button>
           <div className="flex items-center gap-2">
             <span
-              className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${
+              className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full nums ${
                 delivered
-                  ? "bg-green-100 text-green-700"
+                  ? "bg-ngo-soft text-ngo-2"
                   : status === "picked up"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-amber-100 text-amber-700"
+                    ? "bg-rider-soft text-rider-2"
+                    : "bg-donor-soft text-donor-2"
               }`}
+              style={{
+                letterSpacing: ".04em",
+              }}
             >
               {delivered ? "Delivered" : status || "Live"}
             </span>
             {eta && !routeFailed && (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">
-                <Clock className="w-3.5 h-3.5" /> {eta}
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-full nums" style={{ background: "var(--color-surface-2)", color: "var(--color-ink-2)" }}>
+                <Clock className="w-3.5 h-3.5" />
+                {eta}
               </span>
             )}
           </div>
@@ -348,50 +350,55 @@ const TrackOrder = () => {
 
       <div className="max-w-5xl mx-auto px-4 py-4">
         {loading ? (
-          <div className="flex items-center justify-center h-[70vh] text-gray-400">
+          <div className="flex items-center justify-center h-[70vh] text-mute">
             <Loader2 className="w-8 h-8 animate-spin" />
           </div>
         ) : loadError ? (
-          <div className="bg-white rounded-2xl p-10 text-center border border-gray-100">
-            <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-            <p className="text-gray-700 font-medium">{loadError}</p>
+          <div className="flow-empty flex-col items-center text-center py-14">
+            <div className="ei"><AlertCircle className="w-6 h-6" /></div>
+            <div>
+              <div className="et">{loadError}</div>
+            </div>
           </div>
         ) : (
           <>
             <div
               ref={mapDivRef}
-              className="w-full h-[70vh] rounded-2xl border border-gray-200 overflow-hidden bg-gray-100"
+              className="w-full h-[70vh] rounded-[var(--r-xl)] border border-line overflow-hidden bg-surface-2"
             />
             <div className="grid sm:grid-cols-3 gap-3 mt-4">
-              <InfoCard
-                icon={<MapPin className="w-4 h-4 text-blue-500" />}
-                label="Pickup"
-                value={snap?.pickup?.label}
-              />
-              <InfoCard
-                icon={<Navigation className="w-4 h-4 text-green-600" />}
-                label="Drop-off"
-                value={snap?.destination?.label}
-              />
-              <InfoCard
-                icon={<Bike className="w-4 h-4 text-red-500" />}
-                label="Rider"
-                value={
-                  rider
-                    ? snap?.rider?.name || "On the way"
-                    : "Waiting for rider's GPS…"
-                }
-              />
+              <div className="flow-tile p-3">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-mute mb-1">
+                  <MapPin className="w-4 h-4" style={{ color: "var(--color-donor)" }} />
+                  Pickup
+                </div>
+                <p className="text-sm text-ink line-clamp-2">{snap?.pickup?.label}</p>
+              </div>
+              <div className="flow-tile p-3">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-mute mb-1">
+                  <Navigation className="w-4 h-4" style={{ color: "var(--color-ngo)" }} />
+                  Drop-off
+                </div>
+                <p className="text-sm text-ink line-clamp-2">{snap?.destination?.label}</p>
+              </div>
+              <div className="flow-tile p-3">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-mute mb-1">
+                  <Bike className="w-4 h-4" style={{ color: "var(--color-rider)" }} />
+                  Rider
+                </div>
+                <p className="text-sm text-ink line-clamp-2">
+                  {rider ? snap?.rider?.name || "On the way" : "Waiting for rider's GPS…"}
+                </p>
+              </div>
             </div>
             {delivered && (
-              <div className="mt-4 bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 text-sm font-medium">
+              <div className="mt-4 p-3 rounded-xl text-sm font-medium" style={{ background: "var(--color-ngo-soft)", color: "var(--color-ngo-2)" }}>
                 🎉 This delivery has been completed.
               </div>
             )}
             {routeFailed && !delivered && (
-              <div className="mt-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-sm">
-                Route details unavailable — showing pickup, drop-off, and rider
-                position.
+              <div className="mt-4 p-3 rounded-xl text-sm" style={{ background: "rgba(var(--donor-rgb),.08)", color: "var(--color-donor-2)" }}>
+                Route details unavailable — showing pickup, drop-off, and rider position.
               </div>
             )}
           </>
@@ -400,15 +407,5 @@ const TrackOrder = () => {
     </div>
   );
 };
-
-const InfoCard = ({ icon, label, value }) => (
-  <div className="bg-white rounded-xl border border-gray-100 p-3">
-    <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 mb-1">
-      {icon}
-      {label}
-    </div>
-    <p className="text-sm text-gray-800 line-clamp-2">{value || "—"}</p>
-  </div>
-);
 
 export default TrackOrder;

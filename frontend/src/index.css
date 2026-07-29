@@ -376,6 +376,9 @@ select.flow-input{ cursor:pointer; }
   .flow-table tbody tr:hover td:first-child{ box-shadow:inset 3px 0 0 0 var(--color-ngo); }
 }
 
+/* ---- partner redemption grid rows (same left-bar hover as flow-table) ---- */
+.flow-red-row:hover{ box-shadow:inset 3px 0 0 0 var(--color-ngo); }
+
 /* ---- star rating (Flow) ---- */
 .flow-star{ color:var(--color-donor); }
 .flow-star.empty{ color:var(--color-line); }

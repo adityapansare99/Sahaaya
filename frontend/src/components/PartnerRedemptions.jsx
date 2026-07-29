@@ -41,7 +41,7 @@ const PartnerRedemptions = ({ redemptions }) => {
               return (
                 <div
                   key={r._id}
-                  className="md:grid md:grid-cols-12 md:gap-4 px-6 py-4 items-center hover:bg-surface-2 transition-colors"
+                  className="flow-red-row md:grid md:grid-cols-12 md:gap-4 px-6 py-4 items-center hover:bg-surface-2 transition-colors"
                 >
                   {/* Rider */}
                   <div className="col-span-3 flex items-center gap-3 mb-2 md:mb-0">
