@@ -16,7 +16,7 @@ const renderMarkdown = (text) => {
       <ul key={key} className="space-y-1.5 my-3">
         {items.map((item, i) => (
           <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-gray-700">
-            <span className="text-red-400 mt-0.5 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-red-400" />
+            <span className="mt-0.5 flex-shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-ngo)" }} />
             <span>{item}</span>
           </li>
         ))}
@@ -51,7 +51,7 @@ const renderMarkdown = (text) => {
     if (/^\*\*(.+?)\*\*/.test(trimmed)) {
       const html = trimmed
         .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-        .replace(/`(.+?)`/g, "<code class='bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-red-600'>$1</code>");
+        .replace(/`(.+?)`/g, "<code class='bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono' style='color:#0a8552'>$1</code>");
       elements.push(
         <p key={i} className="text-sm leading-relaxed text-gray-700" dangerouslySetInnerHTML={{ __html: html }} />
       );
@@ -60,8 +60,8 @@ const renderMarkdown = (text) => {
 
     const html = trimmed
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/`(.+?)`/g, "<code class='bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono text-red-600'>$1</code>")
-      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="text-red-600 underline font-medium hover:text-red-700">$1</a>');
+      .replace(/`(.+?)`/g, "<code class='bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono' style='color:#0a8552'>$1</code>")
+      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="underline font-medium" style="color:#0a8552">$1</a>');
     elements.push(
       <p key={i} className="text-sm leading-relaxed text-gray-700" dangerouslySetInnerHTML={{ __html: html }} />
     );
@@ -333,7 +333,7 @@ const ChatPanel = () => {
                         className="flex flex-col items-center gap-1.5 p-3 bg-white rounded-xl border border-gray-100 hover:border-[var(--color-ngo)] hover:shadow-sm hover:bg-[rgba(var(--ngo-rgb),.04)] transition-all duration-200 cursor-pointer group"
                       >
                         <span className="text-xl">{action.icon}</span>
-                        <span className="text-xs text-gray-500 group-hover:text-red-600 font-medium text-center leading-tight">
+                        <span className="text-xs text-gray-500 group-hover:text-[var(--color-ngo-2)] font-medium text-center leading-tight">
                           {action.label}
                         </span>
                       </button>
@@ -424,7 +424,7 @@ const ChatPanel = () => {
                     <div className="px-4 py-3 bg-white border border-gray-100 rounded-2xl rounded-tl-md shadow-sm min-w-[80px]">
                       <div className="text-sm leading-relaxed text-gray-700" style={{ whiteSpace: "pre-wrap" }}>
                         {renderMarkdown(streamingAnswer)}
-                        <span className="inline-block w-2 h-4 bg-red-500 ml-0.5 rounded-sm animate-pulse" />
+                        <span className="inline-block w-2 h-4 ml-0.5 rounded-sm animate-pulse" style={{ background: "var(--color-ngo)" }} />
                       </div>
                     </div>
                   </div>

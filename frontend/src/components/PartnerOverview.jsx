@@ -128,7 +128,7 @@ const PartnerOverview = ({ profile, redemptions }) => {
                     </h4>
                     <p className="text-mute text-xs mt-0.5">
                       {new Date(r.createdAt).toLocaleDateString()} ·{" "}
-                      <span className="font-mono text-ink-2">{r.bookingCode}</span>
+                      <span className="font-display text-ink-2 nums tracking-wide">{r.bookingCode}</span>
                     </p>
                   </div>
                 </div>

@@ -288,7 +288,7 @@ const RedeemPoints = () => {
                     <td className="text-ink-2">{r.partner?.address || "—"}</td>
                     <td className="font-medium nums" style={{ color: "var(--color-ngo-2)" }}>{r.discountPercentage}%</td>
                     <td className="text-ink nums">{r.pointsUsed}</td>
-                    <td className="font-mono text-xs text-ink-2">{r.bookingCode}</td>
+                    <td className="font-display text-xs text-ink-2 nums tracking-wide">{r.bookingCode}</td>
                     <td>
                       <span
                         className="px-2 py-0.5 rounded-full text-[11px] font-medium capitalize nums"

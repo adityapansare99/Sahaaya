@@ -65,7 +65,7 @@ const PartnerRedemptions = ({ redemptions }) => {
                   {/* Booking code */}
                   <div className="col-span-2 mb-1 md:mb-0">
                     <span
-                      className="inline-flex items-center gap-1 font-mono text-sm text-ink-2 px-2 py-1 rounded nums"
+                      className="inline-flex items-center gap-1 font-display text-sm text-ink-2 px-2 py-1 rounded nums tracking-wide"
                       style={{ background: "var(--color-surface-2)" }}
                     >
                       <Ticket className="w-3.5 h-3.5 text-mute" />

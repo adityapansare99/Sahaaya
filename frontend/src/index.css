@@ -135,6 +135,14 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+/* Headings + buttons use the brand display face (Space Grotesk) app-wide so the
+   type system is consistent regardless of per-component classes. Body/prose
+   stays Inter (set on <body> above). Class specificity still overrides where a
+   component needs Inter on a heading. */
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); }
+button, input[type="submit"], input[type="button"] { font-family: var(--font-display); }
+/* Form inputs + textareas stay Inter (prose), not the display face. */
+input, textarea, select { font-family: var(--font-sans); }
 
 /* ---- helpers --------------------------------------------------------------- */
 .nums { font-variant-numeric: tabular-nums; } /* apply to every figure (counts, ETA, ₹, kg, pts) */
