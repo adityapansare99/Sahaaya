@@ -1,10 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
+import { Menu } from "lucide-react";
 import SidebarP from "../components/SidebarP";
 import PartnerOverview from "../components/PartnerOverview";
 import PartnerRedemptions from "../components/PartnerRedemptions";
 import PartnerProfile from "../components/PartnerProfile";
 import { AppContext } from "../context/AppContext";
 import ApprovalPending from "../components/ApprovalPending";
+import Logo from "../components/flow/Logo";
+import LiveChip from "../components/flow/LiveChip";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -101,7 +104,7 @@ const PartnerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-canvas flex">
       <SidebarP
         activeSection={activeSection}
         setActiveSection={setActiveSection}
@@ -110,36 +113,37 @@ const PartnerDashboard = () => {
       />
 
       <div className="flex-1 lg:ml-64 transition-all duration-300">
-        <div className="p-4 lg:p-8">
-          <div className="mb-8">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden mb-4 p-2 rounded-lg bg-white shadow-sm border"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome back, {name}! 🍽️
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Rewarding delivery heroes, one discount at a time
-            </p>
-          </div>
-
-          {renderContent()}
+        {/* Mobile Header */}
+        <div className="lg:hidden bg-surface border-b border-line p-4 flex items-center justify-between sticky top-0 z-30">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-xl text-ink-2 hover:bg-surface-2 transition-colors duration-200"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+          <Logo size="sm" subtitle={false} />
+          <div className="w-7"></div>
         </div>
+
+        <main className="p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Desktop greet bar */}
+            <div className="hidden lg:flex items-center justify-between mb-7">
+              <div className="flex items-center gap-2.5">
+                <span className="font-display text-[11px] font-bold tracking-[0.18em] uppercase text-mute-2">
+                  Partner
+                </span>
+                <span className="h-3 w-px bg-line" />
+                <span className="font-display text-sm font-semibold text-ink">
+                  {name ? `Welcome back, ${name.split(" ")[0]}` : "Partner dashboard"}
+                </span>
+              </div>
+              <LiveChip>Live</LiveChip>
+            </div>
+
+            {renderContent()}
+          </div>
+        </main>
       </div>
     </div>
   );

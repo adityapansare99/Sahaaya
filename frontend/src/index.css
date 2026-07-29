@@ -370,6 +370,7 @@ select.flow-input{ cursor:pointer; }
 .flow-table tbody td{ padding:14px 18px; border-bottom:1px solid var(--color-line-2); font-size:13.5px; color:var(--color-ink-2); vertical-align:middle; }
 .flow-table tbody tr{ position:relative; transition:background .15s var(--ease-out); }
 .flow-table tbody tr:hover{ background:var(--color-surface-2); }
+.flow-table tbody tr:hover td:first-child{ box-shadow:inset 3px 0 0 0 var(--color-ngo); }
 .flow-table tbody tr:last-child td{ border-bottom:none; }
 @media (hover:hover) and (pointer:fine){
   .flow-table tbody tr:hover td:first-child{ box-shadow:inset 3px 0 0 0 var(--color-ngo); }

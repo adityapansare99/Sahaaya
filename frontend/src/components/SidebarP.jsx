@@ -1,6 +1,8 @@
 import React from "react";
-import { Store, LayoutDashboard, Ticket, User, X } from "lucide-react";
+import { LayoutDashboard, Ticket, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Logo from "./flow/Logo";
+
 const SidebarP = ({
   activeSection,
   setActiveSection,
@@ -20,69 +22,44 @@ const SidebarP = ({
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`
-        fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300
-        lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-      `}
+        className={`flow-rail shadow-lg fixed top-0 left-0 h-full z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } w-64`}
       >
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
-                <Store className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2
-                  onClick={() => navigate("/")}
-                  className="font-bold cursor-pointer text-xl text-gray-900"
-                >
-                  Sahaaya
-                </h2>
-                <p className="text-sm text-gray-500">Partner Dashboard</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
-            >
-              <X className="w-5 h-5" />
-            </button>
+        <div className="flow-rail-inner h-full flex flex-col">
+          {/* Brand */}
+          <div className="brand">
+            <Logo size="sm" onClick={() => navigate("/")} />
           </div>
+
+          {/* Menu Items */}
+          <nav className="flow-navlist">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    if (window.innerWidth < 1024) setSidebarOpen(false);
+                  }}
+                  className={`flow-nav-i${isActive ? " active" : ""}`}
+                >
+                  <Icon className="w-[18px] h-[18px]" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
-
-        <nav className="p-4">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setActiveSection(item.id);
-                  setSidebarOpen(false);
-                }}
-                className={`
-                  w-full cursor-pointer flex items-center space-x-3 px-4 py-3 rounded-2xl text-left transition-all duration-200
-                  ${
-                    activeSection === item.id
-                      ? "bg-red-50 text-red-600 border-l-4 border-red-500"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }
-                `}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
       </div>
     </>
   );

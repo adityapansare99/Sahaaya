@@ -25,7 +25,7 @@ const PartnerProfile = ({ profile, handleChangeProfile }) => {
   const [name, setName] = useState(profile.name || "");
   const [phone, setPhone] = useState(profile.phone || "");
   const [address, setAddress] = useState(profile.address || "");
-  const [addresscor,setAddressCoords]=useState({ lat: profile.latitude ?? null, lng: profile.longitude ?? null });
+  const [addresscor, setAddressCoords] = useState({ lat: profile.latitude ?? null, lng: profile.longitude ?? null });
   const [discountPercentage, setDiscountPercentage] = useState(profile.discountPercentage ?? "");
   const [pointsRequired, setPointsRequired] = useState(profile.pointsRequired ?? "");
   const [description, setDescription] = useState(profile.description || "");
@@ -34,7 +34,7 @@ const PartnerProfile = ({ profile, handleChangeProfile }) => {
   const [newpassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
-  const inputClass = "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent";
+  const labelCls = "block text-sm font-medium text-ink-2 mb-2";
 
   const handleSave = () => {
     setIsEditing(false);
@@ -66,212 +66,250 @@ const PartnerProfile = ({ profile, handleChangeProfile }) => {
     } catch { toast.error("Error deleting account"); }
   };
 
+  const tabs = [
+    { id: "profile", label: "Profile", icon: Store },
+    { id: "password", label: "Security", icon: Lock },
+    { id: "danger", label: "Danger", icon: Trash2 },
+  ];
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Profile & Settings</h2>
-        <p className="text-gray-600">Manage your restaurant details and account</p>
+    <div className="space-y-6">
+      <div className="mb-2">
+        <h2 className="font-display text-3xl font-bold text-ink mb-2">Profile & Settings</h2>
+        <p className="text-mute">Manage your restaurant details and account</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-4 border-b border-gray-200 pb-2">
-        <button onClick={() => setActiveTab("profile")}
-          className={`cursor-pointer px-4 py-2 font-medium transition-colors ${activeTab === "profile" ? "text-red-500 border-b-2 border-red-500" : "text-gray-500"}`}>
-          <Store className="w-4 h-4 inline mr-2" />Profile
-        </button>
-        <button onClick={() => setActiveTab("password")}
-          className={`cursor-pointer px-4 py-2 font-medium transition-colors ${activeTab === "password" ? "text-red-500 border-b-2 border-red-500" : "text-gray-500"}`}>
-          <Lock className="w-4 h-4 inline mr-2" />Change Password
-        </button>
-        <button onClick={() => setActiveTab("danger")}
-          className={`cursor-pointer px-4 py-2 font-medium transition-colors ${activeTab === "danger" ? "text-red-500 border-b-2 border-red-500" : "text-gray-500"}`}>
-          <Trash2 className="w-4 h-4 inline mr-2" />Delete Account
-        </button>
-      </div>
-
-      {activeTab === "profile" && (
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          <div className="bg-gradient-to-r from-red-500 to-red-600 p-8 text-white">
-            <div className="flex items-center space-x-6">
-              <div className="relative">
-                <div className="w-24 h-24 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center overflow-hidden">
-                  {profile.logo ? (
-                    <img src={profile.logo} alt={profile.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <Store className="w-10 h-10" />
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  className="hidden"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const formData = new FormData();
-                    formData.append("data", JSON.stringify({ name, phone, address, discountPercentage, pointsRequired, description }));
-                    formData.append("image", file);
-                    try {
-                      await axios.post(`${backendurl}partner/updateprofile`, formData, {
-                        headers: { Authorization: `Bearer ${token}` },
-                      });
-                      toast.success("Logo updated");
-                      window.location.reload();
-                    } catch {
-                      toast.error("Failed to upload logo");
-                    }
-                  }}
-                />
+      <div className="flow-panel overflow-hidden">
+        {/* Tabs */}
+        <div className="border-b border-line">
+          <nav className="flex gap-7 px-6">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
                 <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute cursor-pointer -bottom-2 -right-2 w-8 h-8 bg-white text-red-500 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex cursor-pointer items-center gap-2 py-4 border-b-2 font-display font-medium text-sm transition-all duration-200 ${
+                    isActive ? "border-partner text-partner" : "border-transparent text-mute hover:text-ink"
+                  }`}
                 >
-                  <Camera className="w-4 h-4" />
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Profile tab */}
+        {activeTab === "profile" && (
+          <div className="overflow-hidden">
+            {/* Gradient header (partner-indigo) */}
+            <div
+              className="p-6 md:p-8 text-white relative overflow-hidden"
+              style={{ background: "linear-gradient(140deg, var(--color-partner), var(--color-partner-2))" }}
+            >
+              <div className="flex items-center gap-6 flex-wrap">
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-2xl flex items-center justify-center text-4xl overflow-hidden" style={{ background: "rgba(255,255,255,.18)", border: "1px solid rgba(255,255,255,.25)" }}>
+                    {profile.logo ? (
+                      <img src={profile.logo} alt={profile.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Store className="w-10 h-10" />
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const formData = new FormData();
+                      formData.append("data", JSON.stringify({ name, phone, address, discountPercentage, pointsRequired, description }));
+                      formData.append("image", file);
+                      try {
+                        await axios.post(`${backendurl}partner/updateprofile`, formData, {
+                          headers: { Authorization: `Bearer ${token}` },
+                        });
+                        toast.success("Logo updated");
+                        window.location.reload();
+                      } catch {
+                        toast.error("Failed to upload logo");
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute cursor-pointer -bottom-2 -right-2 w-8 h-8 bg-surface rounded-full flex items-center justify-center"
+                    style={{ boxShadow: "var(--sh-md)" }}
+                  >
+                    <Camera className="w-4 h-4" style={{ color: "var(--color-partner)" }} />
+                  </button>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-display text-2xl font-bold mb-1">{profile.name}</h3>
+                  <p className="text-sm text-white/80 mb-2">Restaurant Partner</p>
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="inline-flex items-center gap-1"><Tag className="w-3.5 h-3.5" /> {profile.discountPercentage ?? 0}% off</span>
+                    <span className="inline-flex items-center gap-1"><Award className="w-3.5 h-3.5" /> {profile.pointsRequired ?? 0} pts required</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="fbtn fbtn-g"
+                  style={{ background: "rgba(255,255,255,.15)", color: "#fff", borderColor: "rgba(255,255,255,.25)" }}
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>{isEditing ? "Cancel" : "Edit"}</span>
                 </button>
               </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold mb-1">{profile.name}</h3>
-                <p className="text-red-100 mb-2">Restaurant Partner</p>
-                <div className="flex items-center space-x-4 text-sm">
-                  <span className="inline-flex items-center gap-1"><Tag className="w-4 h-4" /> {profile.discountPercentage ?? 0}% discount</span>
-                  <span className="inline-flex items-center gap-1"><Award className="w-4 h-4" /> {profile.pointsRequired ?? 0} pts required</span>
+            </div>
+
+            <div className="p-6 md:p-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Restaurant Information */}
+                <div className="space-y-4">
+                  <h4 className="font-display text-base font-semibold text-ink">Restaurant Information</h4>
+                  <div>
+                    <label className={labelCls}>Restaurant Name</label>
+                    {isEditing ? (
+                      <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="flow-input" />
+                    ) : (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-surface-2">
+                        <Store className="w-5 h-5 text-mute" />
+                        <span className="text-ink">{name}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className={labelCls}>Phone Number</label>
+                    {isEditing ? (
+                      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="flow-input nums" />
+                    ) : (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-surface-2">
+                        <Phone className="w-5 h-5 text-mute" />
+                        <span className="text-ink nums">{phone}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className={labelCls}>Address</label>
+                    {isEditing ? (
+                      <LocationInput
+                        value={address}
+                        onChange={(val) => setAddress(val)}
+                        onSelect={(coords) => setAddressCoords(coords)}
+                        placeholder="Enter complete address"
+                      />
+                    ) : (
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-surface-2">
+                        <MapPin className="w-5 h-5 text-mute mt-0.5" />
+                        <span className="text-ink">{address}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Discount Offer */}
+                <div className="space-y-4">
+                  <h4 className="font-display text-base font-semibold text-ink">Discount Offer</h4>
+                  <div>
+                    <label className={labelCls}>Discount on Bill (%)</label>
+                    {isEditing ? (
+                      <input type="number" min="0" max="100" value={discountPercentage} onChange={(e) => setDiscountPercentage(e.target.value)} className="flow-input nums" />
+                    ) : (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-surface-2">
+                        <Tag className="w-5 h-5 text-mute" />
+                        <span className="text-ink nums">{profile.discountPercentage}%</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className={labelCls}>Points Required</label>
+                    {isEditing ? (
+                      <input type="number" min="0" value={pointsRequired} onChange={(e) => setPointsRequired(e.target.value)} className="flow-input nums" />
+                    ) : (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-surface-2">
+                        <Award className="w-5 h-5 text-mute" />
+                        <span className="text-ink nums">{profile.pointsRequired} pts</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className={labelCls}>Description</label>
+                    {isEditing ? (
+                      <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="flow-input resize-none" />
+                    ) : (
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-surface-2">
+                        <FileText className="w-5 h-5 text-mute mt-0.5" />
+                        <span className="text-ink">{description || "No description added"}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="bg-white bg-opacity-20 hover:bg-opacity-30 cursor-pointer px-4 py-2 rounded-xl font-medium transition-colors"
-              >
-                <Edit3 className="w-4 h-4 text-red-500 inline mr-1" />
-                <span className="text-red-500">{isEditing ? "Cancel" : "Edit"}</span>
+              {isEditing && (
+                <div className="mt-8 pt-6 border-t border-line flex gap-3">
+                  <button onClick={handleSave} className="fbtn fbtn-flow">
+                    <span>Save Changes</span>
+                  </button>
+                  <button onClick={() => setIsEditing(false)} className="fbtn fbtn-g">
+                    <span>Cancel</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Password tab */}
+        {activeTab === "password" && (
+          <div className="p-6 md:p-8 max-w-lg">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="grid place-items-center w-10 h-10 rounded-xl" style={{ background: "var(--color-partner-soft)", color: "var(--color-partner-2)" }}>
+                <Lock className="w-5 h-5" />
+              </div>
+              <h3 className="font-display text-base font-semibold text-ink">Change Password</h3>
+            </div>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div>
+                <label className={labelCls}>Current Password</label>
+                <input type="password" value={oldpassword} onChange={(e) => setOldPassword(e.target.value)} required className="flow-input" />
+              </div>
+              <div>
+                <label className={labelCls}>New Password</label>
+                <input type="password" value={newpassword} onChange={(e) => setNewPassword(e.target.value)} required className="flow-input" />
+              </div>
+              <div>
+                <label className={labelCls}>Confirm New Password</label>
+                <input type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} required className="flow-input" />
+              </div>
+              <button type="submit" className="fbtn fbtn-flow">Update Password</button>
+            </form>
+          </div>
+        )}
+
+        {/* Danger tab */}
+        {activeTab === "danger" && (
+          <div className="p-6 md:p-8 max-w-2xl">
+            <div className="rounded-[var(--r-lg)] p-6" style={{ border: "1px dashed rgba(var(--urgent-rgb),.4)", background: "rgba(var(--urgent-rgb),.04)" }}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="grid place-items-center w-10 h-10 rounded-xl" style={{ background: "rgba(var(--urgent-rgb),.1)", color: "var(--color-urgent)" }}>
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <h3 className="font-display text-base font-semibold text-ink">Delete Account</h3>
+              </div>
+              <p className="text-sm text-mute mb-5">This action is permanent. Your restaurant profile and all redemption history will be removed.</p>
+              <button onClick={handleDeleteAccount} className="fbtn fbtn-g fbtn-sm" style={{ color: "var(--color-urgent)", borderColor: "rgba(var(--urgent-rgb),.35)" }}>
+                <span>Delete My Account</span>
               </button>
             </div>
           </div>
-
-          <div className="p-8">
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <h4 className="text-lg font-bold text-gray-900">Restaurant Information</h4>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Restaurant Name</label>
-                  {isEditing ? (
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
-                  ) : (
-                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                      <Store className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{name}</span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Phone Number</label>
-                  {isEditing ? (
-                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass} />
-                  ) : (
-                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                      <Phone className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{phone}</span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Address</label>
-                  {isEditing ? (
-                    <LocationInput
-                      value={address}
-                      onChange={(val) => setAddress(val)}
-                      onSelect={(coords) => setAddressCoords(coords)}
-                      placeholder="Enter complete address"
-                    />
-                  ) : (
-                    <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-xl">
-                      <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                      <span className="text-gray-900">{address}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h4 className="text-lg font-bold text-gray-900">Discount Offer</h4>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Discount on Bill (%)</label>
-                  {isEditing ? (
-                    <input type="number" min="0" max="100" value={discountPercentage} onChange={(e) => setDiscountPercentage(e.target.value)} className={inputClass} />
-                  ) : (
-                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                      <Tag className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{profile.discountPercentage}%</span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Points Required</label>
-                  {isEditing ? (
-                    <input type="number" min="0" value={pointsRequired} onChange={(e) => setPointsRequired(e.target.value)} className={inputClass} />
-                  ) : (
-                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                      <Award className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-900">{profile.pointsRequired} pts</span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Description</label>
-                  {isEditing ? (
-                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={inputClass} />
-                  ) : (
-                    <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-xl">
-                      <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
-                      <span className="text-gray-900">{description || "No description added"}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-            {isEditing && (
-              <div className="mt-8 pt-6 border-t flex space-x-4">
-                <button onClick={handleSave} className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-8 py-3 rounded-xl font-semibold">Save Changes</button>
-                <button onClick={() => setIsEditing(false)} className="bg-gray-100 cursor-pointer hover:bg-gray-200 text-gray-700 px-8 py-3 rounded-xl font-semibold">Cancel</button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === "password" && (
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 max-w-lg">
-          <div className="flex items-center gap-3 mb-6">
-            <Lock className="w-5 h-5 text-red-500" />
-            <h3 className="text-lg font-semibold text-gray-900">Change Password</h3>
-          </div>
-          <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Current Password</label>
-              <input type="password" value={oldpassword} onChange={(e) => setOldPassword(e.target.value)} required className={inputClass} />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">New Password</label>
-              <input type="password" value={newpassword} onChange={(e) => setNewPassword(e.target.value)} required className={inputClass} />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Confirm New Password</label>
-              <input type="password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} required className={inputClass} />
-            </div>
-            <button type="submit" className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-8 py-3 rounded-xl font-semibold">Update Password</button>
-          </form>
-        </div>
-      )}
-
-      {activeTab === "danger" && (
-        <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-8 max-w-lg">
-          <div className="flex items-center gap-3 mb-6">
-            <Trash2 className="w-5 h-5 text-red-500" />
-            <h3 className="text-lg font-semibold text-gray-900">Delete Account</h3>
-          </div>
-          <p className="text-gray-600 mb-6">This action is permanent. Your restaurant profile and all redemption history will be removed.</p>
-          <button onClick={handleDeleteAccount} className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-8 py-3 rounded-xl font-semibold">Delete My Account</button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
