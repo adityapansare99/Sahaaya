@@ -55,27 +55,31 @@ const CreateDonation = ({ onDonationCreate }) => {
     setExpiryTime("");
   };
 
+  const labelCls = "block text-sm font-medium text-ink-2 mb-2";
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <h2 className="font-display text-3xl font-bold text-ink mb-2">
           Create Donation
         </h2>
-        <p className="text-gray-600">Share your food to help those in need</p>
+        <p className="text-mute">Share your food to help those in need</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg p-8">
+      <div className="flow-panel p-6 md:p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Donor Type */}
+          {/* Donor Type — amber accent (donor = origin of the pipeline) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Package className="w-4 h-4 inline mr-2" />
+            <label className="flex items-center gap-2 text-sm font-medium text-ink-2 mb-2">
+              <span className="inline-grid place-items-center w-6 h-6 rounded-lg bg-donor-soft text-donor-2">
+                <Package className="w-3.5 h-3.5" />
+              </span>
               Donor Type
             </label>
             <select
               value={donorType}
               onChange={(e) => setDonorType(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+              className="flow-input"
               required
             >
               <option value="">Select donor type</option>
@@ -89,14 +93,14 @@ const CreateDonation = ({ onDonationCreate }) => {
 
           {/* Food Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Package className="w-4 h-4 inline mr-2" />
+            <label className={labelCls}>
+              <Package className="w-4 h-4 inline mr-2 text-mute" />
               Food Type
             </label>
             <select
               value={foodType}
               onChange={(e) => setFoodType(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+              className="flow-input"
               required
             >
               <option value="">Select food type</option>
@@ -110,15 +114,13 @@ const CreateDonation = ({ onDonationCreate }) => {
 
           {/* description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Food Description
-            </label>
+            <label className={labelCls}>Food Description</label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g., Fresh prepared rice, dal, vegetables, and roti"
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+              className="flow-input"
               required
             />
           </div>
@@ -126,8 +128,8 @@ const CreateDonation = ({ onDonationCreate }) => {
           {/* Approximate Weight & Serves */}
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Package className="w-4 h-4 inline mr-2" />
+              <label className={labelCls}>
+                <Package className="w-4 h-4 inline mr-2 text-mute" />
                 Approximate Weight (kg)
               </label>
               <input
@@ -137,13 +139,13 @@ const CreateDonation = ({ onDonationCreate }) => {
                 value={weightKg}
                 onChange={(e) => setWeightKg(e.target.value)}
                 placeholder="e.g., 10"
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                className="flow-input nums"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Package className="w-4 h-4 inline mr-2" />
+              <label className={labelCls}>
+                <Package className="w-4 h-4 inline mr-2 text-mute" />
                 Serves (people)
               </label>
               <input
@@ -153,7 +155,7 @@ const CreateDonation = ({ onDonationCreate }) => {
                 value={serves}
                 onChange={(e) => setServes(e.target.value)}
                 placeholder="e.g., 50"
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                className="flow-input nums"
                 required
               />
             </div>
@@ -161,8 +163,8 @@ const CreateDonation = ({ onDonationCreate }) => {
 
           {/* Pickup Location */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <MapPin className="w-4 h-4 inline mr-2" />
+            <label className={labelCls}>
+              <MapPin className="w-4 h-4 inline mr-2 text-mute" />
               Pickup Location
             </label>
             <LocationInput
@@ -173,8 +175,9 @@ const CreateDonation = ({ onDonationCreate }) => {
               required
             />
             {pickupCoords.lat && pickupCoords.lng && (
-              <p className="mt-1 text-xs text-gray-500">
-                Coordinates: {pickupCoords.lat.toFixed(6)}, {pickupCoords.lng.toFixed(6)}
+              <p className="mt-1 text-xs text-mute nums">
+                Coordinates: {pickupCoords.lat.toFixed(6)},{" "}
+                {pickupCoords.lng.toFixed(6)}
               </p>
             )}
           </div>
@@ -182,8 +185,8 @@ const CreateDonation = ({ onDonationCreate }) => {
           {/* Expiry Date & Time */}
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Clock className="w-4 h-4 inline mr-2" />
+              <label className={labelCls}>
+                <Clock className="w-4 h-4 inline mr-2 text-mute" />
                 Expiry Date
               </label>
               <input
@@ -191,29 +194,24 @@ const CreateDonation = ({ onDonationCreate }) => {
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                className="flow-input"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Expiry Time
-              </label>
+              <label className={labelCls}>Expiry Time</label>
               <input
                 type="time"
                 value={expiryTime}
                 onChange={(e) => setExpiryTime(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                className="flow-input"
                 required
               />
             </div>
           </div>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            className="cursor-pointer w-full bg-red-500 text-white py-4 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
-          >
+          <button type="submit" className="fbtn fbtn-flow w-full text-base">
             <Plus className="w-5 h-5" />
             <span>Donate Now</span>
           </button>

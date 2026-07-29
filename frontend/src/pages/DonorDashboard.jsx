@@ -6,6 +6,8 @@ import MyDonations from "../components/MyDonations";
 import Impact from "../components/Impact";
 import SettingsD from "../components/SettingsD";
 import ApprovalPending from "../components/ApprovalPending";
+import Logo from "../components/flow/Logo";
+import LiveChip from "../components/flow/LiveChip";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -290,7 +292,7 @@ const DonorDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-canvas flex">
       <SidebarD
         activeSection={activeSection}
         onSectionChange={setActiveSection}
@@ -300,24 +302,37 @@ const DonorDashboard = () => {
 
       <div className="flex-1 lg:ml-64">
         {/* Mobile Header */}
-        <div className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between">
+        <div className="lg:hidden bg-surface border-b border-line p-4 flex items-center justify-between">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-2xl hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-xl text-ink-2 hover:bg-surface-2 transition-colors duration-200"
           >
-            {sidebarOpen ? (
-              <X className="w-6 h-6 text-gray-600" />
-            ) : (
-              <Menu className="w-6 h-6 text-gray-600" />
-            )}
+            {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-          <h1 className="text-xl font-bold text-gray-800">Sahaaya</h1>
-          <div className="w-10"></div>
+          <Logo size="sm" subtitle={false} />
+          <div className="w-7"></div>
         </div>
 
         {/* Main Content */}
         <main className="p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto">{renderContent()}</div>
+          <div className="max-w-7xl mx-auto">
+            {/* Desktop greet bar */}
+            <div className="hidden lg:flex items-center justify-between mb-7">
+              <div className="flex items-center gap-2.5">
+                <span className="font-display text-[11px] font-bold tracking-[0.18em] uppercase text-mute-2">
+                  Donor
+                </span>
+                <span className="h-3 w-px bg-line" />
+                <span className="font-display text-sm font-semibold text-ink">
+                  {profile?.name
+                    ? `Welcome back, ${profile.name.split(" ")[0]}`
+                    : "Donor dashboard"}
+                </span>
+              </div>
+              <LiveChip>Live</LiveChip>
+            </div>
+            {renderContent()}
+          </div>
         </main>
       </div>
     </div>

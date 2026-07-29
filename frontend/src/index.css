@@ -221,6 +221,8 @@ body {
 /* ---- surface tile ---- */
 .flow-tile{ background:var(--color-surface); border:1px solid var(--color-line); border-radius:var(--r-xl); box-shadow:var(--sh-sm); transition:transform .25s var(--ease-out), box-shadow .25s var(--ease-out); }
 @media (hover:hover) and (pointer:fine){ .flow-tile:hover{ transform:translateY(-3px); box-shadow:var(--sh-md); } }
+/* ---- surface panel (large container card — form/settings; no hover-lift) ---- */
+.flow-panel{ background:var(--color-surface); border:1px solid var(--color-line); border-radius:var(--r-xl); box-shadow:var(--sh-sm); }
 
 /* ---- Flow dark hero ---- */
 .flow-hero{ position:relative; min-height:100vh; overflow:hidden; background:linear-gradient(162deg, #0e1f1a 0%, #122821 55%, #0b1a15 100%); color:#eaf3ee; }
@@ -284,3 +286,86 @@ body {
 select.flow-input{ cursor:pointer; }
 .flow-input:disabled{ opacity:.5; cursor:not-allowed; }
 .fbtn:disabled{ opacity:.55; cursor:not-allowed; }
+
+/* ============================================================================
+   FLOW COMPONENTS — Phase 3 (Donor) additive primitives
+   Shared by later phases (NGO/Rider/Partner) for cross-app consistency.
+   Presentation only. Faithful to docs/design-templates.html.
+   ========================================================================= */
+
+/* ---- icon-leading input variant (LocationInput) ---- */
+.flow-input.has-icon{ padding-left:2.5rem; }
+
+/* ---- sidebar rail + nav (unified across Donor/NGO/Rider/Partner) ---- */
+.flow-rail{ background:var(--color-surface); border-right:1px solid var(--color-line); }
+.flow-rail-inner{ padding:20px 14px; }
+.flow-rail-inner .brand{ display:flex; align-items:center; gap:10px; padding:2px 6px 16px; border-bottom:1px solid var(--color-line-2); margin-bottom:14px; }
+.flow-rail-inner .brand .bt .rl{ font-size:10px; color:var(--color-mute); font-weight:600; margin-top:3px; letter-spacing:.02em; }
+.flow-navlist{ display:flex; flex-direction:column; gap:3px; }
+.flow-nav-i{
+  position:relative; display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; border-radius:11px; border:none; background:transparent;
+  font-family:var(--font-sans); font-size:13.5px; font-weight:500; color:var(--color-mute);
+  cursor:pointer; -webkit-tap-highlight-color:transparent;
+  transition:background .16s var(--ease-out), color .16s var(--ease-out), transform .16s var(--ease-out);
+}
+.flow-nav-i svg{ width:18px; height:18px; flex-shrink:0; }
+.flow-nav-i:hover{ background:var(--color-surface-2); color:var(--color-ink); transform:translateX(2px); }
+.flow-nav-i.active{ background:var(--color-ink); color:#fff; }
+.flow-nav-i.active::before{
+  content:""; position:absolute; left:0; top:9px; bottom:9px; width:3px; border-radius:3px;
+  background:linear-gradient(var(--color-donor), var(--color-ngo), var(--color-rider));
+}
+.flow-rail-foot{ margin-top:auto; padding:14px 6px 2px; border-top:1px solid var(--color-line-2); display:flex; align-items:center; gap:10px; }
+.flow-rail-foot .av{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg, var(--color-donor), var(--color-donor-2)); display:grid; place-items:center; color:#fff; font-family:var(--font-display); font-weight:700; font-size:12px; flex-shrink:0; }
+
+/* ---- surface card with role left-bar (MyDonations in-flow cards) ---- */
+.flow-card{ position:relative; background:var(--color-surface); border:1px solid var(--color-line); border-radius:var(--r-lg); box-shadow:var(--sh-sm); transition:box-shadow .25s var(--ease-out), border-color .25s var(--ease-out); }
+@media (hover:hover) and (pointer:fine){ .flow-card:hover{ box-shadow:var(--sh-md); border-color:var(--color-mute-2); } }
+.flow-card.role-donor::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:3px 0 0 3px; background:linear-gradient(var(--color-donor), var(--color-donor-2)); }
+
+/* ---- micro A->B route (pickup -> NGO) with hover-advance ---- */
+.flow-route-mini{ display:flex; align-items:center; gap:9px; }
+.flow-route-mini .pt{ font-family:var(--font-display); font-size:10.5px; font-weight:600; white-space:nowrap; }
+.flow-route-mini .pt.a{ color:var(--color-donor-2); }
+.flow-route-mini .pt.b{ color:var(--color-ngo-2); }
+.flow-route-mini .lane{ position:relative; flex:1; height:2px; min-width:24px; background:var(--color-line); border-radius:2px; }
+.flow-route-mini .lane .flow{ position:absolute; inset:0; border-radius:2px; background:repeating-linear-gradient(90deg, var(--color-rider) 0 4px, transparent 4px 8px); transform:scaleX(0); transform-origin:left; transition:transform .55s var(--ease-out); }
+.flow-route-mini .lane .bead{ position:absolute; top:50%; left:0; width:8px; height:8px; border-radius:50%; background:var(--color-rider); transform:translate(-50%,-50%) scale(.5); opacity:0; transition:left .55s var(--ease-out), opacity .25s, transform .25s var(--ease-spring); box-shadow:0 0 8px rgba(var(--rider-rgb),.6); }
+@media (hover:hover) and (pointer:fine){
+  .flow-card:hover .flow-route-mini .lane .flow{ transform:scaleX(1); }
+  .flow-card:hover .flow-route-mini .lane .bead{ left:100%; opacity:1; transform:translate(-50%,-50%) scale(1); }
+}
+
+/* ---- skeleton shimmer ---- */
+.flow-skel{ position:relative; overflow:hidden; background:var(--color-surface-2); border-radius:8px; }
+.flow-skel::after{ content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); animation:d4shimmer 1.4s var(--ease-flow) infinite; }
+.skel-line{ height:12px; border-radius:6px; }
+
+/* ---- monthly trend bars (grow on mount) ---- */
+.flow-bars{ display:flex; align-items:flex-end; gap:7px; min-height:100px; }
+.flow-bar{ flex-shrink:0; width:100%; background:linear-gradient(var(--color-rider), var(--color-ngo)); border-radius:6px 6px 4px 4px; transform-origin:bottom; animation:d4growbar .9s var(--ease-out) both; min-height:4px; }
+.flow-bar.max{ background:linear-gradient(var(--color-donor), var(--color-ngo)); }
+@keyframes d4growbar{ from{ transform:scaleY(0); } to{ transform:scaleY(1); } }
+
+/* ---- achievement chips ---- */
+.flow-ach{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px 8px 8px; border-radius:100px; background:var(--color-surface-2); border:1px solid var(--color-line-2); font-size:12.5px; font-weight:600; color:var(--color-ink-2); transition:transform .2s var(--ease-spring); }
+.flow-ach .ic{ width:26px; height:26px; border-radius:50%; display:grid; place-items:center; flex-shrink:0; }
+.flow-ach .ic svg{ width:15px; height:15px; }
+.flow-ach.done{ border-color:rgba(var(--ngo-rgb),.3); background:#eef8f1; }
+.flow-ach.done .ic{ background:var(--color-ngo); color:#fff; }
+.flow-ach.locked{ opacity:.55; }
+.flow-ach.locked .ic{ background:var(--color-line-2); color:var(--color-mute); }
+@media (hover:hover) and (pointer:fine){ .flow-ach:hover{ transform:translateY(-2px); } }
+
+/* ---- empty state (dashed) ---- */
+.flow-empty{ display:flex; align-items:center; gap:14px; padding:20px 22px; background:var(--color-surface); border:1px dashed var(--color-line); border-radius:var(--r-xl); }
+.flow-empty .ei{ width:44px; height:44px; border-radius:12px; background:var(--color-surface-2); color:var(--color-mute); display:grid; place-items:center; flex-shrink:0; }
+.flow-empty .ei svg{ width:22px; height:22px; }
+.flow-empty .et{ font-family:var(--font-display); font-size:14px; font-weight:600; color:var(--color-ink); }
+.flow-empty .ed{ font-size:12.5px; color:var(--color-mute); margin-top:3px; line-height:1.45; }
+
+@media (prefers-reduced-motion: reduce){
+  .flow-bar{ animation:none; transform:scaleY(1); }
+  .flow-route-mini .lane .flow, .flow-route-mini .lane .bead{ transition:none; }
+}

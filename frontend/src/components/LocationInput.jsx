@@ -67,20 +67,20 @@ const LocationInput = ({
         }}
         placeholder={placeholder}
         required={required}
-        className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition-all duration-200 hover:bg-gray-50 hover:border-gray-400 placeholder-gray-500"
+        className="flow-input has-icon"
         autoComplete="on"
       />
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         {apiFailed ? (
-          <MapPin className="w-5 h-5 text-gray-300" />
+          <MapPin className="w-5 h-5 text-mute-2" />
         ) : apiReady ? (
-          <MapPin className="w-5 h-5 text-red-500" />
+          <MapPin className="w-5 h-5 text-ngo" />
         ) : (
-          <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+          <Loader2 className="w-5 h-5 text-mute animate-spin" />
         )}
       </div>
       {apiFailed && (
-        <p className="mt-1 text-xs text-amber-600">
+        <p className="mt-1 text-xs text-mute">
           Google Maps not available. Type your address manually.
         </p>
       )}

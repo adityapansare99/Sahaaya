@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  Heart,
-  Plus,
-  History,
-  TrendingUp,
-  Settings,
-} from "lucide-react";
+import { Plus, History, TrendingUp, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Logo from "./flow/Logo";
+
 const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
   const menuItems = [
     { id: "create", label: "Create Donation", icon: Plus },
@@ -15,39 +11,35 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   return (
     <>
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+          className="lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity"
           onClick={onToggle}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed left-0 top-0 h-full bg-white shadow-lg z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`flow-rail shadow-lg fixed left-0 top-0 h-full z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } w-64`}
       >
-        <div className="p-6">
-          {/* Logo */}
-          <div className="flex items-center space-x-2 mb-8">
-            <Heart className="w-8 h-8 text-red-500" />
-            <h1 onClick={()=>{
-              navigate('/')
-            }} className="text-2xl font-bold text-gray-800 cursor-pointer">Sahaaya</h1>
+        <div className="flow-rail-inner h-full flex flex-col">
+          {/* Brand */}
+          <div className="brand">
+            <Logo size="sm" onClick={() => navigate("/")} />
           </div>
 
           {/* Menu Items */}
-          <nav className="space-y-2">
+          <nav className="flow-navlist">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
-
               return (
                 <button
                   key={item.id}
@@ -55,19 +47,14 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
                     onSectionChange(item.id);
                     if (window.innerWidth < 1024) onToggle();
                   }}
-                  className={`w-full cursor-pointer flex items-center space-x-3 px-4 py-3 rounded-2xl transition-all duration-200 ${
-                    isActive
-                      ? "bg-red-500 text-white shadow-lg"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
-                  }`}
+                  className={`flow-nav-i${isActive ? " active" : ""}`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
+                  <Icon className="w-[18px] h-[18px]" />
+                  <span>{item.label}</span>
                 </button>
               );
             })}
           </nav>
-
         </div>
       </div>
     </>

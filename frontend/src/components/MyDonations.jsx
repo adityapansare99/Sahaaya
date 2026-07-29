@@ -1,9 +1,35 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit3, X, MapPin, Calendar, Package, Clock } from "lucide-react";
+import { Edit3, X, MapPin, Calendar, Package } from "lucide-react";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { formatAmount } from "../utils/formatDonation";
+
+// Flow status pill — encodes the pipeline stages:
+// Pending(donor-amber/origin) → Accepted(rider-teal/transport) →
+// Completed(ngo-emerald/destination) · Cancelled(urgent-red).
+const StatusPill = ({ status }) => {
+  if (status === "Cancelled") {
+    return (
+      <span
+        className="px-3 py-1 rounded-full text-xs font-semibold capitalize nums whitespace-nowrap"
+        style={{ background: "rgba(var(--urgent-rgb),.12)", color: "var(--color-urgent)" }}
+      >
+        {status}
+      </span>
+    );
+  }
+  const cls = {
+    Pending: "bg-donor-soft text-donor-2",
+    Accepted: "bg-rider-soft text-rider-2",
+    Completed: "bg-ngo-soft text-ngo-2",
+  }[status];
+  return (
+    <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize nums whitespace-nowrap ${cls || "bg-surface-2 text-mute"}`}>
+      {status}
+    </span>
+  );
+};
 
 const MyDonations = ({ donations, onEdit, onCancel }) => {
   const { backendurl, token } = useContext(AppContext);
@@ -23,21 +49,6 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
       /* no active ride — button is gated on "Accepted" so this is unexpected */
     } finally {
       setTrackingId(null);
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "Accepted":
-        return "bg-blue-100 text-blue-800";
-      case "Completed":
-        return "bg-green-100 text-green-800";
-      case "Cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -75,20 +86,20 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
 
   const [editId, setEditId] = useState(null);
 
-  const editHandler=()=>{
-    const data={
-      donationId:editId,
-      foodType:foodType || donationData.FoodType,
-      description:description || donationData.FoodDescription,
+  const editHandler = () => {
+    const data = {
+      donationId: editId,
+      foodType: foodType || donationData.FoodType,
+      description: description || donationData.FoodDescription,
       weightKg: weightKg !== "" ? weightKg : donationData.weightKg,
       serves: serves !== "" ? serves : donationData.serves,
-      pickup:pickup || donationData.PickupLocation,
-      expiryDate:expiryDate || donationData.ExpiryDate,
-      expiryTime:expiryTime || donationData.ExpiryTime,
-    }
+      pickup: pickup || donationData.PickupLocation,
+      expiryDate: expiryDate || donationData.ExpiryDate,
+      expiryTime: expiryTime || donationData.ExpiryTime,
+    };
     onEdit(data);
-    setEditId(null)
-  }
+    setEditId(null);
+  };
 
   // Latest donations first (newest createdAt on top); never mutate the prop.
   const sortedDonations = [...donations].sort(
@@ -97,20 +108,22 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
 
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">My Donations</h2>
-        <p className="text-gray-600">Track and manage your food donations</p>
+      <div className="mb-7">
+        <h2 className="font-display text-3xl font-bold text-ink mb-2">
+          My Donations
+        </h2>
+        <p className="text-mute">Track and manage your food donations</p>
       </div>
 
       {sortedDonations.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">
-            No donations yet
-          </h3>
-          <p className="text-gray-600">
-            Create your first donation to get started!
-          </p>
+        <div className="flow-empty flex-col items-center text-center py-14">
+          <div className="ei">
+            <Package className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="et">No donations yet</div>
+            <div className="ed">Create your first donation to get started!</div>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -118,73 +131,91 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
             donation._id !== editId ? (
               <div
                 key={donation._id}
-                className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-200"
+                className="flow-card role-donor p-5 md:p-6"
               >
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-800">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  {/* info */}
+                  <div className="flex-1 min-w-0 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="font-display text-lg font-bold text-ink truncate">
                           {donation.FoodType}
                         </h3>
-                        <p className="text-lg text-gray-600 mt-1">
-                          {formatAmount(donation)}
-                        </p>
-                        <p className="text-lg text-gray-600 mt-1">
-                          {donation.FoodDescription}
-                        </p>
+                        {formatAmount(donation) ? (
+                          <p className="text-sm text-mute mt-0.5">
+                            {formatAmount(donation)}
+                          </p>
+                        ) : null}
+                        {donation.FoodDescription ? (
+                          <p className="text-sm text-mute mt-0.5">
+                            {donation.FoodDescription}
+                          </p>
+                        ) : null}
                       </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(
-                          donation.Status
-                        )}`}
-                      >
-                        {donation.Status}
+                      <StatusPill status={donation.Status} />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-mute">
+                      <span className="inline-flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-donor shrink-0" />
+                        <span className="truncate max-w-[220px]">
+                          {donation.PickupLocation}
+                        </span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 nums">
+                        <Calendar className="w-3.5 h-3.5 shrink-0" />
+                        Expires {formatDate(donation.ExpiryDate)}{" "}
+                        {donation.ExpiryTime}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 nums">
+                        <Calendar className="w-3.5 h-3.5 shrink-0" />
+                        Created {formatDate(donation.createdAt)}
                       </span>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-600">
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="w-4 h-4" />
-                        <span className="truncate">
-                          {donation.PickupLocation}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>
-                          Expires: {formatDate(donation.ExpiryDate)}{" "}
-                          {donation.ExpiryTime}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>Created: {formatDate(donation.createdAt)}</span>
-                      </div>
-                    </div>
-
                     {donation.Ngo?.name && (
-                      <div className="text-sm text-green-600 bg-green-50 rounded-lg px-3 py-2 inline-block">
-                        Accepted by: {donation.Ngo.name}
-                      </div>
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ngo-2 bg-ngo-soft rounded-full px-2.5 py-1">
+                        Accepted by {donation.Ngo.name}
+                      </span>
                     )}
+
+                    {/* micro route: pickup -> NGO (hover-advances on fine pointers) */}
+                    {donation.Ngo?.name &&
+                      (donation.Status === "Accepted" ||
+                        donation.Status === "Completed") && (
+                        <div className="flow-route-mini pt-1">
+                          <span className="pt a">
+                            A · {donation.PickupLocation?.split(",")[0] || "Pickup"}
+                          </span>
+                          <span className="lane">
+                            <span className="flow" />
+                            <span className="bead" />
+                          </span>
+                          <span className="pt b">B · {donation.Ngo.name}</span>
+                        </div>
+                      )}
                   </div>
 
+                  {/* actions */}
                   {donation.Status === "Pending" && (
-                    <div className="flex space-x-3 lg:ml-6">
+                    <div className="flex shrink-0 gap-2">
                       <button
                         onClick={() => {
                           setEditId(donation._id);
                           setDonationData(donation);
                         }}
-                        className="flex cursor-pointer items-center space-x-2 px-4 py-2 text-blue-600 border border-blue-300 rounded-2xl hover:bg-blue-50 transition-all duration-200"
+                        className="fbtn fbtn-g fbtn-sm"
                       >
                         <Edit3 className="w-4 h-4" />
                         <span>Edit</span>
                       </button>
                       <button
                         onClick={() => onCancel(donation._id)}
-                        className="flex cursor-pointer items-center space-x-2 px-4 py-2 text-red-600 border border-red-300 rounded-2xl hover:bg-red-50 transition-all duration-200"
+                        className="fbtn fbtn-g fbtn-sm"
+                        style={{
+                          color: "var(--color-urgent)",
+                          borderColor: "rgba(var(--urgent-rgb),.35)",
+                        }}
                       >
                         <X className="w-4 h-4" />
                         <span>Cancel</span>
@@ -193,17 +224,15 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                   )}
 
                   {donation.Status === "Accepted" && (
-                    <div className="flex lg:ml-6">
+                    <div className="flex shrink-0">
                       <button
                         onClick={() => handleTrack(donation._id)}
                         disabled={trackingId === donation._id}
-                        className="flex cursor-pointer items-center space-x-2 px-4 py-2 text-green-700 border border-green-300 rounded-2xl hover:bg-green-50 transition-all duration-200 disabled:opacity-60"
+                        className="fbtn fbtn-g fbtn-sm"
                       >
                         <MapPin className="w-4 h-4" />
                         <span>
-                          {trackingId === donation._id
-                            ? "Loading…"
-                            : "Live Location"}
+                          {trackingId === donation._id ? "Loading…" : "Live Location"}
                         </span>
                       </button>
                     </div>
@@ -213,146 +242,140 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                 </div>
               </div>
             ) : (
-              <div
-                key={donation._id}
-                className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-200"
-              >
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-500 mx-2 my-2 mb-4">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            <Package className="w-4 h-4 inline mr-2" />
-                            Food Type
-                          </label>
-                          <select
-                            value={foodType}
-                            onChange={(e) => setFoodType(e.target.value)}
-                            className="w-full px-4 py-1 border border-gray-300 text-lg font-medium rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                            required
-                          >
-                            <option value="">Select food type</option>
-                            {foodTypes.map((type) => (
-                              <option key={type} value={type}>
-                                {type}
-                              </option>
-                            ))}
-                          </select>
-                        </h3>
-                        <p className="text-lg text-gray-500 mx-2 my-2 mb-4">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Weight (kg) · Serves (people)
-                          </label>
-                          <div className="flex gap-2">
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.1"
-                              value={weightKg}
-                              onChange={(e) => setWeightKg(e.target.value)}
-                              placeholder={donation.weightKg || "Weight"}
-                              className="w-full px-4 py-1 text-lg font-medium border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                              required
-                            />
-                            <input
-                              type="number"
-                              min="0"
-                              step="1"
-                              value={serves}
-                              onChange={(e) => setServes(e.target.value)}
-                              placeholder={donation.serves || "Serves"}
-                              className="w-full px-4 py-1 text-lg font-medium border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                              required
-                            />
-                          </div>
-                        </p>
-                        <p className="text-lg text-gray-500 mx-2 my-2 mb-4">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Food Description
-                          </label>
-                          <input
-                            type="text"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder={donation.FoodDescription}
-                            className="w-full px-4 py-1 text-lg font-medium border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                            required
-                          />
-                        </p>
-                      </div>
-                    </div>
+              <div key={donation._id} className="flow-card role-donor p-5 md:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-display text-lg font-bold text-ink">
+                    Edit donation
+                  </h3>
+                  <StatusPill status={donation.Status} />
+                </div>
 
-                    <div className="grid md:grid-cols-2 w-[50vw] text-sm text-gray-500 mx-2 my-2 mb-4">
-                      <div className="flex items-center space-x-2">
-                        <span className="truncate">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            <MapPin className="w-4 h-4 inline mr-2" />
-                            Pickup Location
-                          </label>
-                          <input
-                            type="text"
-                            value={pickup}
-                            onChange={(e) => setPickup(e.target.value)}
-                            placeholder={donation.PickupLocation}
-                            className="w-full px-4 py-1 text-lg font-medium border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                            required
-                          />
-                        </span>
-                      </div>
-
-                      <div className="grid md:grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            <Clock className="w-4 h-4 inline mr-2" />
-                            Expiry Date
-                          </label>
-                          <input
-                            type="date"
-                            value={expiryDate}
-                            onChange={(e) => setExpiryDate(e.target.value)}
-                            min={new Date().toISOString().split("T")[0]}
-                            className="w-full px-4 py-1 text-lg font-medium border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Expiry Time
-                          </label>
-                          <input
-                            type="time"
-                            value={expiryTime}
-                            onChange={(e) => setExpiryTime(e.target.value)}
-                            className="w-full px-4 py-1 text-lg font-medium border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                            required
-                          />
-                        </div>
-                      </div>
-                    </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-ink-2 mb-2">
+                      Food Type
+                    </label>
+                    <select
+                      value={foodType}
+                      onChange={(e) => setFoodType(e.target.value)}
+                      className="flow-input"
+                      required
+                    >
+                      <option value="">Select food type</option>
+                      {foodTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  {donation.Status === "Pending" && (
-                    <div className="flex space-x-3 lg:ml-6">
-                      <button
-                        onClick={() => editHandler()}
-                        className="flex cursor-pointer items-center space-x-2 px-4 py-2 text-blue-600 border border-blue-300 rounded-2xl hover:bg-blue-50 transition-all duration-200"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        <span>Save</span>
-                      </button>
-                      <button
-                        onClick={() => setEditId(null)}
-                        className="flex cursor-pointer items-center space-x-2 px-4 py-2 text-red-600 border border-red-300 rounded-2xl hover:bg-red-50 transition-all duration-200"
-                      >
-                        <X className="w-4 h-4" />
-                        <span>Cancel</span>
-                      </button>
-                    </div>
-                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-ink-2 mb-2">
+                      Weight (kg)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={weightKg}
+                      onChange={(e) => setWeightKg(e.target.value)}
+                      placeholder={donation.weightKg || "Weight"}
+                      className="flow-input nums"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-ink-2 mb-2">
+                      Serves (people)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={serves}
+                      onChange={(e) => setServes(e.target.value)}
+                      placeholder={donation.serves || "Serves"}
+                      className="flow-input nums"
+                      required
+                    />
+                  </div>
 
-                  {}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-ink-2 mb-2">
+                      Food Description
+                    </label>
+                    <input
+                      type="text"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder={donation.FoodDescription}
+                      className="flow-input"
+                      required
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-ink-2 mb-2">
+                      Pickup Location
+                    </label>
+                    <input
+                      type="text"
+                      value={pickup}
+                      onChange={(e) => setPickup(e.target.value)}
+                      placeholder={donation.PickupLocation}
+                      className="flow-input"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-ink-2 mb-2">
+                      Expiry Date
+                    </label>
+                    <input
+                      type="date"
+                      value={expiryDate}
+                      onChange={(e) => setExpiryDate(e.target.value)}
+                      min={new Date().toISOString().split("T")[0]}
+                      className="flow-input"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-ink-2 mb-2">
+                      Expiry Time
+                    </label>
+                    <input
+                      type="time"
+                      value={expiryTime}
+                      onChange={(e) => setExpiryTime(e.target.value)}
+                      className="flow-input"
+                      required
+                    />
+                  </div>
                 </div>
+
+                {donation.Status === "Pending" && (
+                  <div className="flex gap-2 mt-5 justify-end">
+                    <button
+                      onClick={() => setEditId(null)}
+                      className="fbtn fbtn-g fbtn-sm"
+                    >
+                      <X className="w-4 h-4" />
+                      <span>Cancel</span>
+                    </button>
+                    <button
+                      onClick={() => editHandler()}
+                      className="fbtn fbtn-flow fbtn-sm"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      <span>Save</span>
+                    </button>
+                  </div>
+                )}
+
+                {}
               </div>
             )
           )}

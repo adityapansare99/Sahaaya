@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { User, Mail, Phone, MapPin, Lock, Save } from 'lucide-react';
 import LocationInput from "./LocationInput";
 
-const SettingsD = ({ profile, onProfileUpdate,changePasswordHandler,deleteAccountHandler }) => {
+const SettingsD = ({ profile, onProfileUpdate, changePasswordHandler, deleteAccountHandler }) => {
   const [formData, setFormData] = useState(profile);
   const [activeTab, setActiveTab] = useState('profile');
   const [oldpassword, setOldPassword] = useState('');
@@ -18,43 +18,46 @@ const SettingsD = ({ profile, onProfileUpdate,changePasswordHandler,deleteAccoun
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const submitHandler=(e)=>{
+  const submitHandler = (e) => {
     e.preventDefault();
-    const data={
+    const data = {
       oldpassword,
       newpassword,
       confirmNewPassword
-    }
+    };
 
     changePasswordHandler(data);
-  }
+  };
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'security', label: 'Security', icon: Lock },
   ];
 
+  const labelCls = "block text-sm font-medium text-ink-2 mb-2";
+
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Settings</h2>
-        <p className="text-gray-600">Manage your account and preferences</p>
+      <div className="mb-7">
+        <h2 className="font-display text-3xl font-bold text-ink mb-2">Settings</h2>
+        <p className="text-mute">Manage your account and preferences</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div className="flow-panel overflow-hidden">
         {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
+        <div className="border-b border-line">
+          <nav className="flex gap-7 px-6">
             {tabs.map((tab) => {
               const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex cursor-pointer items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? 'border-red-500 text-red-500'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  className={`flex cursor-pointer items-center gap-2 py-4 border-b-2 font-display font-medium text-sm transition-all duration-200 ${
+                    isActive
+                      ? 'border-donor text-donor'
+                      : 'border-transparent text-mute hover:text-ink'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -70,22 +73,22 @@ const SettingsD = ({ profile, onProfileUpdate,changePasswordHandler,deleteAccoun
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <User className="w-4 h-4 inline mr-2" />
+                  <label className={labelCls}>
+                    <User className="w-4 h-4 inline mr-2 text-mute" />
                     Full Name
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                    className="flow-input"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <MapPin className="w-4 h-4 inline mr-2" />
+                  <label className={labelCls}>
+                    <MapPin className="w-4 h-4 inline mr-2 text-mute" />
                     Address
                   </label>
                   <LocationInput
@@ -98,39 +101,36 @@ const SettingsD = ({ profile, onProfileUpdate,changePasswordHandler,deleteAccoun
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Phone className="w-4 h-4 inline mr-2" />
+                  <label className={labelCls}>
+                    <Phone className="w-4 h-4 inline mr-2 text-mute" />
                     Phone Number
                   </label>
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                    className="flow-input nums"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <MapPin className="w-4 h-4 inline mr-2" />
+                  <label className={labelCls}>
+                    <MapPin className="w-4 h-4 inline mr-2 text-mute" />
                     PinCode
                   </label>
                   <input
                     type="text"
                     value={formData.pincode}
                     onChange={(e) => handleInputChange('pincode', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                    className="flow-input nums"
                     required
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end pt-6">
-                <button
-                  type="submit"
-                  className="bg-red-500 cursor-pointer text-white px-8 py-3 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
-                >
+              <div className="flex justify-end pt-2">
+                <button type="submit" className="fbtn fbtn-flow">
                   <Save className="w-4 h-4" />
                   <span>Save Changes</span>
                 </button>
@@ -139,67 +139,65 @@ const SettingsD = ({ profile, onProfileUpdate,changePasswordHandler,deleteAccoun
           )}
 
           {activeTab === 'security' && (
-            <div className="space-y-6">
+            <div className="space-y-7">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Change Password</h3>
-                <form onSubmit={(e)=>submitHandler(e)} className="space-y-4">
+                <h3 className="font-display text-base font-semibold text-ink mb-4">Change Password</h3>
+                <form onSubmit={(e) => submitHandler(e)} className="space-y-4 max-w-md">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Current Password
-                    </label>
+                    <label className={labelCls}>Current Password</label>
                     <input
-                      type="password" 
+                      type="password"
                       value={oldpassword}
-                      onChange={(e)=>{
-                        setOldPassword(e.target.value)
+                      onChange={(e) => {
+                        setOldPassword(e.target.value);
                       }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                      className="flow-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      New Password
-                    </label>
+                    <label className={labelCls}>New Password</label>
                     <input
                       type="password"
                       value={newpassword}
-                      onChange={(e)=>{
-                        setNewPassword(e.target.value)
+                      onChange={(e) => {
+                        setNewPassword(e.target.value);
                       }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                      className="flow-input"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Confirm New Password
-                    </label>
+                    <label className={labelCls}>Confirm New Password</label>
                     <input
                       type="password"
                       value={confirmNewPassword}
-                      onChange={(e)=>{
-                        setConfirmNewPassword(e.target.value)
+                      onChange={(e) => {
+                        setConfirmNewPassword(e.target.value);
                       }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                      className="flow-input"
                     />
                   </div>
-                  <button
-                    type="submit"
-                    className="bg-red-500 cursor-pointer text-white px-6 py-3 rounded-2xl font-semibold hover:bg-red-600 transition-all duration-200"
-                  >
+                  <button type="submit" className="fbtn fbtn-flow">
                     Update Password
                   </button>
                 </form>
               </div>
 
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Account Actions</h3>
-                <div className="space-y-3">
-                  <button onClick={()=>{
-                    deleteAccountHandler()
-                  }} className="text-red-600 cursor-pointer hover:bg-red-50 px-4 py-2 rounded-2xl transition-all duration-200">
-                    Delete Account
+              <div className="pt-6 border-t border-line">
+                <h3 className="font-display text-base font-semibold text-ink mb-3">Account Actions</h3>
+                <div
+                  className="rounded-[var(--r-lg)] p-4"
+                  style={{ border: '1px dashed rgba(var(--urgent-rgb),.4)', background: 'rgba(var(--urgent-rgb),.04)' }}
+                >
+                  <button
+                    onClick={() => {
+                      deleteAccountHandler();
+                    }}
+                    className="fbtn fbtn-g fbtn-sm"
+                    style={{ color: 'var(--color-urgent)', borderColor: 'rgba(var(--urgent-rgb),.35)' }}
+                  >
+                    <span>Delete Account</span>
                   </button>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-mute mt-2.5">
                     This action cannot be undone. All your donation history will be permanently deleted.
                   </p>
                 </div>
@@ -212,4 +210,4 @@ const SettingsD = ({ profile, onProfileUpdate,changePasswordHandler,deleteAccoun
   );
 }
 
-export default SettingsD
+export default SettingsD;
