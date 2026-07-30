@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Building, Save, Lock, Trash2 } from "lucide-react";
 import LocationInput from "./LocationInput";
 import ConfirmModal from "./ConfirmModal";
+import FlowSelect from "./flow/FlowSelect";
 
 const Settings = ({
   profile,
@@ -166,17 +167,18 @@ const Settings = ({
                   </div>
                   <div>
                     <label className={labelCls}>Type of NGO</label>
-                    <select
+                    <FlowSelect
                       value={typeofNgo}
-                      onChange={(e) => setTypeofNgo(e.target.value)}
-                      className="flow-input cursor-pointer"
-                    >
-                      <option value="trust">Trust</option>
-                      <option value="society">Society</option>
-                      <option value="company">Section 8 Company</option>
-                      <option value="charitable">Charitable Foundation</option>
-                      <option value="other">Other</option>
-                    </select>
+                      onChange={(v) => setTypeofNgo(v)}
+                      ariaLabel="Type of NGO"
+                      options={[
+                        { value: "trust", label: "Trust" },
+                        { value: "society", label: "Society" },
+                        { value: "company", label: "Section 8 Company" },
+                        { value: "charitable", label: "Charitable Foundation" },
+                        { value: "other", label: "Other" },
+                      ]}
+                    />
                   </div>
                   <div>
                     <label className={labelCls}>Phone</label>

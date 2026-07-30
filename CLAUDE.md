@@ -8,7 +8,7 @@ Food donation platform: **Donors** (restaurants/events/stores/individuals) → *
 
 Stack: React 19 + Vite + Tailwind 4 frontend · Express 5 + Mongoose + Socket.IO backend · MongoDB.
 
-**Flow UI direction chosen** — kinetic donor→NGO→rider pipeline (see `docs/plans/2026-07-28-flow-ui-revamp.md`). Phased UI-only rollout in progress.
+**Flow UI revamp COMPLETE (all 8 phases shipped)** — every page/component uses the Flow design system: mint canvas (`#e9f1eb`), forest ink (`#0e1f1a`), role-color pipeline (donor-amber → NGO-emerald → rider-teal → partner-indigo → people-rose), Space Grotesk for headings/numbers, Inter for body. See `docs/plans/2026-07-28-flow-ui-revamp.md` for the implementation plan and `docs/design-templates.html` for the visual reference. UI-only — no logic changed.
 
 ## Commands
 
@@ -69,8 +69,20 @@ src/
     AppContext.jsx      # Role, token, backendurl state (from localStorage + env var)
     SocketContext.jsx   # Socket.IO client connection (auto-connects when token present)
   pages/                # 15 pages — Home, 4 Registers, Login, Role, 4 Dashboards, ForgotPassword, TrackOrder
-  components/           # Dashboard components + Navbar/Footer + ChatPanel + flow/ (design primitives)
-  utils/                # formatDonation.js, haversine.js (coordinate distance), loadGoogleMaps.js
+  components/
+    flow/               # Shared Flow primitives: Logo, FlowRibbon, CountUp, LiveChip, FlowSelect
+    SidebarD.jsx        # Donor sidebar
+    SidebarR.jsx        # Rider sidebar
+    SidebarP.jsx        # Partner sidebar
+    Sidebar.jsx         # NGO sidebar
+    DonationCard.jsx    # Shared in-flow card (tone prop: donor/ngo/rider)
+    TrackOrder.jsx, ChatPanel.jsx, ApprovalPending.jsx  # Shared/cross-cutting
+    ...                # Dashboard-specific: CreateDonation, MyDonations, Impact, SettingsD,
+                       # FoodRequests, DonationHistory, Analytics, Settings (NGO),
+                       # AvailableDeliveries, ActiveDelivery, DeliveryHistory, RewardsSection,
+                       # RedeemPoints, ProfileSection (rider),
+                       # PartnerOverview, PartnerRedemptions, PartnerProfile
+  utils/                # formatDonation.js, haversine.js, loadGoogleMaps.js
 ```
 
 **Routing:** `react-router-dom` — `/`, `/Registration-{Ngo|Donor|Rider|Partner}`, `/Login`, `/Role`, `/{Ngo|Donor|Rider|Partner}Dashboard`, `/ForgotPassword`, `/track/:rideId`.
@@ -112,9 +124,36 @@ Multer → `./public/temp` → Cloudinary (via `cloudinary.js` util).
 
 RazorPay SDK installed (`razorpay` npm package, env vars present). Integration status: verify before assuming active.
 
-### Flow UI Design System
+### Flow UI Design System — key patterns
 
-Color tokens in `index.css` `@theme`: `canvas` (#f0f3ee mint), `ink` (#0b1e1a forest), `surface` (#fafcf9), `line` (#dce5dd), `mute` (#8fa89b) + role tokens (donor-amber, NGO-emerald, rider-teal, partner-indigo, people, urgent). Fonts: Inter (body), Space Grotesk (display). Flow primitives in `components/flow/`: `Logo.jsx`, `FlowRibbon.jsx`, `CountUp.jsx`, `LiveChip.jsx`.
+**Tokens are in `index.css` `@theme` + `:root` aliases.** The `@theme` block generates Tailwind utilities (`bg-canvas`, `text-donor`, `font-display`, etc.). The `:root` block emits bare CSS variable names (`--canvas`, `--donor`, `--rider-rgb`) so inline styles in JSX can use `var(--color-ngo)` or `rgba(var(--ngo-rgb),.12)`.
+
+**Reusable CSS classes** (defined in `index.css`, used across dashboards):
+- `.fbtn` / `.fbtn-p` / `.fbtn-flow` — buttons (ink, ghost, gradient)
+- `.livechip` — status indicator with pulsing dot
+- `.flow-tile` — stat card with hover lift
+- `.flow-panel` — large container card (no hover lift)
+- `.flow-card` — role-colored left bar card (`.role-donor`, `role-ngo`, `role-rider`)
+- `.flow-table` — dense table with row-hover NGO-emerald left-bar
+- `.flow-bar` / `.flow-bars` — monthly trend bars (grow on mount)
+- `.flow-ach` / `.flow-ach.done` / `.flow-ach.locked` — achievement badges
+- `.flow-empty` — dashed empty state (`.ei` icon, `.et` title, `.ed` description)
+- `.flow-skel` — skeleton shimmer placeholder
+- `.flow-input` — form input with NGO focus ring
+- `.flow-route-mini` — A→B micro route (pickup→NGO, hover-advances)
+- `.nums` — tabular-nums on all figures
+
+**Pipeline color usage (role colors are semantic, never decorative):**
+- Donor (amber) = origin, donor-centric screens
+- NGO (emerald) = destination/success, NGO-centric screens
+- Rider (teal) = transport, rider-centric screens
+- Partner (indigo) = restaurant partner screens
+- People (rose) = "people fed" terminus
+- Urgent (red, `--urgent`) = the ONLY red — urgency only
+
+**Global type rule** (set in `index.css` base): all `h1`–`h6` + buttons → Space Grotesk (`--font-display`); body + inputs → Inter (`--font-sans`).
+
+Flow primitives in `components/flow/`: `Logo.jsx` (brand wordmark + conic mark), `FlowRibbon.jsx` (donor→NGO→rider→people pipeline), `CountUp.jsx` (animated number, IntersectionObserver), `LiveChip.jsx` (live indicator), `FlowSelect.jsx`.
 
 ## Project conventions
 

@@ -4,6 +4,7 @@ import { Calendar, Package, Filter, Star, MapPin } from "lucide-react";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { formatAmount } from "../utils/formatDonation";
+import FlowSelect from "./flow/FlowSelect";
 
 // Flow status pill — same pipeline mapping used across the app:
 // Completed = NGO-emerald (destination/success), Accepted = rider-teal (transport),
@@ -161,16 +162,18 @@ const DonationHistory = ({ acceptedOrder, filtered, setFiltered, completedDelive
 
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-mute" />
-          <select
+          <FlowSelect
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="flow-input cursor-pointer !py-2 !w-auto"
-          >
-            <option value="all">All Status</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="accepted">Accepted</option>
-          </select>
+            onChange={(v) => setFilter(v)}
+            ariaLabel="Filter by status"
+            className="w-44"
+            options={[
+              { value: "all", label: "All Status" },
+              { value: "completed", label: "Completed" },
+              { value: "cancelled", label: "Cancelled" },
+              { value: "accepted", label: "Accepted" },
+            ]}
+          />
         </div>
       </div>
 

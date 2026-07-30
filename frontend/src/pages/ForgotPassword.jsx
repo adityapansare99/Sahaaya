@@ -5,6 +5,7 @@ import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import Logo from "../components/flow/Logo";
+import FlowSelect from "../components/flow/FlowSelect";
 
 const ForgotPassword = () => {
   const { backendurl } = useContext(AppContext);
@@ -163,17 +164,12 @@ const ForgotPassword = () => {
             </div>
             <div>
               <label className={labelCls}>Account type</label>
-              <select
+              <FlowSelect
                 value={userType}
-                onChange={(e) => setUserType(e.target.value)}
-                className="flow-input"
-              >
-                {userTypes.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(v) => setUserType(v)}
+                ariaLabel="Account type"
+                options={userTypes}
+              />
             </div>
             <button type="submit" disabled={loading} className="fbtn fbtn-flow w-full">
               {loading ? "Sending..." : "Send OTP"}

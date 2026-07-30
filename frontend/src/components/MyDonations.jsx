@@ -4,6 +4,7 @@ import { Edit3, X, MapPin, Calendar, Package } from "lucide-react";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { formatAmount } from "../utils/formatDonation";
+import FlowSelect from "./flow/FlowSelect";
 
 // Flow status pill — encodes the pipeline stages:
 // Pending(donor-amber/origin) → Accepted(rider-teal/transport) →
@@ -255,19 +256,13 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                     <label className="block text-sm font-medium text-ink-2 mb-2">
                       Food Type
                     </label>
-                    <select
+                    <FlowSelect
                       value={foodType}
-                      onChange={(e) => setFoodType(e.target.value)}
-                      className="flow-input"
-                      required
-                    >
-                      <option value="">Select food type</option>
-                      {foodTypes.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(v) => setFoodType(v)}
+                      ariaLabel="Food type"
+                      placeholder="Select food type"
+                      options={foodTypes.map((type) => ({ value: type, label: type }))}
+                    />
                   </div>
 
                   <div>

@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import Logo from "../components/flow/Logo";
+import FlowSelect from "../components/flow/FlowSelect";
 import {
   Upload,
   User,
@@ -287,19 +288,21 @@ const RiderRegistration = () => {
               <Bike className="w-3.5 h-3.5 text-rider" /> Type of Vehicle{" "}
               <span className="text-rider">*</span>
             </label>
-            <select
-              className="flow-input"
+            <FlowSelect
               value={typeOfVehicle}
-              onChange={(e) => setTypeOfVehicle(e.target.value)}
-            >
-              <option value="Bicycle">Bicycle</option>
-              <option value="Motorcycle">Motorcycle / Bike</option>
-              <option value="Auto">Auto Rickshaw</option>
-              <option value="Car">Car</option>
-              <option value="Tempo">Tempo</option>
-              <option value="Truck">Truck</option>
-              <option value="Other">Other</option>
-            </select>
+              onChange={(v) => setTypeOfVehicle(v)}
+              ariaLabel="Type of vehicle"
+              placeholder="Select vehicle type"
+              options={[
+                { value: "Bicycle", label: "Bicycle" },
+                { value: "Motorcycle", label: "Motorcycle / Bike" },
+                { value: "Auto", label: "Auto Rickshaw" },
+                { value: "Car", label: "Car" },
+                { value: "Tempo", label: "Tempo" },
+                { value: "Truck", label: "Truck" },
+                { value: "Other", label: "Other" },
+              ]}
+            />
           </div>
         </div>
 

@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import Logo from "../components/flow/Logo";
+import FlowSelect from "../components/flow/FlowSelect";
 import {
   Upload,
   Building2,
@@ -279,30 +280,21 @@ const NgoRegistration = () => {
               <Shield className="w-3.5 h-3.5 text-ngo" /> Type of NGO{" "}
               <span className="text-ngo">*</span>
             </label>
-            <select
-              className="flow-input"
+            <FlowSelect
               value={typeofNgo}
-              onChange={(e) => settypeofNgo(e.target.value)}
-            >
-              <option value="trust">
-                Trust (Registered under the Indian Trusts Act)
-              </option>
-              <option value="society">
-                Society (Registered under the Societies Registration Act, 1860)
-              </option>
-              <option value="company">
-                Section 8 Company (Non-Profit Company) (Under Companies Act,
-                2013)
-              </option>
-              <option value="shg">
-                Co-operative Society / Self-Help Group (SHG) (if applicable)
-              </option>
-              <option value="charitable">Charitable Foundation</option>
-              <option value="community">
-                Religious / Community Organization
-              </option>
-              <option value="other">Other</option>
-            </select>
+              onChange={(v) => settypeofNgo(v)}
+              ariaLabel="Type of NGO"
+              placeholder="Select NGO type"
+              options={[
+                { value: "trust", label: "Trust (Registered under the Indian Trusts Act)" },
+                { value: "society", label: "Society (Registered under the Societies Registration Act, 1860)" },
+                { value: "company", label: "Section 8 Company (Non-Profit Company) (Under Companies Act, 2013)" },
+                { value: "shg", label: "Co-operative Society / Self-Help Group (SHG) (if applicable)" },
+                { value: "charitable", label: "Charitable Foundation" },
+                { value: "community", label: "Religious / Community Organization" },
+                { value: "other", label: "Other" },
+              ]}
+            />
           </div>
         </div>
 

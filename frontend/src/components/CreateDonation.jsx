@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Plus, MapPin, Clock, Package } from "lucide-react";
 import LocationInput from "./LocationInput";
+import FlowSelect from "./flow/FlowSelect";
 
 const CreateDonation = ({ onDonationCreate }) => {
   const [donorType, setDonorType] = useState("");
@@ -12,6 +13,7 @@ const CreateDonation = ({ onDonationCreate }) => {
   const [pickupCoords, setPickupCoords] = useState({ lat: null, lng: null });
   const [expiryDate, setExpiryDate] = useState("");
   const [expiryTime, setExpiryTime] = useState("");
+  const [formError, setFormError] = useState("");
 
   const foodTypes = [
     "Cooked Meals",
@@ -28,6 +30,21 @@ const CreateDonation = ({ onDonationCreate }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // FlowSelect renders a button (not a native form control), so the
+    // donorType/foodType selects can't use native `required`. Guard here to
+    // preserve the validation the native <select required> previously gave.
+    if (!donorType || !foodType) {
+      setFormError(
+        !donorType && !foodType
+          ? "Please select a donor type and food type."
+          : !donorType
+            ? "Please select a donor type."
+            : "Please select a food type."
+      );
+      return;
+    }
+    setFormError("");
 
     const data = {
       donorType,
@@ -76,19 +93,13 @@ const CreateDonation = ({ onDonationCreate }) => {
               </span>
               Donor Type
             </label>
-            <select
+            <FlowSelect
               value={donorType}
-              onChange={(e) => setDonorType(e.target.value)}
-              className="flow-input"
-              required
-            >
-              <option value="">Select donor type</option>
-              {donorTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setDonorType(v)}
+              ariaLabel="Donor type"
+              placeholder="Select donor type"
+              options={donorTypes.map((type) => ({ value: type, label: type }))}
+            />
           </div>
 
           {/* Food Type */}
@@ -97,19 +108,13 @@ const CreateDonation = ({ onDonationCreate }) => {
               <Package className="w-4 h-4 inline mr-2 text-mute" />
               Food Type
             </label>
-            <select
+            <FlowSelect
               value={foodType}
-              onChange={(e) => setFoodType(e.target.value)}
-              className="flow-input"
-              required
-            >
-              <option value="">Select food type</option>
-              {foodTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setFoodType(v)}
+              ariaLabel="Food type"
+              placeholder="Select food type"
+              options={foodTypes.map((type) => ({ value: type, label: type }))}
+            />
           </div>
 
           {/* description */}
@@ -209,6 +214,15 @@ const CreateDonation = ({ onDonationCreate }) => {
               />
             </div>
           </div>
+
+          {formError && (
+            <p
+              className="text-sm flex items-center gap-2"
+              style={{ color: "var(--color-urgent)" }}
+            >
+              {formError}
+            </p>
+          )}
 
           {/* Submit Button */}
           <button type="submit" className="fbtn fbtn-flow w-full text-base">

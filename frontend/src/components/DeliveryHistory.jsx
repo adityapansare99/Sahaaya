@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import {
   Calendar,
-  Filter,
   CheckCircle,
   XCircle,
   Search,
   Package,
 } from "lucide-react";
+import FlowSelect from "./flow/FlowSelect";
 
 // Flow status badge for the rider history.
 const getStatusBadge = (status) => {
@@ -98,17 +98,17 @@ const DeliveryHistory = ({ history }) => {
               />
             </div>
 
-            <div className="relative sm:w-44">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mute pointer-events-none" />
-              <select
+            <div className="sm:w-44">
+              <FlowSelect
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="flow-input has-icon cursor-pointer"
-              >
-                <option value="all">All Status</option>
-                <option value="completed">Delivered</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
+                onChange={(v) => setStatusFilter(v)}
+                ariaLabel="Filter by status"
+                options={[
+                  { value: "all", label: "All Status" },
+                  { value: "completed", label: "Delivered" },
+                  { value: "cancelled", label: "Cancelled" },
+                ]}
+              />
             </div>
           </div>
         </div>

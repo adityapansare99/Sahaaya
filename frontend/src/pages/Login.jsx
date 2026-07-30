@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
 import FlowRibbon from "../components/flow/FlowRibbon";
 import LiveChip from "../components/flow/LiveChip";
+import FlowSelect from "../components/flow/FlowSelect";
 
 const Login = () => {
   const { backendurl, setToken, setRole } = useContext(AppContext);
@@ -144,16 +145,17 @@ const Login = () => {
               <label className={labelCls}>
                 <Users className="w-3.5 h-3.5 text-ngo" /> Login as
               </label>
-              <select
-                className="flow-input"
+              <FlowSelect
                 value={loginAs}
-                onChange={(e) => setLoginAs(e.target.value)}
-              >
-                <option value="Donor">Food Donor</option>
-                <option value="Receiver">Food Receiver</option>
-                <option value="Rider">Delivery Partner</option>
-                <option value="Partner">Restaurant Partner</option>
-              </select>
+                onChange={(v) => setLoginAs(v)}
+                ariaLabel="Login as"
+                options={[
+                  { value: "Donor", label: "Food Donor" },
+                  { value: "Receiver", label: "Food Receiver" },
+                  { value: "Rider", label: "Delivery Partner" },
+                  { value: "Partner", label: "Restaurant Partner" },
+                ]}
+              />
             </div>
           </div>
 

@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import Logo from "../components/flow/Logo";
+import FlowSelect from "../components/flow/FlowSelect";
 import {
   Upload,
   Building2,
@@ -113,15 +114,16 @@ const DonorRegistration = () => {
                   <Users className="w-3.5 h-3.5 text-donor" /> Register as{" "}
                   <span className="text-donor">*</span>
                 </label>
-                <select
-                  onChange={(e) => setTypeOfDonor(e.target.value)}
+                <FlowSelect
                   value={typeOfDonor}
-                  className="flow-input"
-                >
-                  <option value="">Select donor type</option>
-                  <option value="Organization">Organization</option>
-                  <option value="Individual">Individual</option>
-                </select>
+                  onChange={(v) => setTypeOfDonor(v)}
+                  ariaLabel="Donor type"
+                  placeholder="Select donor type"
+                  options={[
+                    { value: "Organization", label: "Organization" },
+                    { value: "Individual", label: "Individual" },
+                  ]}
+                />
               </div>
             </div>
 

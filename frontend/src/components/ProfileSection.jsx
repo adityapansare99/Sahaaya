@@ -5,6 +5,7 @@ import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import ConfirmModal from "./ConfirmModal";
+import FlowSelect from "./flow/FlowSelect";
 
 const ProfileSection = ({ profile, handleChangeProfile }) => {
   const { backendurl, token } = useContext(AppContext);
@@ -222,9 +223,12 @@ const ProfileSection = ({ profile, handleChangeProfile }) => {
                       <label className={labelCls}>{f.label}</label>
                       {isEditing ? (
                         f.comp === "select" ? (
-                          <select value={f.value} onChange={(e) => f.set(e.target.value)} className="flow-input cursor-pointer">
-                            {f.options.map((o) => <option key={o.value} value={o.value}>{o.icon} {o.label}</option>)}
-                          </select>
+                          <FlowSelect
+                            value={f.value}
+                            onChange={(v) => f.set(v)}
+                            ariaLabel={f.label}
+                            options={f.options}
+                          />
                         ) : (
                           <input type="text" value={f.value} onChange={(e) => f.set(e.target.value)} className="flow-input" />
                         )
