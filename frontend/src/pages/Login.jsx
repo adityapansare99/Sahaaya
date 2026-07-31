@@ -1,86 +1,58 @@
 import React, { useContext, useState } from "react";
 import Logo from "../components/flow/Logo";
 import { Mail, Lock, Users, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
 import FlowRibbon from "../components/flow/FlowRibbon";
 import LiveChip from "../components/flow/LiveChip";
 import FlowSelect from "../components/flow/FlowSelect";
+import FlowLoader from "../components/flow/FlowLoader";
 
 const Login = () => {
   const { backendurl, setToken, setRole } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginAs, setLoginAs] = useState("Donor");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const submitHandler = async () => {
+    setLoading(true);
     setRole(loginAs);
     localStorage.setItem("role", loginAs);
 
-    if (loginAs === "Donor") {
-      const response = await axios.post(`${backendurl}donor/login`, {
+    const routes = {
+      Donor: { url: "donor/login", dest: "/DonorDashboard" },
+      Receiver: { url: "ngo/login", dest: "/NgoDashboard" },
+      Rider: { url: "delivery/login", dest: "/RiderDashboard" },
+      Partner: { url: "partner/login", dest: "/PartnerDashboard" },
+    };
+    const cfg = routes[loginAs];
+
+    try {
+      const response = await axios.post(`${backendurl}${cfg.url}`, {
         email,
         password,
       });
 
       if (!response.data.success) {
-        toast.error(response.data.message || "Error in donor registration");
+        toast.error(response.data.message || "Login failed");
         return;
       }
 
       setToken(response.data.data.token);
       localStorage.setItem("token", response.data.data.token);
-      toast.success("Login successfully");
-      navigate("/DonorDashboard");
-    } else if (loginAs === "Receiver") {
-      const response = await axios.post(`${backendurl}ngo/login`, {
-        email,
-        password,
-      });
-
-      if (!response.data.success) {
-        toast.error(response.data.message || "Error in Ngo registration");
-        return;
-      }
-
-      setToken(response.data.data.token);
-      localStorage.setItem("token", response.data.data.token);
-      toast.success("Login successfully");
-      navigate("/NgoDashboard");
-    } else if (loginAs === "Rider") {
-      const response = await axios.post(`${backendurl}delivery/login`, {
-        email,
-        password,
-      });
-
-      if (!response.data.success) {
-        toast.error(response.data.message || "Error in rider registration");
-        return;
-      }
-
-      setToken(response.data.data.token);
-      localStorage.setItem("token", response.data.data.token);
-      toast.success("Login successfully");
-      navigate("/RiderDashboard");
-    } else if (loginAs === "Partner") {
-      const response = await axios.post(`${backendurl}partner/login`, {
-        email,
-        password,
-      });
-
-      if (!response.data.success) {
-        toast.error(response.data.message || "Error in partner login");
-        return;
-      }
-
-      setToken(response.data.data.token);
-      localStorage.setItem("token", response.data.data.token);
-      toast.success("Login successfully");
-      navigate("/PartnerDashboard");
+      toast.success("Login successful");
+      // Return to the page the guard redirected from, else the role dashboard.
+      navigate(location.state?.from || cfg.dest, { replace: true });
+    } catch {
+      toast.error("Login failed. Check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,6 +61,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-canvas md:grid md:grid-cols-2">
+      {loading && <FlowLoader fullScreen label="Signing you in…" />}
       {/* LEFT — Flow dark panel */}
       <div className="flow-hero hidden md:flex flex-col justify-center px-10 lg:px-16">
         <div className="relative z-10 max-w-md">
@@ -172,9 +145,10 @@ const Login = () => {
             onClick={() => {
               submitHandler();
             }}
+            disabled={loading}
             className="fbtn fbtn-flow w-full mt-5"
           >
-            Sign in <ArrowRight className="w-4 h-4" />
+            {loading ? "Signing in…" : "Sign in"} {!loading && <ArrowRight className="w-4 h-4" />}
           </button>
 
           <p className="text-center text-sm text-mute mt-6">

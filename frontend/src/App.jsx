@@ -16,12 +16,22 @@ import PartnerDashboard from "./pages/PartnerDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import TrackOrder from "./pages/TrackOrder";
 import ChatPanel from "./components/ChatPanel";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-//Version 1 completed
 const App = () => {
   return (
     <>
-    <ToastContainer/>
+    <ToastContainer
+      position="top-right"
+      autoClose={3500}
+      newestOnTop
+      closeOnClick
+      pauseOnHover
+      theme="light"
+      toastClassName="flow-toast"
+      bodyClassName="flow-toast-body"
+      progressClassName="flow-toast-progress"
+    />
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -30,11 +40,11 @@ const App = () => {
         <Route path="/Registration-Rider" element={<RiderRegistration />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/Role" element={<Role />} />
-        <Route path="/DonorDashboard" element={<DonorDashboard />} />
-        <Route path="/NgoDashboard" element={<NgoDashboard />} />
-        <Route path="/RiderDashboard" element={<RiderDashboard />} />
+        <Route path="/DonorDashboard" element={<ProtectedRoute allow="Donor"><DonorDashboard /></ProtectedRoute>} />
+        <Route path="/NgoDashboard" element={<ProtectedRoute allow="Receiver"><NgoDashboard /></ProtectedRoute>} />
+        <Route path="/RiderDashboard" element={<ProtectedRoute allow="Rider"><RiderDashboard /></ProtectedRoute>} />
         <Route path="/Registration-Partner" element={<PartnerRegistration />} />
-        <Route path="/PartnerDashboard" element={<PartnerDashboard />} />
+        <Route path="/PartnerDashboard" element={<ProtectedRoute allow="Partner"><PartnerDashboard /></ProtectedRoute>} />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/track/:rideId" element={<TrackOrder />} />
       </Routes>

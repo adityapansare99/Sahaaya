@@ -1,6 +1,8 @@
-import React from "react";
-import { Truck, MapPin, Clock, Award, Gift, User } from "lucide-react";
+import React, { useContext } from "react";
+import { Truck, MapPin, Clock, Award, Gift, User, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { AppContext } from "../context/AppContext";
 import Logo from "./flow/Logo";
 
 const SidebarR = ({
@@ -19,6 +21,13 @@ const SidebarR = ({
   ];
 
   const navigate = useNavigate();
+  const { logout } = useContext(AppContext);
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out");
+    navigate("/Login");
+  };
 
   return (
     <>
@@ -62,6 +71,13 @@ const SidebarR = ({
               );
             })}
           </nav>
+
+          <div className="flow-rail-foot">
+            <button className="flow-nav-i" onClick={handleLogout}>
+              <LogOut className="w-[18px] h-[18px]" />
+              <span>Log out</span>
+            </button>
+          </div>
         </div>
       </div>
     </>

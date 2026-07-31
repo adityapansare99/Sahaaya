@@ -1,6 +1,8 @@
-import React from "react";
-import { Plus, History, TrendingUp, Settings } from "lucide-react";
+import React, { useContext } from "react";
+import { Plus, History, TrendingUp, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { AppContext } from "../context/AppContext";
 import Logo from "./flow/Logo";
 
 const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
@@ -12,6 +14,13 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
   ];
 
   const navigate = useNavigate();
+  const { logout } = useContext(AppContext);
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out");
+    navigate("/Login");
+  };
 
   return (
     <>
@@ -55,6 +64,13 @@ const SidebarD = ({ activeSection, onSectionChange, isOpen, onToggle }) => {
               );
             })}
           </nav>
+
+          <div className="flow-rail-foot">
+            <button className="flow-nav-i" onClick={handleLogout}>
+              <LogOut className="w-[18px] h-[18px]" />
+              <span>Log out</span>
+            </button>
+          </div>
         </div>
       </div>
     </>
