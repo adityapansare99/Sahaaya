@@ -8,7 +8,7 @@ Food donation platform: **Donors** (restaurants/events/stores/individuals) → *
 
 Stack: React 19 + Vite + Tailwind 4 frontend · Express 5 + Mongoose + Socket.IO backend · MongoDB.
 
-**Flow UI revamp COMPLETE (all 8 phases shipped)** — every page/component uses the Flow design system: mint canvas (`#e9f1eb`), forest ink (`#0e1f1a`), role-color pipeline (donor-amber → NGO-emerald → rider-teal → partner-indigo → people-rose), Space Grotesk for headings/numbers, Inter for body. See `docs/plans/2026-07-28-flow-ui-revamp.md` for the implementation plan and `docs/design-templates.html` for the visual reference. UI-only — no logic changed.
+**Flow UI revamp COMPLETE (all 8 phases shipped)** — every page/component uses the Flow design system: mint canvas (`#e9f1eb`), forest ink (`#0e1f1a`), role-color pipeline (donor-amber → NGO-emerald → rider-teal → partner-indigo → people-rose), Space Grotesk for headings/numbers, Inter for body. See `docs/plans/2026-07-28-flow-ui-revamp.md` for the implementation plan and `docs/design/design-templates.html` for the visual reference. UI-only — no logic changed.
 
 ## Commands
 
@@ -91,7 +91,7 @@ src/
 
 ### Chatbot / RAG System
 
-Separate Python/FastAPI service (not in this repo — runs on port 8001). Frontend `ChatPanel.jsx` communicates via SSE at `VITE_CHATBOT_URL`. Full docs at `docs/chatbot-rag-system.md`.
+Node.js/Express service **in this repo** at `chatbot-backend/` (port 8001). Embeddings via `@xenova/transformers` (`all-MiniLM-L6-v2`, 384-dim, local/free). LLM is **provider-pluggable**: Groq (production, `GROQ_API_KEY`) or Ollama (local fallback). Vector store is **pluggable**: Chroma (production, `CHROMA_URL`) or a JSON-file cache (`VECTOR_STORE=json`). Frontend `ChatPanel.jsx` communicates via SSE at `VITE_CHATBOT_URL`. Full docs at `docs/chatbot/chatbot-rag-system.md`; deployment guide at `docs/deploy.md`.
 
 ### Real-time Features
 

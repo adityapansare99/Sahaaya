@@ -1,2 +1,17 @@
-node_modules
+node_modules/
+
+# Environment (keep .env.example tracked)
 .env
+.env.local
+.env.*.local
+
+# JSON vector-store cache — derived; rebuilt from knowledge-base/*.txt on boot
+data/
+
+# Logs
+*.log
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/

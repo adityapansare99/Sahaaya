@@ -1,7 +1,7 @@
 # Node modules
 node_modules/
 
-# Environment files
+# Environment files (keep .env.example tracked)
 .env
 .env.local
 .env.*.local
@@ -18,8 +18,5 @@ Thumbs.db
 dist/
 build/
 
-public
-
-/src/__tests__
-jest.config.mjs
-jest.setup.js
+# Runtime uploads (Multer writes to public/temp)
+public/

@@ -4,7 +4,7 @@
    SAHAAAYA — FLOW DESIGN SYSTEM · Phase 0 foundation
    Direction: Flow (donor → NGO → rider → people pipeline)
    UI-only: tokens, fonts, motion. No component logic touched.
-   Reference: docs/design-templates.html (Flow-only)
+   Reference: docs/design/design-templates.html (Flow-only)
    Plan:      docs/plans/2026-07-28-flow-ui-revamp.md
    ========================================================================= */
 
@@ -63,7 +63,7 @@
 
 /* ---- plain :root vars ------------------------------------------------------
    Aliases that match the Flow reference names, so component CSS copied from
-   docs/design-templates.html works unchanged. Canonical hex lives in @theme above. */
+   docs/design/design-templates.html works unchanged. Canonical hex lives in @theme above. */
 :root {
   --canvas:      var(--color-canvas);
   --canvas-deep: var(--color-canvas-deep);
@@ -147,7 +147,7 @@ input, textarea, select { font-family: var(--font-sans); }
 /* ---- helpers --------------------------------------------------------------- */
 .nums { font-variant-numeric: tabular-nums; } /* apply to every figure (counts, ETA, ₹, kg, pts) */
 
-/* ---- Flow keyframes (faithful to docs/design-templates.html) --------------- */
+/* ---- Flow keyframes (faithful to docs/design/design-templates.html) --------------- */
 @keyframes d4ping     { 0%{ box-shadow:0 0 0 0 rgba(var(--ngo-rgb),.55);} 70%{ box-shadow:0 0 0 7px rgba(var(--ngo-rgb),0);} 100%{ box-shadow:0 0 0 0 rgba(var(--ngo-rgb),0);} }
 @keyframes d4pingw    { 0%{ box-shadow:0 0 0 0 rgba(255,255,255,.6);} 70%{ box-shadow:0 0 0 7px rgba(255,255,255,0);} 100%{ box-shadow:0 0 0 0 rgba(255,255,255,0);} }
 @keyframes d4ripple   { to{ transform:scale(2.8); opacity:0; } }
@@ -298,7 +298,7 @@ select.flow-input{ cursor:pointer; }
 /* ============================================================================
    FLOW COMPONENTS — Phase 3 (Donor) additive primitives
    Shared by later phases (NGO/Rider/Partner) for cross-app consistency.
-   Presentation only. Faithful to docs/design-templates.html.
+   Presentation only. Faithful to docs/design/design-templates.html.
    ========================================================================= */
 
 /* ---- icon-leading input variant (LocationInput) ---- */

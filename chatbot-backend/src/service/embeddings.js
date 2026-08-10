@@ -1,4 +1,8 @@
-import { pipeline } from "@xenova/transformers";
+import { pipeline, env } from "@xenova/transformers";
+
+if (process.env.TRANSFORMERS_CACHE) {
+  env.cacheDir = process.env.TRANSFORMERS_CACHE;
+}
 
 let embedder = null;
 

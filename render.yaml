@@ -1,0 +1,115 @@
+# Render Blueprint for the Sahaaya backend services.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Deploy: in the Render dashboard, New → Blueprint → pick this repo. Render reads
+# this render.yaml and creates the services below. Secrets are marked `sync: false`
+# — Render will prompt you to fill them in (never put real secrets here).
+#
+# The two Vite frontends (frontend/, admin-frontend/) deploy on NETLIFY, not here.
+# The chatbot's vector DB is CHROMA CLOUD (managed — connect by URL+key like
+# MongoDB Atlas), so there is NO self-hosted Chroma service / Docker image here.
+# MongoDB is already on MongoDB Atlas (set `dblink` on the backend service).
+
+services:
+  # ── Main backend API (Express + Socket.IO) ─────────────────
+  - type: web
+    name: sahaaya-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    # public/temp must exist for Multer uploads (the dir is gitignored).
+    startCommand: mkdir -p public/temp && npm start
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8000
+      - key: FRONTEND_URL
+        # Set to your deployed frontend URL (Netlify) — used by Socket.IO CORS.
+        sync: false
+      - key: dblink
+        # MongoDB Atlas SRV string — MUST end with "/"
+        sync: false
+      - key: refreshtoken
+        sync: false
+      - key: refreshtime
+        value: 10d
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_JWT_SECRET
+        sync: false
+      - key: cloud_name
+        sync: false
+      - key: api_key
+        sync: false
+      - key: api_secret
+        sync: false
+      - key: email_host
+        sync: false
+      - key: email_port
+        sync: false
+      - key: email_user
+        sync: false
+      - key: email_pass
+        sync: false
+      - key: email_from
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+
+  # ── Chatbot backend (Express + Groq + Chroma Cloud) ────────
+  # No Chroma service to run: the chatbot connects to Chroma Cloud (managed) by
+  # API key + tenant + database, exactly like MongoDB Atlas. A persistent disk is
+  # mounted only to cache the ~30MB @xenova/transformers embedding model so cold
+  # boots don't re-download it.
+  - type: web
+    name: sahaaya-chatbot
+    runtime: node
+    plan: starter           # persistent disk for the transformers model cache
+    rootDir: chatbot-backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /chatbot
+    autoDeploy: true
+    disk:
+      name: chatbot-model-cache
+      mountPath: /opt/render/.cache
+      sizeGB: 1
+    envVars:
+      - key: PORT
+        value: 8001
+      - key: NODE_ENV
+        value: production
+      - key: VECTOR_STORE
+        value: chroma
+      - key: LLM_PROVIDER
+        value: groq
+      # ── Chroma Cloud (managed vector DB — like MongoDB Atlas) ──
+      # Get all three from your Chroma Cloud dashboard (trychroma.com).
+      - key: CHROMA_API_KEY
+        sync: false
+      - key: CHROMA_TENANT
+        sync: false
+      - key: CHROMA_DATABASE
+        sync: false
+      - key: CHROMA_COLLECTION
+        value: sahaaya_kb
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: MAIN_BACKEND_URL
+        fromService:
+          type: web
+          name: sahaaya-backend
+          property: url
+      - key: TRANSFORMERS_CACHE
+        value: /opt/render/.cache/transformers
+      - key: CORS_ORIGIN
+        # Comma-separated deployed frontend origins (Netlify).
+        sync: false

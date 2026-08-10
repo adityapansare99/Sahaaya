@@ -1,3 +1,32 @@
-/docs
+# ── Dependencies ──
+node_modules/
+
+# ── Build output ──
+dist/
+build/
+
+# ── Environment (keep .env.example tracked) ──
+.env
+.env.local
+.env.*.local
+
+# ── Logs ──
+logs/
+*.log
+npm-debug.log*
+
+# ── OS files ──
+.DS_Store
+Thumbs.db
+
+# ── IDE / editors ──
+.vscode/
+.idea/
+*.sw?
+
+# ── Local-only draft (canonical project README is README.md) ──
 readmefinal.md
-README.md
+
+
+docs/*
+/CLAUDE.md
