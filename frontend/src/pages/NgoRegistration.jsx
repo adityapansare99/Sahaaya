@@ -107,7 +107,6 @@ const NgoRegistration = () => {
           </p>
         </div>
 
-        {/* Image Upload Section */}
         <div className="mb-7 flex flex-col items-center">
           <label htmlFor="image" className="cursor-pointer group block">
             <div className="relative">

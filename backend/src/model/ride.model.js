@@ -1,66 +1,69 @@
 import mongoose from "mongoose";
 
-const rideSchema = new mongoose.Schema({
-    donor:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Donor",
-        required: true,
+const rideSchema = new mongoose.Schema(
+  {
+    donor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Donor",
+      required: true,
     },
 
-    receiver:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "NGO",
-        required: true,
+    receiver: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "NGO",
+      required: true,
     },
 
-    pickup:{
-        type:String,
-        required:true
+    pickup: {
+      type: String,
+      required: true,
     },
 
-    destination:{
-        type:String,
-        required:true
+    destination: {
+      type: String,
+      required: true,
     },
 
-    status:{
-        type:String,
-        enum: ["pending", "accepted", "picked up", "completed"],
-        default: "pending"
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "picked up", "completed"],
+      default: "pending",
     },
 
-    duration:{
-        type:Number
+    duration: {
+      type: Number,
     },
 
-    distance:{
-        type:Number
+    distance: {
+      type: Number,
     },
 
-    donation:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Donation",
-        required: true,
+    donation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Donation",
+      required: true,
     },
 
-    rider:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Delivery"
+    rider: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Delivery",
     },
 
-    points:{
-        type: Number,
-        default: 0,
+    points: {
+      type: Number,
+      default: 0,
     },
 
-    riderRating:{
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 5,
+    riderRating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
     },
-}, { timestamps: true })
+  },
+  { timestamps: true },
+);
 
-const Ride=mongoose.model("Ride",rideSchema);
+const Ride = mongoose.model("Ride", rideSchema);
 
 export default Ride;

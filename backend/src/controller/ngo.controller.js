@@ -10,7 +10,9 @@ const registerNgo = asynchandler(async (req, res) => {
   try {
     data = JSON.parse(req.body.data);
   } catch {
-    return res.status(400).json(new ApiResponse(400, {}, "Invalid JSON in request body"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Invalid JSON in request body"));
   }
 
   const {
@@ -62,7 +64,7 @@ const registerNgo = asynchandler(async (req, res) => {
   }
 
   try {
-    const newNgo =await NGO.create({
+    const newNgo = await NGO.create({
       name: name,
       email: email,
       phone: phone,
@@ -95,7 +97,7 @@ const registerNgo = asynchandler(async (req, res) => {
         { email },
         {
           image: imageurl.url,
-        }
+        },
       );
     }
 
@@ -106,6 +108,7 @@ const registerNgo = asynchandler(async (req, res) => {
     const options = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     };
 
     const finalNgo = await NGO.findOne({ email });
@@ -119,7 +122,13 @@ const registerNgo = asynchandler(async (req, res) => {
     res
       .status(201)
       .cookie("refreshtoken", token, options)
-      .json(new ApiResponse(201, {finalNgo,token}, "Ngo registered successfully"));
+      .json(
+        new ApiResponse(
+          201,
+          { finalNgo, token },
+          "Ngo registered successfully",
+        ),
+      );
   } catch (error) {
     console.log(error);
     res.status(500).json(new ApiResponse(500, {}, "Error in Ngo registration"));
@@ -146,7 +155,6 @@ const loginNgo = asynchandler(async (req, res) => {
   const isPasswordCorrect = await Ngo.isPasswordCorrect(password);
 
   if (!isPasswordCorrect) {
-    console.log(isPasswordCorrect);
     return res.status(400).json(new ApiResponse(400, {}, "Invalid password"));
   }
 
@@ -163,12 +171,13 @@ const loginNgo = asynchandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   };
 
   res
     .status(200)
     .cookie("refreshtoken", token, options)
-    .json(new ApiResponse(200, {Ngo,token}, "Login successful"));
+    .json(new ApiResponse(200, { Ngo, token }, "Login successful"));
 });
 
 const getNgoProfile = asynchandler(async (req, res) => {
@@ -236,35 +245,35 @@ const updateNgoProfile = asynchandler(async (req, res) => {
       ...(latitude != null && { latitude: Number(latitude) }),
       ...(longitude != null && { longitude: Number(longitude) }),
     },
-    { new: true }
+    { new: true },
   );
 
   if (!updatedNgo) {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to update profile,Try again later")
+        new ApiResponse(500, {}, "Unable to update profile,Try again later"),
       );
   }
 
-  //not necessary to create new token but doing it anyway
   const token = jwt.sign(
     { email: updatedNgo.email },
     process.env.refreshtoken,
-    { expiresIn: process.env.refreshtime }
+    { expiresIn: process.env.refreshtime },
   );
 
   if (!token) {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to update profile,Try again later")
+        new ApiResponse(500, {}, "Unable to update profile,Try again later"),
       );
   }
 
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   };
 
   res
@@ -309,7 +318,7 @@ const updatePassword = asynchandler(async (req, res) => {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to update password,Try again later")
+        new ApiResponse(500, {}, "Unable to update password,Try again later"),
       );
   }
 
@@ -333,7 +342,7 @@ const deleteAccount = asynchandler(async (req, res) => {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to delete account,Try again later")
+        new ApiResponse(500, {}, "Unable to delete account,Try again later"),
       );
   }
 
@@ -359,7 +368,6 @@ const getAnalytics = asynchandler(async (req, res) => {
   const cancelled = allDonations.filter((d) => d.Status === "Cancelled").length;
   const pending = allDonations.filter((d) => d.Status === "Pending").length;
 
-  // Top donors aggregation
   const donorMap = {};
   allDonations.forEach((d) => {
     if (d.Donor && d.Donor._id) {
@@ -374,7 +382,6 @@ const getAnalytics = asynchandler(async (req, res) => {
     .sort((a, b) => b.donations - a.donations)
     .slice(0, 5);
 
-  // Monthly trend (last 6 months)
   const monthlyTrend = [];
   const now = new Date();
   for (let i = 5; i >= 0; i--) {
@@ -390,14 +397,21 @@ const getAnalytics = asynchandler(async (req, res) => {
     monthlyTrend.push({ month, donations: count });
   }
 
-  // Impact + efficiency metrics over completed donations.
   const num = (v) => {
     const n = Number(v);
     return Number.isFinite(n) ? n : 0;
   };
-  const completedDonations = allDonations.filter((d) => d.Status === "Completed");
-  const peopleServed = completedDonations.reduce((s, d) => s + num(d.serves), 0);
-  const wasteReduced = completedDonations.reduce((s, d) => s + num(d.weightKg), 0);
+  const completedDonations = allDonations.filter(
+    (d) => d.Status === "Completed",
+  );
+  const peopleServed = completedDonations.reduce(
+    (s, d) => s + num(d.serves),
+    0,
+  );
+  const wasteReduced = completedDonations.reduce(
+    (s, d) => s + num(d.weightKg),
+    0,
+  );
   const avgServes = completedDonations.length
     ? Math.round(peopleServed / completedDonations.length)
     : 0;
@@ -405,13 +419,12 @@ const getAnalytics = asynchandler(async (req, res) => {
     ? Math.round((wasteReduced / completedDonations.length) * 10) / 10
     : 0;
 
-  // Month-over-month % change (this month vs last). null when last month had 0,
-  // since a % off zero isn't meaningful.
   const lastMonth = monthlyTrend[monthlyTrend.length - 1]?.donations ?? 0;
   const prevMonth = monthlyTrend[monthlyTrend.length - 2]?.donations ?? 0;
-  const momChange = prevMonth > 0
-    ? Math.round(((lastMonth - prevMonth) / prevMonth) * 100)
-    : null;
+  const momChange =
+    prevMonth > 0
+      ? Math.round(((lastMonth - prevMonth) / prevMonth) * 100)
+      : null;
 
   res.status(200).json(
     new ApiResponse(
@@ -430,8 +443,8 @@ const getAnalytics = asynchandler(async (req, res) => {
         avgWeight,
         momChange,
       },
-      "Analytics fetched successfully"
-    )
+      "Analytics fetched successfully",
+    ),
   );
 });
 

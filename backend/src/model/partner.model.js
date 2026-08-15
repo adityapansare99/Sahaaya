@@ -72,7 +72,7 @@ const partnerSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 partnerSchema.pre("save", async function (next) {

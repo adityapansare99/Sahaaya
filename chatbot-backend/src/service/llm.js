@@ -111,8 +111,7 @@ const generate = async (prompt, { onToken, signal } = {}) => {
             onToken(parsed.response);
           }
           if (parsed.done) break;
-        } catch {
-        }
+        } catch {}
       }
     }
 
@@ -148,7 +147,14 @@ const buildMessages = (context, history, sources, question) => {
   return messages;
 };
 
-const generateGroq = async ({ context, history, sources, question, onToken, signal }) => {
+const generateGroq = async ({
+  context,
+  history,
+  sources,
+  question,
+  onToken,
+  signal,
+}) => {
   const res = await fetch(`${config.groqBaseUrl}/chat/completions`, {
     method: "POST",
     headers: {
@@ -201,8 +207,7 @@ const generateGroq = async ({ context, history, sources, question, onToken, sign
             fullText += token;
             onToken(token);
           }
-        } catch {
-        }
+        } catch {}
       }
     }
 
@@ -224,7 +229,14 @@ const generateAnswer = async ({
   if (!available) throw new Error("LLM not available");
 
   if (config.llmProvider === "groq") {
-    return generateGroq({ context, history, sources, question, onToken, signal });
+    return generateGroq({
+      context,
+      history,
+      sources,
+      question,
+      onToken,
+      signal,
+    });
   }
 
   const prompt = generatePrompt(context, history, sources, question);

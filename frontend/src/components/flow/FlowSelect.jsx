@@ -2,19 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, Check } from "lucide-react";
 
-/**
- * FlowSelect — custom single-select dropdown.
- *
- * Why custom: native <select> option panels can't be styled cross-browser.
- * This renders a flow-input-matched trigger + a styled popover listbox.
- *
- * The popover is portaled to document.body so it escapes any
- * `overflow-hidden` ancestor (e.g. flow-panel wrappers, modals) and is
- * repositioned on scroll/resize.
- *
- * Drop-in shape: props `value` + `onChange(value)` (onChange receives the
- * raw value, not an event) + `options=[{ value, label, icon? }]`.
- */
 const FlowSelect = ({
   value,
   onChange,
@@ -52,9 +39,7 @@ const FlowSelect = ({
     if (opt) onChange?.(opt.value);
     setOpen(false);
   };
-
-  // reposition while open (nested scrollers via capture phase + window resize)
-  useEffect(() => {
+useEffect(() => {
     if (!open) return;
     measure();
     const onAny = () => measure();
@@ -66,7 +51,6 @@ const FlowSelect = ({
     };
   }, [open]);
 
-  // close on outside click (trigger + portal)
   useEffect(() => {
     if (!open) return;
     const onDown = (e) => {
@@ -77,7 +61,6 @@ const FlowSelect = ({
     return () => document.removeEventListener("mousedown", onDown);
   }, [open]);
 
-  // keep the keyboard-active option visible
   useEffect(() => {
     if (!open || activeIndex < 0) return;
     const node = listRef.current?.querySelector(`[data-idx="${activeIndex}"]`);

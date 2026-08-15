@@ -7,7 +7,6 @@ const AvailableDeliveries = ({
   handleAcceptDelivery,
   setDeliveries,
 }) => {
-  // Reject is local-only: just hides the card from this rider's list.
   const handleRejectDelivery = (id) => {
     setDeliveries(deliveries.filter((delivery) => delivery._id !== id));
   };

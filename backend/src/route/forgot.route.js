@@ -1,5 +1,9 @@
 import Router from "express";
-import { sendOtp, verifyOtp, resetPassword } from "../controller/forgot.controller.js";
+import {
+  sendOtp,
+  verifyOtp,
+  resetPassword,
+} from "../controller/forgot.controller.js";
 
 const forgotRoute = Router();
 

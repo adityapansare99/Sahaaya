@@ -1,11 +1,7 @@
 import React, { useEffect } from "react";
 import { X, AlertTriangle } from "lucide-react";
 
-/**
- * Shared confirmation modal.
- * Matches the RedeemPoints modal styling + Flow tokens (--color-urgent).
- * Closes on backdrop click or Escape (disabled while loading).
- */
+
 const ConfirmModal = ({
   open,
   onClose,

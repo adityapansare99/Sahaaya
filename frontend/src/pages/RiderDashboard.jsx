@@ -64,7 +64,6 @@ const RiderDashboard = () => {
       }
 
       fetchDeliveries();
-      // Pull the now-active ride, then land on the Active tab so it shows without a manual refresh.
       await getActiveOrder(true);
       setActiveSection("active");
       toast.success("Delivery accepted successfully");
@@ -174,7 +173,6 @@ const RiderDashboard = () => {
     }
   };
 
-  // Latest fetch fns in a ref so the socket listeners (registered once) always call current closures.
   actions.current = { fetchDeliveries, getActiveOrder, getHistory };
 
   useEffect(() => {

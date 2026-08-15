@@ -47,7 +47,6 @@ const Login = () => {
       setToken(response.data.data.token);
       localStorage.setItem("token", response.data.data.token);
       toast.success("Login successful");
-      // Return to the page the guard redirected from, else the role dashboard.
       navigate(location.state?.from || cfg.dest, { replace: true });
     } catch {
       toast.error("Login failed. Check your connection and try again.");

@@ -18,26 +18,28 @@ const start = async () => {
       console.log(
         `[chatbot] LLM (Groq: ${config.groqModel}) ${
           available
-            ? "✅ available"
-            : "❌ NOT available — set GROQ_API_KEY for AI-powered answers (falling back to retrieval-only mode)"
-        }`
+            ? "available"
+            : "NOT available — set GROQ_API_KEY for AI-powered answers (falling back to retrieval-only mode)"
+        }`,
       );
     } else {
       console.log(
         `[chatbot] LLM (Ollama: ${config.ollamaModel}) ${
           available
-            ? "✅ available"
-            : "❌ NOT available — using retrieval-only mode (install Ollama and run: ollama pull " +
+            ? "available"
+            : "NOT available — using retrieval-only mode (install Ollama and run: ollama pull " +
               config.ollamaModel +
               ")"
-        }`
+        }`,
       );
     }
   });
 
   app.listen(config.port, () => {
     console.log(`[chatbot] Server running on http://localhost:${config.port}`);
-    console.log(`[chatbot] Chat endpoint: POST http://localhost:${config.port}/chatbot/chat`);
+    console.log(
+      `[chatbot] Chat endpoint: POST http://localhost:${config.port}/chatbot/chat`,
+    );
   });
 };
 

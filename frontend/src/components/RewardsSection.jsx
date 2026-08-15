@@ -5,7 +5,6 @@ import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import CountUp from "./flow/CountUp";
 
-// Points ring (rider → NGO gradient stroke), animated on mount.
 const PointsRing = ({ points, redeemGoal = 500 }) => {
   const pct = redeemGoal > 0 ? Math.min(1, (points % redeemGoal) / redeemGoal) : 0;
   const R = 52;
@@ -29,7 +28,6 @@ const PointsRing = ({ points, redeemGoal = 500 }) => {
   );
 };
 
-// Role-tinted stat tile (Flow).
 const TINT = {
   rider: { bg: "var(--color-rider-soft)", fg: "var(--color-rider-2)" },
   donor: { bg: "var(--color-donor-soft)", fg: "var(--color-donor-2)" },
@@ -120,7 +118,6 @@ const RewardsSection = () => {
     milestones = [],
   } = data;
 
-  // Derived from real API fields — no fabricated metrics.
   const badges = [
     { title: "First Delivery", desc: "Complete your first delivery", current: totalDeliveries, target: 1, unit: "", icon: Package },
     { title: "Century Rider", desc: "Complete 100 deliveries", current: totalDeliveries, target: 100, unit: "", icon: Trophy },
@@ -135,7 +132,6 @@ const RewardsSection = () => {
 
   return (
     <div className="space-y-6">
-      {/* SVG gradient def */}
       <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
         <defs>
           <linearGradient id="rwgrad" x1="0" y1="0" x2="1" y2="1">

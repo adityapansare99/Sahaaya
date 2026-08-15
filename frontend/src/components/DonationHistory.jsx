@@ -6,9 +6,6 @@ import { AppContext } from "../context/AppContext";
 import { formatAmount } from "../utils/formatDonation";
 import FlowSelect from "./flow/FlowSelect";
 
-// Flow status pill — same pipeline mapping used across the app:
-// Completed = NGO-emerald (destination/success), Accepted = rider-teal (transport),
-// Cancelled = urgent-red, default = muted.
 const StatusPill = ({ status }) => {
   if (status === "Cancelled") {
     return (
@@ -83,7 +80,6 @@ const StarRating = ({ rideId, onRate }) => {
   );
 };
 
-// Compact stat tile (Flow).
 const HistStat = ({ value, label, tint }) => {
   const T = {
     ink: { bg: "var(--color-surface-2)", fg: "var(--color-ink)" },
@@ -107,8 +103,6 @@ const DonationHistory = ({ acceptedOrder, filtered, setFiltered, completedDelive
   const [trackingId, setTrackingId] = useState(null);
   const [filter, setFilter] = useState("all");
 
-  // In-progress donations carry no rideId here (completedDeliveries only covers
-  // completed rides), so resolve the active ride on click.
   const handleTrack = async (donationId) => {
     setTrackingId(donationId);
     try {
@@ -118,13 +112,11 @@ const DonationHistory = ({ acceptedOrder, filtered, setFiltered, completedDelive
       );
       if (data?.data?.rideId) navigate(`/track/${data.data.rideId}`);
     } catch {
-      /* no active ride */
     } finally {
       setTrackingId(null);
     }
   };
 
-  // Build a lookup: donationId → { riderName, rideId, riderRating }
   const deliveryLookup = {};
   if (completedDeliveries) {
     for (const ride of completedDeliveries) {

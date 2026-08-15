@@ -1,14 +1,26 @@
 import app from "./app.js";
 import connectdb from "./db/index.js";
 import dotenv from "dotenv";
-import {createServer} from "http";
+import { createServer } from "http";
 import mongoose from "mongoose";
 import { initializeSocket } from "./socket.js";
 import startExpiryCleanup from "./utils/expiryCleanup.js";
 
 dotenv.config({
-  path: "./.env"
+  path: "./.env",
 });
+
+const missingSecrets = [];
+if (!process.env.refreshtoken) missingSecrets.push("refreshtoken (JWT secret)");
+if (process.env.NODE_ENV === "production" && !process.env.ADMIN_JWT_SECRET) {
+  missingSecrets.push("ADMIN_JWT_SECRET (required in production)");
+}
+if (missingSecrets.length) {
+  console.error(
+    `FATAL: missing required secret(s): ${missingSecrets.join(", ")}. Set them in .env before starting.`,
+  );
+  process.exit(1);
+}
 
 const PORT = process.env.PORT || 8000;
 

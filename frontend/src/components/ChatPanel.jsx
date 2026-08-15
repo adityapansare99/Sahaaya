@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { X, Send, Bot, User, ChevronDown, ChevronUp, MessageCircle, Sparkles, AlertCircle } from "lucide-react";
+import DOMPurify from "dompurify";
 
-// ─── Simple Markdown renderer ───────────────────────────────
 const renderMarkdown = (text) => {
   const lines = text.split("\n");
   const elements = [];
@@ -34,10 +34,10 @@ const renderMarkdown = (text) => {
       continue;
     }
 
-    if (/^[•\*\-]\s/.test(trimmed)) {
+    if (/^[•*-]\s/.test(trimmed)) {
       inList = true;
-      const content = trimmed.replace(/^[•\*\-]\s/, "").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-      listItems.push(<span key={listItems.length} dangerouslySetInnerHTML={{ __html: content }} />);
+      const content = trimmed.replace(/^[•*-]\s/, "").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+      listItems.push(<span key={listItems.length} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />);
       continue;
     }
 
@@ -53,7 +53,7 @@ const renderMarkdown = (text) => {
         .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
         .replace(/`(.+?)`/g, "<code class='bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono' style='color:#0a8552'>$1</code>");
       elements.push(
-        <p key={i} className="text-sm leading-relaxed text-gray-700" dangerouslySetInnerHTML={{ __html: html }} />
+        <p key={i} className="text-sm leading-relaxed text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }} />
       );
       continue;
     }
@@ -63,7 +63,7 @@ const renderMarkdown = (text) => {
       .replace(/`(.+?)`/g, "<code class='bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono' style='color:#0a8552'>$1</code>")
       .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="underline font-medium" style="color:#0a8552">$1</a>');
     elements.push(
-      <p key={i} className="text-sm leading-relaxed text-gray-700" dangerouslySetInnerHTML={{ __html: html }} />
+      <p key={i} className="text-sm leading-relaxed text-gray-700" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }} />
     );
   }
 
@@ -71,7 +71,6 @@ const renderMarkdown = (text) => {
   return elements;
 };
 
-// ─── Suggestion chips ──────────────────────────────────────
 const SUGGESTIONS = {
   initial: [
     "How to donate food",
@@ -87,7 +86,6 @@ const SUGGESTIONS = {
   ],
 };
 
-// ─── Quick action items for empty state ─────────────────────
 const QUICK_ACTIONS = [
   { icon: "🍽️", label: "Donating food", question: "How do I donate food?" },
   { icon: "🏛️", label: "NGO registration", question: "How does NGO registration work?" },
@@ -95,7 +93,6 @@ const QUICK_ACTIONS = [
   { icon: "🥗", label: "Food safety", question: "What are the food safety guidelines?" },
 ];
 
-// ─── Source file colors ────────────────────────────────────
 const SOURCE_COLORS = {
   "faq.txt": { bg: "var(--color-surface-2)", text: "var(--color-ngo-2)", dot: "var(--color-ngo)", border: "var(--color-line)" },
   "food-safety.txt": { bg: "var(--color-donor-soft)", text: "var(--color-donor-2)", dot: "var(--color-donor)", border: "var(--color-line)" },
@@ -112,7 +109,6 @@ const getSourceLabel = (source) => {
   return source.replace(".txt", "").replace(/-/g, " ");
 };
 
-// ─── Main component ────────────────────────────────────────
 const ChatPanel = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -135,7 +131,6 @@ const ChatPanel = () => {
     scrollToBottom();
   }, [messages, streamingAnswer, scrollToBottom]);
 
-  // Focus input when panel opens
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 300);
@@ -149,7 +144,6 @@ const ChatPanel = () => {
     }));
   };
 
-  // Use a ref so suggestion handlers never get stale closures
   const handleSendRef = useRef(null);
 
   const handleSend = useCallback(async (text) => {
@@ -212,8 +206,6 @@ const ChatPanel = () => {
                 setStreamingAnswer(botAnswer);
                 break;
               case "done": {
-                // Capture values BEFORE clearing botAnswer — setMessages updater runs async
-                // and closures capture the variable binding, not its value at creation time.
                 const finalAnswer = botAnswer;
                 const finalSources = [...botSources];
                 setMessages((prev) => [...prev, { role: "bot", text: finalAnswer, final: true, sources: finalSources }]);
@@ -228,10 +220,12 @@ const ChatPanel = () => {
                 break;
               }
             }
-          } catch {}
+          } catch {
+            /* ignore malformed SSE event */
+          }
         }
       }
-    } catch (err) {
+    } catch {
       setMessages((prev) => [...prev, { role: "bot", text: "Sorry, I'm having trouble connecting. Please try again.", final: true, sources: [] }]);
     } finally {
       setLoading(false);
@@ -239,7 +233,6 @@ const ChatPanel = () => {
     }
   }, [input, chatbotUrl]);
 
-  // Keep the ref in sync
   handleSendRef.current = handleSend;
 
   const handleKeyDown = (e) => {
@@ -250,11 +243,9 @@ const ChatPanel = () => {
   };
 
   const handleSuggestionClick = (text) => {
-    // Call handleSend directly through the ref — no setInput/setTimeout race
     handleSendRef.current(text);
   };
 
-  // ── Render ──────────────────────────────────────────────
   return (
     <>
       {/* Trigger FAB */}

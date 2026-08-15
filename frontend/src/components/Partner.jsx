@@ -12,7 +12,6 @@ const Partner = (props) => {
         const data = await res.json();
         if (data.success) setPartners(data.data);
       } catch (err) {
-        // silently fail
       }
     };
     fetchPartners();

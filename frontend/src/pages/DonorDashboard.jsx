@@ -69,7 +69,6 @@ const DonorDashboard = () => {
     } catch (error) {}
   };
 
-  // Latest fetch fn in a ref so the socket listeners (registered once) always call current closures.
   actions.current = { getAllDonations };
 
   useEffect(() => {
@@ -119,7 +118,6 @@ const DonorDashboard = () => {
       toast.success(response.data.message);
       getAllDonations();
     } catch (error) {
-      console.error(error);
       toast.error("Error Editing donation");
     }
   };
@@ -144,7 +142,6 @@ const DonorDashboard = () => {
       toast.success(response.data.message);
       getAllDonations();
     } catch (error) {
-      console.error(error);
       toast.error("Error deleting donation");
     }
   };
@@ -237,7 +234,7 @@ const DonorDashboard = () => {
         return;
       }
       toast.success("Account deleted successfully");
-      navigate("/login");
+      navigate("/Login");
     } catch (error) {
       toast.error("Error in deleting account.");
     }

@@ -32,7 +32,7 @@ const donations = asynchandler(async (req, res) => {
         hours,
         minutes,
         0,
-        0
+        0,
       );
     };
 
@@ -50,7 +50,7 @@ const donations = asynchandler(async (req, res) => {
       .map((donation) => {
         const expiry = combineDateAndTime(
           donation.ExpiryDate,
-          donation.ExpiryTime
+          donation.ExpiryTime,
         );
         const timeLeft = getRemainingTime(expiry);
         if (!timeLeft) return null;
@@ -58,14 +58,20 @@ const donations = asynchandler(async (req, res) => {
         donation = donation.toObject();
         donation.timeLeft = timeLeft;
 
-        if (Ngo.latitude != null && Ngo.longitude != null && donation.pickupLatitude != null && donation.pickupLongitude != null) {
+        if (
+          Ngo.latitude != null &&
+          Ngo.longitude != null &&
+          donation.pickupLatitude != null &&
+          donation.pickupLongitude != null
+        ) {
           const dist = haversineDistance(
             Ngo.latitude,
             Ngo.longitude,
             donation.pickupLatitude,
-            donation.pickupLongitude
+            donation.pickupLongitude,
           );
-          donation.distanceKm = dist !== null ? Math.round(dist * 10) / 10 : null;
+          donation.distanceKm =
+            dist !== null ? Math.round(dist * 10) / 10 : null;
         } else {
           donation.distanceKm = null;
         }
@@ -89,10 +95,9 @@ const donations = asynchandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, result, "Donations fetched successfully"));
   } catch (error) {
-    console.log(error);
     return res
       .status(500)
-      .json(new ApiResponse(500, {}, "Failed to fetch donations"));
+      .json(new ApiResponse(500, { error }, "Failed to fetch donations"));
   }
 });
 
@@ -116,38 +121,54 @@ const acceptOrder = asynchandler(async (req, res) => {
     return res.status(404).json(new ApiResponse(404, {}, "Donation not found"));
   }
 
-  // Check if donation has expired
   const combineDateAndTime = (dateStr, timeStr) => {
     const date = new Date(dateStr);
     const [hours, minutes] = timeStr.split(":").map(Number);
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes, 0, 0);
+    return new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      hours,
+      minutes,
+      0,
+      0,
+    );
   };
   const expiry = combineDateAndTime(donation.ExpiryDate, donation.ExpiryTime);
   if (expiry <= new Date()) {
-    return res.status(400).json(new ApiResponse(400, {}, "Donation has expired"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Donation has expired"));
   }
 
   if (donation.Status !== "Pending") {
-    return res.status(409).json(new ApiResponse(409, {}, "Donation is no longer available"));
+    return res
+      .status(409)
+      .json(new ApiResponse(409, {}, "Donation is no longer available"));
   }
 
   const reponse = await Donation.findOneAndUpdate(
     { _id: donationId, Status: "Pending" },
     { Status: "Accepted", Ngo: Ngo._id },
-    { new: true }
+    { new: true },
   );
 
   if (!reponse) {
     return res
       .status(409)
-      .json(new ApiResponse(409, {}, "Donation already accepted by another NGO or not found"));
+      .json(
+        new ApiResponse(
+          409,
+          {},
+          "Donation already accepted by another NGO or not found",
+        ),
+      );
   }
 
   const donationResponse = await Donation.findById(donationId)
     .populate("Donor")
     .populate("Ngo");
 
-  // Calculate distance from pickup coordinates → NGO
   let rideDistance = null;
   const pLat = donationResponse.pickupLatitude;
   const pLng = donationResponse.pickupLongitude;
@@ -169,7 +190,6 @@ const acceptOrder = asynchandler(async (req, res) => {
     distance: rideDistance,
   });
 
-
   if (!ride) {
     return res.status(401).json(new ApiResponse(401, {}, "Ride not created"));
   }
@@ -187,12 +207,15 @@ const acceptOrder = asynchandler(async (req, res) => {
     event: "donationAccepted",
     data: { donation: donationResponse },
   });
-  
-  if (donationResponse.pickupLatitude != null && donationResponse.pickupLongitude != null) {
+
+  if (
+    donationResponse.pickupLatitude != null &&
+    donationResponse.pickupLongitude != null
+  ) {
     try {
       const activeRiders = await Delivery.find({
         approved: true,
-        lastActiveAt: { $gte: new Date(Date.now() - 3 * 60 * 1000) }, 
+        lastActiveAt: { $gte: new Date(Date.now() - 3 * 60 * 1000) },
         $or: [
           { latitude: { $ne: null }, longitude: { $ne: null } },
           { homeLatitude: { $ne: null }, homeLongitude: { $ne: null } },
@@ -202,24 +225,42 @@ const acceptOrder = asynchandler(async (req, res) => {
       for (const rider of activeRiders) {
         const dCurrent =
           rider.latitude != null && rider.longitude != null
-            ? haversineDistance(donationResponse.pickupLatitude, donationResponse.pickupLongitude, rider.latitude, rider.longitude)
+            ? haversineDistance(
+                donationResponse.pickupLatitude,
+                donationResponse.pickupLongitude,
+                rider.latitude,
+                rider.longitude,
+              )
             : null;
         const dHome =
           rider.homeLatitude != null && rider.homeLongitude != null
-            ? haversineDistance(donationResponse.pickupLatitude, donationResponse.pickupLongitude, rider.homeLatitude, rider.homeLongitude)
+            ? haversineDistance(
+                donationResponse.pickupLatitude,
+                donationResponse.pickupLongitude,
+                rider.homeLatitude,
+                rider.homeLongitude,
+              )
             : null;
-        const inRange = (dCurrent !== null && dCurrent <= 20) || (dHome !== null && dHome <= 20);
+        const inRange =
+          (dCurrent !== null && dCurrent <= 20) ||
+          (dHome !== null && dHome <= 20);
         if (inRange) {
           const candidates = [dCurrent, dHome].filter((d) => d !== null);
           const dist = candidates.length ? Math.min(...candidates) : null;
           sendMessageToSocketId(rider.socketId, {
             event: "rideCreated",
-            data: { ride: rideResponse, distanceKm: dist !== null ? Math.round(dist * 10) / 10 : null },
+            data: {
+              ride: rideResponse,
+              distanceKm: dist !== null ? Math.round(dist * 10) / 10 : null,
+            },
           });
         }
       }
     } catch (err) {
-      console.error("[acceptOrder] Error notifying nearby riders:", err.message);
+      console.error(
+        "[acceptOrder] Error notifying nearby riders:",
+        err.message,
+      );
     }
   } else {
     broadcastToUserType("delivery", {
@@ -244,14 +285,18 @@ const receivedDonations = asynchandler(async (req, res) => {
 
   const NgoId = Ngo._id;
 
-  const response = await Donation.find({ Ngo: NgoId }).populate("Donor").sort({ createdAt: -1 });
+  const response = await Donation.find({ Ngo: NgoId })
+    .populate("Donor")
+    .sort({ createdAt: -1 });
 
   if (!response) {
     return res.status(401).json(new ApiResponse(401, {}, "No donations found"));
   }
 
   const total = response.length;
-  const completed = response.filter((item) => item.Status === "Completed").length;
+  const completed = response.filter(
+    (item) => item.Status === "Completed",
+  ).length;
 
   const pending = response.filter((item) => item.Status === "Accepted").length;
 
@@ -261,8 +306,8 @@ const receivedDonations = asynchandler(async (req, res) => {
       new ApiResponse(
         200,
         { response, total, completed, pending },
-        "Donations fetched successfully"
-      )
+        "Donations fetched successfully",
+      ),
     );
 });
 
@@ -286,7 +331,9 @@ const completedDeliveries = asynchandler(async (req, res) => {
 
   res
     .status(200)
-    .json(new ApiResponse(200, rides, "Completed deliveries fetched successfully"));
+    .json(
+      new ApiResponse(200, rides, "Completed deliveries fetched successfully"),
+    );
 });
 
 const rateDelivery = asynchandler(async (req, res) => {
@@ -300,14 +347,18 @@ const rateDelivery = asynchandler(async (req, res) => {
   }
 
   if (!rideId || !rideId.trim()) {
-    return res.status(400).json(new ApiResponse(400, {}, "Ride ID is required"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Ride ID is required"));
   }
 
   const ratingNum = Number(rating);
   if (!Number.isInteger(ratingNum) || ratingNum < 1 || ratingNum > 5) {
     return res
       .status(400)
-      .json(new ApiResponse(400, {}, "Rating must be an integer between 1 and 5"));
+      .json(
+        new ApiResponse(400, {}, "Rating must be an integer between 1 and 5"),
+      );
   }
 
   const ride = await Ride.findOne({
@@ -353,9 +404,21 @@ const rateDelivery = asynchandler(async (req, res) => {
     data: { rating: ratingNum, averageRating },
   });
 
-  res.status(200).json(
-    new ApiResponse(200, { rating: ratingNum, averageRating }, "Rating submitted successfully")
-  );
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { rating: ratingNum, averageRating },
+        "Rating submitted successfully",
+      ),
+    );
 });
 
-export { donations, acceptOrder, receivedDonations, completedDeliveries, rateDelivery };
+export {
+  donations,
+  acceptOrder,
+  receivedDonations,
+  completedDeliveries,
+  rateDelivery,
+};

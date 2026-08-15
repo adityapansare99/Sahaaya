@@ -3,12 +3,12 @@ import config from "./config.js";
 
 const main = async () => {
   console.log(
-    `[ingest] vector store: ${config.vectorStore} | collection: ${config.chromaCollection}`
+    `[ingest] vector store: ${config.vectorStore} | collection: ${config.chromaCollection}`,
   );
 
   if (config.vectorStore !== "chroma") {
     console.warn(
-      "[ingest] Active store is JSON. force-reingest targets Chroma; for the JSON store just delete data/vectors.json to re-index."
+      "[ingest] Active store is JSON. force-reingest targets Chroma; for the JSON store just delete data/vectors.json to re-index.",
     );
   }
 

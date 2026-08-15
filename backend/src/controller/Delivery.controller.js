@@ -9,7 +9,9 @@ const registerPartner = asynchandler(async (req, res) => {
   try {
     data = JSON.parse(req.body.data);
   } catch {
-    return res.status(400).json(new ApiResponse(400, {}, "Invalid JSON in request body"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Invalid JSON in request body"));
   }
 
   const {
@@ -63,7 +65,7 @@ const registerPartner = asynchandler(async (req, res) => {
   }
 
   try {
-    const newpartner =await Delivery.create({
+    const newpartner = await Delivery.create({
       name: name,
       email: email,
       phone: phone,
@@ -84,7 +86,7 @@ const registerPartner = asynchandler(async (req, res) => {
       return res
         .status(500)
         .json(
-          new ApiResponse(500, {}, "Error in delivery partner registration")
+          new ApiResponse(500, {}, "Error in delivery partner registration"),
         );
     }
 
@@ -101,19 +103,20 @@ const registerPartner = asynchandler(async (req, res) => {
         { email },
         {
           image: imageurl.url,
-        }
+        },
       );
     }
 
     const token = jwt.sign(
       { email: newpartner.email },
       process.env.refreshtoken,
-      { expiresIn: process.env.refreshtime }
+      { expiresIn: process.env.refreshtime },
     );
 
     const options = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     };
 
     const finalpartner = await Delivery.findOne({ email });
@@ -122,7 +125,7 @@ const registerPartner = asynchandler(async (req, res) => {
       return res
         .status(500)
         .json(
-          new ApiResponse(500, {}, "Error in delivery partner registration")
+          new ApiResponse(500, {}, "Error in delivery partner registration"),
         );
     }
 
@@ -132,15 +135,20 @@ const registerPartner = asynchandler(async (req, res) => {
       .json(
         new ApiResponse(
           201,
-          {finalpartner,token},
-          "Delivery partner registered successfully"
-        )
+          { finalpartner, token },
+          "Delivery partner registered successfully",
+        ),
       );
   } catch (error) {
-    console.log(error);
     res
       .status(500)
-      .json(new ApiResponse(500, {}, "Error in delivery partner registration"));
+      .json(
+        new ApiResponse(
+          500,
+          { error },
+          "Error in delivery partner registration",
+        ),
+      );
   }
 });
 
@@ -180,12 +188,13 @@ const loginPartner = asynchandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   };
 
   res
     .status(200)
     .cookie("refreshtoken", token, options)
-    .json(new ApiResponse(200, {partner,token}, "Login successful"));
+    .json(new ApiResponse(200, { partner, token }, "Login successful"));
 });
 
 const getPartnerProfile = asynchandler(async (req, res) => {
@@ -203,8 +212,8 @@ const getPartnerProfile = asynchandler(async (req, res) => {
       new ApiResponse(
         200,
         partner,
-        "Delivery partner profile fetched successfully"
-      )
+        "Delivery partner profile fetched successfully",
+      ),
     );
 });
 
@@ -214,16 +223,19 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
   const email = partner.email;
 
   if (!partner) {
-    return res.status(404).json(new ApiResponse(404, {}, "No delivery partner found"));
+    return res
+      .status(404)
+      .json(new ApiResponse(404, {}, "No delivery partner found"));
   }
 
-  // Support both JSON and multipart/form-data
   let body;
   if (req.body?.data) {
     try {
       body = JSON.parse(req.body.data);
     } catch {
-      return res.status(400).json(new ApiResponse(400, {}, "Invalid JSON in request body"));
+      return res
+        .status(400)
+        .json(new ApiResponse(400, {}, "Invalid JSON in request body"));
     }
   } else {
     body = req.body;
@@ -243,7 +255,9 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
   } = body;
 
   if (
-    [name, address, phone]?.some((item) => !item || String(item).trim().length === 0)
+    [name, address, phone]?.some(
+      (item) => !item || String(item).trim().length === 0,
+    )
   ) {
     return res
       .status(400)
@@ -263,7 +277,6 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     ...(longitude != null && { homeLongitude: Number(longitude) }),
   };
 
-  // Handle image upload
   if (req.file) {
     const imageurl = await uploadoncloudinary(req.file.path);
     if (imageurl) {
@@ -274,35 +287,35 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
   const updatedPartner = await Delivery.findOneAndUpdate(
     { email },
     updateData,
-    { new: true }
+    { new: true },
   );
 
   if (!updatedPartner) {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to update profile,Try again later")
+        new ApiResponse(500, {}, "Unable to update profile,Try again later"),
       );
   }
 
-  //not necessary to create new token but doing it anyway
   const token = jwt.sign(
     { email: updatedPartner.email },
     process.env.refreshtoken,
-    { expiresIn: process.env.refreshtime }
+    { expiresIn: process.env.refreshtime },
   );
 
   if (!token) {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to update profile,Try again later")
+        new ApiResponse(500, {}, "Unable to update profile,Try again later"),
       );
   }
 
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   };
 
   res
@@ -349,20 +362,24 @@ const updatePassword = asynchandler(async (req, res) => {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to update password,Try again later")
+        new ApiResponse(500, {}, "Unable to update password,Try again later"),
       );
   }
 
   res
     .status(200)
-    .json(new ApiResponse(200, updatedPartner, "Password updated successfully"));
+    .json(
+      new ApiResponse(200, updatedPartner, "Password updated successfully"),
+    );
 });
 
 const deleteAccount = asynchandler(async (req, res) => {
   const partner = req.partner;
 
   if (!partner) {
-    return res.status(404).json(new ApiResponse(404, {}, "No delivery partner found"));
+    return res
+      .status(404)
+      .json(new ApiResponse(404, {}, "No delivery partner found"));
   }
 
   const email = partner.email;
@@ -373,7 +390,7 @@ const deleteAccount = asynchandler(async (req, res) => {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to delete account,Try again later")
+        new ApiResponse(500, {}, "Unable to delete account,Try again later"),
       );
   }
 

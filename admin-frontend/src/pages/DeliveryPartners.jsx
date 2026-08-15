@@ -1,5 +1,12 @@
-import React from "react";
-import { EntityPage, Badge, ActionButtons } from "../components/EntityPage.jsx";
+import {
+  EntityPage,
+  Badge,
+  ActionButtons,
+  tdName,
+  tdMute,
+  tdNum,
+} from "../components/EntityPage.jsx";
+import { Star } from "lucide-react";
 
 const columns = [
   "Name",
@@ -14,18 +21,35 @@ const columns = [
 ];
 
 const renderRow = (item, onApprove, onDelete) => (
-  <tr key={item._id} className="border-b border-gray-50 hover:bg-gray-50">
-    <td className="p-4 font-medium text-gray-900">{item.name}</td>
-    <td className="p-4 text-gray-600">{item.email}</td>
-    <td className="p-4 text-gray-600">{item.phone}</td>
-    <td className="p-4 text-gray-600">{item.typeOfVehicle || "—"}</td>
-    <td className="p-4 text-gray-600">{item.licenseNumber}</td>
-    <td className="p-4 text-gray-900">{item.rating || 0}</td>
-    <td className="p-4 text-gray-900">{item.totalDeliveries || 0}</td>
-    <td className="p-4">
+  <tr key={item._id}>
+    <td {...tdName}>{item.name}</td>
+    <td {...tdMute}>{item.email}</td>
+    <td {...tdMute} className="nums">
+      {item.phone}
+    </td>
+    <td {...tdMute}>{item.typeOfVehicle || "—"}</td>
+    <td {...tdMute}>{item.licenseNumber}</td>
+    <td>
+      <span
+        className="inline-flex items-center gap-1 nums"
+        style={{ color: "var(--color-ink)", fontWeight: 600 }}
+      >
+        <Star
+          style={{
+            width: 14,
+            height: 14,
+            color: "var(--color-donor)",
+            fill: "var(--color-donor)",
+          }}
+        />
+        {item.rating || 0}
+      </span>
+    </td>
+    <td {...tdNum}>{item.totalDeliveries || 0}</td>
+    <td>
       <Badge condition={item.approved} />
     </td>
-    <td className="p-4">
+    <td>
       <ActionButtons
         approved={item.approved}
         onApprove={onApprove}
@@ -38,6 +62,7 @@ const renderRow = (item, onApprove, onDelete) => (
 const DeliveryPartners = () => (
   <EntityPage
     title="Delivery Partners"
+    sub="Riders transporting donations from donor to NGO"
     apiPath="delivery"
     columns={columns}
     renderRow={renderRow}

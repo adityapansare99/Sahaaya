@@ -36,7 +36,7 @@ const redemptionSchema = new mongoose.Schema(
       default: "active",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Redemption = mongoose.model("Redemption", redemptionSchema);

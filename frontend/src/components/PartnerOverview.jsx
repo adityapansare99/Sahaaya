@@ -1,7 +1,6 @@
 import React from "react";
 import { Ticket, Users, Award, Tag, TrendingUp, Receipt } from "lucide-react";
 
-// Role-tinted stat tile (Flow).
 const TINT = {
   partner: { bg: "var(--color-partner-soft)", fg: "var(--color-partner-2)" },
   rider: { bg: "var(--color-rider-soft)", fg: "var(--color-rider-2)" },

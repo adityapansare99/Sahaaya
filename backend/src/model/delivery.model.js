@@ -1,120 +1,123 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
-const deliverySchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:true
+const deliverySchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
 
-    address:{
-        type:String,
-        required:true
+    address: {
+      type: String,
+      required: true,
     },
 
-    phone:{
-        type:Number,
-        required:true,
-        unique:true,
+    phone: {
+      type: Number,
+      required: true,
+      unique: true,
     },
 
-    email:{
-        type:String,
-        required:true,
-        unique:true,
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
 
-    emergencyNumber:{
-        type:Number,
-        required:true,
+    emergencyNumber: {
+      type: Number,
+      required: true,
     },
 
-    password:{
-        type:String,
-        required:true,
+    password: {
+      type: String,
+      required: true,
     },
 
-    vehicleCapacity:{
-        type:Number,
-        required:true,
+    vehicleCapacity: {
+      type: Number,
+      required: true,
     },
 
-    licenseNumber:{
-        type:String,
-        required:true,
-        unique:true,
+    licenseNumber: {
+      type: String,
+      required: true,
+      unique: true,
     },
 
-    vehicleNumber:{
-        type:String,
-        required:true,
-        unique:true,
+    vehicleNumber: {
+      type: String,
+      required: true,
+      unique: true,
     },
 
-    approved:{
-        type:Boolean,
-        default:false,
+    approved: {
+      type: Boolean,
+      default: false,
     },
 
-    image:{
-        type:String,
-        default:"",
+    image: {
+      type: String,
+      default: "",
     },
 
-    typeOfVehicle:{
-        type:String,
-        required:true,
+    typeOfVehicle: {
+      type: String,
+      required: true,
     },
 
-    rating:{
-        type:Number,
-        default:0,
+    rating: {
+      type: Number,
+      default: 0,
     },
 
-    totalDeliveries:{
-        type:Number,
-        default:0,
+    totalDeliveries: {
+      type: Number,
+      default: 0,
     },
 
-    points:{
-        type:Number,
-        default:0,
+    points: {
+      type: Number,
+      default: 0,
     },
 
-    redeemedPoints:{
-        type:Number,
-        default:0,
+    redeemedPoints: {
+      type: Number,
+      default: 0,
     },
 
-    socketId:{
-        type:String
+    socketId: {
+      type: String,
     },
 
-    latitude:{
-        type: Number,
-        default: null,
+    latitude: {
+      type: Number,
+      default: null,
     },
 
-    longitude:{
-        type: Number,
-        default: null,
+    longitude: {
+      type: Number,
+      default: null,
     },
 
-    lastActiveAt:{
-        type: Date,
-        default: null,
+    lastActiveAt: {
+      type: Date,
+      default: null,
     },
 
-    homeLatitude:{
-        type: Number,
-        default: null,
+    homeLatitude: {
+      type: Number,
+      default: null,
     },
 
-    homeLongitude:{
-        type: Number,
-        default: null,
+    homeLongitude: {
+      type: Number,
+      default: null,
     },
-},{timestamps:true});
+  },
+  { timestamps: true },
+);
 
 deliverySchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
@@ -130,6 +133,6 @@ deliverySchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-const Delivery=mongoose.model("Delivery",deliverySchema);
+const Delivery = mongoose.model("Delivery", deliverySchema);
 
 export default Delivery;

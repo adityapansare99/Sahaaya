@@ -19,14 +19,63 @@ const ProtectedRoute = ({ children }) => {
 const App = () => {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/ngos" element={<ProtectedRoute><NGOs /></ProtectedRoute>} />
-      <Route path="/donors" element={<ProtectedRoute><Donors /></ProtectedRoute>} />
-      <Route path="/delivery" element={<ProtectedRoute><DeliveryPartners /></ProtectedRoute>} />
-      <Route path="/partners" element={<ProtectedRoute><RestaurantPartners /></ProtectedRoute>} />
-      <Route path="/donations" element={<ProtectedRoute><Donations /></ProtectedRoute>} />
-      <Route path="/rides" element={<ProtectedRoute><Rides /></ProtectedRoute>} />
+      <Route path="/" element={<Login />} />
+      <Route
+        path="/home"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ngos"
+        element={
+          <ProtectedRoute>
+            <NGOs />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/donors"
+        element={
+          <ProtectedRoute>
+            <Donors />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/delivery"
+        element={
+          <ProtectedRoute>
+            <DeliveryPartners />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/partners"
+        element={
+          <ProtectedRoute>
+            <RestaurantPartners />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/donations"
+        element={
+          <ProtectedRoute>
+            <Donations />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/rides"
+        element={
+          <ProtectedRoute>
+            <Rides />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

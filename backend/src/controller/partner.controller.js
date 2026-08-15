@@ -57,8 +57,12 @@ const registerPartner = asynchandler(async (req, res) => {
       discountPercentage: discountPercentage || 10,
       pointsRequired: pointsRequired || 50,
       description: description || "",
-      latitude: latitude != null && !isNaN(Number(latitude)) ? Number(latitude) : null,
-      longitude: longitude != null && !isNaN(Number(longitude)) ? Number(longitude) : null,
+      latitude:
+        latitude != null && !isNaN(Number(latitude)) ? Number(latitude) : null,
+      longitude:
+        longitude != null && !isNaN(Number(longitude))
+          ? Number(longitude)
+          : null,
     });
 
     if (!partner) {
@@ -84,6 +88,7 @@ const registerPartner = asynchandler(async (req, res) => {
     const options = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     };
 
     const finalPartner = await Partner.findById(partner._id);
@@ -146,6 +151,7 @@ const loginPartner = asynchandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   };
 
   res
@@ -173,13 +179,14 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     return res.status(404).json(new ApiResponse(404, {}, "No partner found"));
   }
 
-  // Support both JSON and multipart/form-data
   let body;
   if (req.body?.data) {
     try {
       body = JSON.parse(req.body.data);
     } catch {
-      return res.status(400).json(new ApiResponse(400, {}, "Invalid JSON in request body"));
+      return res
+        .status(400)
+        .json(new ApiResponse(400, {}, "Invalid JSON in request body"));
     }
   } else {
     body = req.body;
@@ -200,14 +207,15 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     ...(name && { name }),
     ...(phone && { phone }),
     ...(address && { address }),
-    ...(latitude != null && !isNaN(Number(latitude)) && { latitude: Number(latitude) }),
-    ...(longitude != null && !isNaN(Number(longitude)) && { longitude: Number(longitude) }),
+    ...(latitude != null &&
+      !isNaN(Number(latitude)) && { latitude: Number(latitude) }),
+    ...(longitude != null &&
+      !isNaN(Number(longitude)) && { longitude: Number(longitude) }),
     ...(discountPercentage && { discountPercentage }),
     ...(pointsRequired && { pointsRequired }),
     ...(description !== undefined && { description }),
   };
 
-  // Handle logo upload
   if (req.file) {
     const imageurl = await uploadoncloudinary(req.file.path);
     if (imageurl) {
@@ -215,11 +223,9 @@ const updatePartnerProfile = asynchandler(async (req, res) => {
     }
   }
 
-  const updated = await Partner.findByIdAndUpdate(
-    partner._id,
-    updateData,
-    { new: true },
-  );
+  const updated = await Partner.findByIdAndUpdate(partner._id, updateData, {
+    new: true,
+  });
 
   if (!updated) {
     return res
@@ -241,28 +247,42 @@ const updatePassword = asynchandler(async (req, res) => {
 
   const { oldpassword, newpassword } = req.body;
 
-  if ([oldpassword, newpassword].some((item) => !item || String(item).trim().length === 0)) {
-    return res.status(400).json(new ApiResponse(400, {}, "All fields are required"));
+  if (
+    [oldpassword, newpassword].some(
+      (item) => !item || String(item).trim().length === 0,
+    )
+  ) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "All fields are required"));
   }
 
   if (newpassword.length < 6) {
-    return res.status(400).json(new ApiResponse(400, {}, "Password must be at least 6 characters"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Password must be at least 6 characters"));
   }
 
   const isPasswordCorrect = await partner.isPasswordCorrect(oldpassword);
 
   if (!isPasswordCorrect) {
-    return res.status(400).json(new ApiResponse(400, {}, "Old password is incorrect"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Old password is incorrect"));
   }
 
   partner.password = newpassword;
   const updated = await partner.save();
 
   if (!updated) {
-    return res.status(500).json(new ApiResponse(500, {}, "Unable to update password"));
+    return res
+      .status(500)
+      .json(new ApiResponse(500, {}, "Unable to update password"));
   }
 
-  res.status(200).json(new ApiResponse(200, {}, "Password updated successfully"));
+  res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password updated successfully"));
 });
 
 const deleteAccount = asynchandler(async (req, res) => {
@@ -274,11 +294,15 @@ const deleteAccount = asynchandler(async (req, res) => {
 
   await Partner.findByIdAndDelete(partner._id);
 
-  res.status(200).json(new ApiResponse(200, {}, "Account deleted successfully"));
+  res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Account deleted successfully"));
 });
 
 const getActivePartners = asynchandler(async (req, res) => {
-  const activePartners = await Partner.find({ isActive: true }).select("-password -__v");
+  const activePartners = await Partner.find({ isActive: true }).select(
+    "-password -__v",
+  );
   res
     .status(200)
     .json(
@@ -290,9 +314,7 @@ const getPartnerRedemptions = asynchandler(async (req, res) => {
   const partner = req.partner;
 
   if (!partner) {
-    return res
-      .status(404)
-      .json(new ApiResponse(404, {}, "No partner found"));
+    return res.status(404).json(new ApiResponse(404, {}, "No partner found"));
   }
 
   const redemptions = await Redemption.find({ partner: partner._id })
@@ -306,8 +328,6 @@ const getPartnerRedemptions = asynchandler(async (req, res) => {
     );
 });
 
-// Public popularity board — top 5 partners by redemption count.
-// Aggregates from Redemption so a partner with no redemptions never appears.
 const getTopPartners = asynchandler(async (req, res) => {
   const top = await Redemption.aggregate([
     { $group: { _id: "$partner", redemptionCount: { $sum: 1 } } },
@@ -332,7 +352,7 @@ const getTopPartners = asynchandler(async (req, res) => {
         discountPercentage: "$partner.discountPercentage",
         pointsRequired: "$partner.pointsRequired",
         redemptionCount: "$redemptionCount",
-        address:"$partner.address"
+        address: "$partner.address",
       },
     },
   ]);

@@ -7,7 +7,9 @@ import {
 
 const trackRoute = Router();
 
-trackRoute.route("/by-donation/:donationId").get(authAnyParty, getRideByDonation);
+trackRoute
+  .route("/by-donation/:donationId")
+  .get(authAnyParty, getRideByDonation);
 trackRoute.route("/:rideId").get(authAnyParty, getTrackByRide);
 
 export default trackRoute;

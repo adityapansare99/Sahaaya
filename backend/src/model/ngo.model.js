@@ -67,21 +67,21 @@ const ngoSchema = new mongoose.Schema(
         "We work towards eliminating hunger in urban areas by collecting surplus food from donors and distributing it to those in need through our network of volunteers and community centers.",
     },
 
-    socketId:{
-        type:String
+    socketId: {
+      type: String,
     },
 
-    latitude:{
-        type: Number,
-        default: null,
+    latitude: {
+      type: Number,
+      default: null,
     },
 
-    longitude:{
-        type: Number,
-        default: null,
+    longitude: {
+      type: Number,
+      default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 ngoSchema.pre("save", async function (next) {

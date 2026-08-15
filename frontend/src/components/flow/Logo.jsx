@@ -1,5 +1,3 @@
-// Logo — Flow brand wordmark: gradient mark + "Sahaaya" + "A Helping Hand".
-// Presentational. size: sm|md|lg · light=true for dark backgrounds · subtitle toggles the tagline.
 import { Heart } from "lucide-react";
 
 const SIZES = {

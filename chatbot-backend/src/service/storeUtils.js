@@ -31,7 +31,7 @@ const aggregateHash = (fileHashes) =>
       Object.keys(fileHashes)
         .sort()
         .map((k) => `${k}:${fileHashes[k]}`)
-        .join("\n")
+        .join("\n"),
     )
     .digest("hex");
 

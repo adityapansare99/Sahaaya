@@ -33,11 +33,9 @@ const RedeemPoints = () => {
   const [success, setSuccess] = useState(null);
   const [history, setHistory] = useState([]);
 
-  // Rider profile — home coords for near-me
   const [profile, setProfile] = useState(null);
 
-  // View toggle & search
-  const [view, setView] = useState("all"); // "all" | "nearme"
+  const [view, setView] = useState("all"); 
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -82,7 +80,6 @@ const RedeemPoints = () => {
     fetchAll();
   }, [backendurl, token]);
 
-  // ── Derived: near-me partners ──────────────────────────────
   const homeLat = profile?.homeLatitude ?? profile?.latitude ?? null;
   const homeLng = profile?.homeLongitude ?? profile?.longitude ?? null;
   const hasHome = homeLat != null && homeLng != null;
@@ -108,7 +105,6 @@ const RedeemPoints = () => {
     [partnersWithDistance],
   );
 
-  // ── Search filtering (city/address/name — case-insensitive) ─
   const searchLower = search.toLowerCase().trim();
   const filteredPartners = useMemo(
     () =>
@@ -124,7 +120,6 @@ const RedeemPoints = () => {
   const displayPartners =
     view === "nearme" && hasHome ? nearMePartners : filteredPartners;
 
-  // ── Handlers ───────────────────────────────────────────────
   const handleRedeem = async () => {
     if (!selected) return;
     setRedeeming(true);
@@ -149,7 +144,6 @@ const RedeemPoints = () => {
     }
   };
 
-  // ── Loading skeleton ───────────────────────────────────────
   if (loading) {
     return (
       <div className="space-y-6">

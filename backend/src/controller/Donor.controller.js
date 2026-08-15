@@ -10,10 +10,21 @@ const registerDonor = asynchandler(async (req, res) => {
   try {
     data = JSON.parse(req.body.data);
   } catch {
-    return res.status(400).json(new ApiResponse(400, {}, "Invalid JSON in request body"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Invalid JSON in request body"));
   }
 
-  const { name, email, phone, address, pincode, password, latitude, longitude } = data;
+  const {
+    name,
+    email,
+    phone,
+    address,
+    pincode,
+    password,
+    latitude,
+    longitude,
+  } = data;
   const image = req.file;
 
   if ([name, email, password].some((item) => item.trim().length === 0)) {
@@ -67,19 +78,20 @@ const registerDonor = asynchandler(async (req, res) => {
         { email },
         {
           image: imageurl.url,
-        }
+        },
       );
     }
 
     const token = jwt.sign(
       { email: newdonor.email },
       process.env.refreshtoken,
-      { expiresIn: process.env.refreshtime }
+      { expiresIn: process.env.refreshtime },
     );
 
     const options = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     };
 
     const finaldonor = await Donor.findOne({ email });
@@ -97,14 +109,13 @@ const registerDonor = asynchandler(async (req, res) => {
         new ApiResponse(
           201,
           { finaldonor, token },
-          "Donor registered successfully"
-        )
+          "Donor registered successfully",
+        ),
       );
   } catch (error) {
-    console.log(error);
     res
       .status(500)
-      .json(new ApiResponse(500, {}, "Error in donor registration"));
+      .json(new ApiResponse(500, { error }, "Error in donor registration"));
   }
 });
 
@@ -128,7 +139,6 @@ const loginDonor = asynchandler(async (req, res) => {
   const isPasswordCorrect = await donor.isPasswordCorrect(password);
 
   if (!isPasswordCorrect) {
-    console.log(isPasswordCorrect);
     return res.status(400).json(new ApiResponse(400, {}, "Invalid password"));
   }
 
@@ -145,6 +155,7 @@ const loginDonor = asynchandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   };
 
   res
@@ -178,7 +189,7 @@ const updateDonorProfile = asynchandler(async (req, res) => {
 
   if (
     [name, phone, address, pincode].some(
-      (item) => !item || String(item).trim().length === 0
+      (item) => !item || String(item).trim().length === 0,
     )
   ) {
     return res
@@ -196,35 +207,35 @@ const updateDonorProfile = asynchandler(async (req, res) => {
       ...(latitude != null && { latitude: Number(latitude) }),
       ...(longitude != null && { longitude: Number(longitude) }),
     },
-    { new: true }
+    { new: true },
   );
 
   if (!updatedDonor) {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to update profile,Try again later")
+        new ApiResponse(500, {}, "Unable to update profile,Try again later"),
       );
   }
 
-  //not necessary to create new token but doing it anyway
   const token = jwt.sign(
     { email: updatedDonor.email },
     process.env.refreshtoken,
-    { expiresIn: process.env.refreshtime }
+    { expiresIn: process.env.refreshtime },
   );
 
   if (!token) {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to update profile,Try again later")
+        new ApiResponse(500, {}, "Unable to update profile,Try again later"),
       );
   }
 
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   };
 
   res
@@ -269,7 +280,7 @@ const updatePassword = asynchandler(async (req, res) => {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to update password,Try again later")
+        new ApiResponse(500, {}, "Unable to update password,Try again later"),
       );
   }
 
@@ -293,7 +304,7 @@ const deleteAccount = asynchandler(async (req, res) => {
     return res
       .status(500)
       .json(
-        new ApiResponse(500, {}, "Unable to delete account,Try again later")
+        new ApiResponse(500, {}, "Unable to delete account,Try again later"),
       );
   }
 
@@ -302,7 +313,6 @@ const deleteAccount = asynchandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Account deleted successfully"));
 });
 
-
 const getImpact = asynchandler(async (req, res) => {
   const donor = req.donor;
 
@@ -310,7 +320,6 @@ const getImpact = asynchandler(async (req, res) => {
     return res.status(404).json(new ApiResponse(404, {}, "No donor found"));
   }
 
-  // Coerce a stored numeric field to a safe Number (missing/invalid → 0).
   const num = (v) => {
     const n = Number(v);
     return Number.isFinite(n) ? n : 0;
@@ -325,7 +334,6 @@ const getImpact = asynchandler(async (req, res) => {
   const accepted = allDonations.filter((d) => d.Status === "Accepted").length;
   const pending = allDonations.filter((d) => d.Status === "Pending").length;
 
-  // Distinct NGOs this donor has been matched with.
   const ngoSet = new Set();
   allDonations.forEach((d) => {
     if (d.Ngo && d.Ngo._id) ngoSet.add(d.Ngo._id.toString());
@@ -334,7 +342,7 @@ const getImpact = asynchandler(async (req, res) => {
 
   const totalMealsDonated = allDonations.reduce(
     (sum, d) => sum + num(d.serves),
-    0
+    0,
   );
   const wasteReduced = allDonations
     .filter((d) => d.Status === "Completed")
@@ -352,7 +360,6 @@ const getImpact = asynchandler(async (req, res) => {
     createdAt: d.createdAt,
   }));
 
-  // Monthly trend (last 6 months).
   const monthlyTrend = [];
   const now = new Date();
   for (let i = 5; i >= 0; i--) {
@@ -383,8 +390,8 @@ const getImpact = asynchandler(async (req, res) => {
         recentActivity,
         monthlyTrend,
       },
-      "Impact fetched successfully"
-    )
+      "Impact fetched successfully",
+    ),
   );
 });
 

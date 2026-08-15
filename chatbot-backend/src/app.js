@@ -8,12 +8,16 @@ const app = express();
 
 app.set("trust proxy", 1);
 
+const corsOrigin = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((url) => url.trim())
+  : [];
+
 app.use(
   cors({
-    origin: config.corsOrigin.length ? config.corsOrigin : "*",
+    origin: corsOrigin,
+    credentials: true,
   })
 );
-
 app.use(express.json({ limit: "1mb" }));
 
 const chatLimiter = rateLimit({

@@ -38,7 +38,7 @@ const initializeStore = async () => {
       ) {
         store = { chunks: saved.chunks, vectors: saved.vectors };
         console.log(
-          `[vectorStore] Loaded ${saved.chunks.length} chunks from cache (${Object.keys(fileHashes).length} files)`
+          `[vectorStore] Loaded ${saved.chunks.length} chunks from cache (${Object.keys(fileHashes).length} files)`,
         );
         loaded = true;
       } else {
@@ -73,7 +73,7 @@ const initializeStore = async () => {
           fileHashes,
           chunks,
           vectors,
-        })
+        }),
       );
       console.log(`[vectorStore] Saved ${chunks.length} vectors to cache`);
     } catch (err) {
@@ -99,7 +99,12 @@ const query = async (question, topK = null) => {
   scored.sort((a, b) => b.score - a.score);
 
   const candidates = scored.slice(0, Math.min(20, scored.length));
-  const reranked = mmrRerank(questionEmbedding, candidates, config.mmrLambda, k);
+  const reranked = mmrRerank(
+    questionEmbedding,
+    candidates,
+    config.mmrLambda,
+    k,
+  );
 
   return reranked.map((s) => ({
     text: store.chunks[s.index].text,

@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Must load .env before process.env is read below.
 dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 
 const parseList = (value) =>
@@ -16,7 +15,9 @@ const parseList = (value) =>
 const resolveVectorStore = () => {
   const explicit = (process.env.VECTOR_STORE || "").trim().toLowerCase();
   if (explicit === "chroma" || explicit === "json") return explicit;
-  return process.env.CHROMA_URL || process.env.CHROMA_API_KEY ? "chroma" : "json";
+  return process.env.CHROMA_URL || process.env.CHROMA_API_KEY
+    ? "chroma"
+    : "json";
 };
 
 const resolveLlmProvider = () => {
@@ -45,8 +46,7 @@ export default {
   llmEnabled: process.env.LLM_ENABLED !== "false",
   llmProvider,
   groqApiKey: process.env.GROQ_API_KEY || "",
-  groqBaseUrl:
-    process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1",
+  groqBaseUrl: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1",
   groqModel: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
   groqMaxTokens: Number(process.env.GROQ_MAX_TOKENS || 1024),
   ollamaBaseUrl: process.env.OLLAMA_BASE_URL || "http://localhost:11434",

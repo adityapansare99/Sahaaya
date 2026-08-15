@@ -11,11 +11,16 @@ import nodemailer from "nodemailer";
 
 const getModel = (userType) => {
   switch (userType) {
-    case "donor": return Donor;
-    case "ngo": return NGO;
-    case "delivery": return Delivery;
-    case "partner": return Partner;
-    default: return null;
+    case "donor":
+      return Donor;
+    case "ngo":
+      return NGO;
+    case "delivery":
+      return Delivery;
+    case "partner":
+      return Partner;
+    default:
+      return null;
   }
 };
 
@@ -33,7 +38,9 @@ const sendOtp = asynchandler(async (req, res) => {
   const { email, userType } = req.body;
 
   if (!email || !userType) {
-    return res.status(400).json(new ApiResponse(400, {}, "Email and user type are required"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Email and user type are required"));
   }
 
   const Model = getModel(userType);
@@ -43,16 +50,16 @@ const sendOtp = asynchandler(async (req, res) => {
 
   const user = await Model.findOne({ email });
   if (!user) {
-    return res.status(404).json(new ApiResponse(404, {}, "No account found with this email"));
+    return res
+      .status(404)
+      .json(new ApiResponse(404, {}, "No account found with this email"));
   }
 
-  // Generate 6-digit OTP
   const otp = crypto.randomInt(100000, 999999).toString();
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   await Otp.create({ email, userType, otp, expiresAt });
 
-  // Send email via nodemailer
   const transport = getTransporter();
   if (transport) {
     const html = `
@@ -86,7 +93,9 @@ const verifyOtp = asynchandler(async (req, res) => {
   const { email, otp } = req.body;
 
   if (!email || !otp) {
-    return res.status(400).json(new ApiResponse(400, {}, "Email and OTP are required"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Email and OTP are required"));
   }
 
   const record = await Otp.findOne({
@@ -97,42 +106,54 @@ const verifyOtp = asynchandler(async (req, res) => {
   }).sort({ createdAt: -1 });
 
   if (!record) {
-    return res.status(400).json(new ApiResponse(400, {}, "Invalid or expired OTP"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Invalid or expired OTP"));
   }
 
-  // Mark OTP as used
   await Otp.findByIdAndUpdate(record._id, { used: true });
 
-  // Generate a temporary reset token (valid 10 minutes)
   const resetToken = jwt.sign(
     { email, userType: record.userType, purpose: "reset" },
     process.env.refreshtoken,
-    { expiresIn: "10m" }
+    { expiresIn: "10m" },
   );
 
-  res.status(200).json(new ApiResponse(200, { resetToken }, "OTP verified successfully"));
+  res
+    .status(200)
+    .json(new ApiResponse(200, { resetToken }, "OTP verified successfully"));
 });
 
 const resetPassword = asynchandler(async (req, res) => {
   const { resetToken, newPassword } = req.body;
 
   if (!resetToken || !newPassword) {
-    return res.status(400).json(new ApiResponse(400, {}, "Reset token and new password are required"));
+    return res
+      .status(400)
+      .json(
+        new ApiResponse(400, {}, "Reset token and new password are required"),
+      );
   }
 
   if (newPassword.length < 6) {
-    return res.status(400).json(new ApiResponse(400, {}, "Password must be at least 6 characters"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Password must be at least 6 characters"));
   }
 
   let decoded;
   try {
     decoded = jwt.verify(resetToken, process.env.refreshtoken);
   } catch (err) {
-    return res.status(400).json(new ApiResponse(400, {}, "Invalid or expired reset token"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Invalid or expired reset token"));
   }
 
   if (decoded.purpose !== "reset") {
-    return res.status(400).json(new ApiResponse(400, {}, "Invalid reset token"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Invalid reset token"));
   }
 
   const Model = getModel(decoded.userType);

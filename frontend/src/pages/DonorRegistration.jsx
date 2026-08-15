@@ -60,8 +60,6 @@ const DonorRegistration = () => {
       longitude: addressCoords.lng,
     };
 
-    // console.log(data);
-
     const formData = new FormData();
     formData.append("data", JSON.stringify(data));
 
@@ -80,8 +78,6 @@ const DonorRegistration = () => {
     localStorage.setItem("token", response.data.data.token);
     toast.success("Donor registered successfully");
     navigate("/DonorDashboard");
-    // console.log(response.data.data.token);
-    // console.log(response.data);
   };
 
   const labelCls =
@@ -156,7 +152,6 @@ const DonorRegistration = () => {
               </p>
             </div>
 
-            {/* Image Upload */}
             <div className="mb-7 flex flex-col items-center">
               <label htmlFor="image" className="cursor-pointer group block">
                 <div className="relative">

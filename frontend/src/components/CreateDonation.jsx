@@ -31,9 +31,6 @@ const CreateDonation = ({ onDonationCreate }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // FlowSelect renders a button (not a native form control), so the
-    // donorType/foodType selects can't use native `required`. Guard here to
-    // preserve the validation the native <select required> previously gave.
     if (!donorType || !foodType) {
       setFormError(
         !donorType && !foodType

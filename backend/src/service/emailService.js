@@ -30,7 +30,7 @@ const buildReceiptHtml = ({
   partnerName,
   discountPercentage,
   pointsUsed,
-  address
+  address,
 }) => {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 560px; margin: auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
@@ -81,7 +81,7 @@ const sendReceipt = async ({ redemption, rider, partner }) => {
 
   if (!transport) {
     console.log(
-      `[email] SMTP not configured — skipping receipt for booking ${redemption.bookingCode}`
+      `[email] SMTP not configured — skipping receipt for booking ${redemption.bookingCode}`,
     );
     return { sent: false, reason: "smtp-not-configured" };
   }
@@ -110,7 +110,7 @@ const sendReceipt = async ({ redemption, rider, partner }) => {
   } catch (error) {
     console.log(
       `[email] Failed to send receipt for booking ${redemption.bookingCode}:`,
-      error
+      error,
     );
     return { sent: false, reason: "send-failed" };
   }

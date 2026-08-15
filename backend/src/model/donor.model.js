@@ -1,58 +1,61 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
-const donorSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:true,
+const donorSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
 
-    email:{
-        type:String,
-        required:true,
-        unique:true,
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
 
-    phone:{
-        type:Number,
-        required:true,
-        unique:true,
+    phone: {
+      type: Number,
+      required: true,
+      unique: true,
     },
-    address:{
-        type:String,
-        required:true,
+    address: {
+      type: String,
+      required: true,
     },
-    pincode:{
-        type:Number,
-        required:true,
+    pincode: {
+      type: Number,
+      required: true,
     },
-    password:{
-        type:String,
-        required:true,
+    password: {
+      type: String,
+      required: true,
     },
-    approved:{
-        type:Boolean,
-        default:false,
+    approved: {
+      type: Boolean,
+      default: false,
     },
-    image:{
-        type:String,
-        default:"",
-    },
-
-    socketId:{
-        type:String
+    image: {
+      type: String,
+      default: "",
     },
 
-    latitude:{
-        type: Number,
-        default: null,
+    socketId: {
+      type: String,
     },
 
-    longitude:{
-        type: Number,
-        default: null,
+    latitude: {
+      type: Number,
+      default: null,
     },
-},{timestamps:true});
+
+    longitude: {
+      type: Number,
+      default: null,
+    },
+  },
+  { timestamps: true },
+);
 
 donorSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
@@ -68,6 +71,6 @@ donorSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-const Donor=mongoose.model("Donor",donorSchema);
+const Donor = mongoose.model("Donor", donorSchema);
 
 export default Donor;

@@ -28,67 +28,67 @@ const donationSchema = new mongoose.Schema(
     },
 
     FoodDescription: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
 
     Quantity: {
-        type: String,
-        default: "",
+      type: String,
+      default: "",
     },
 
     weightKg: {
-        type: Number,
-        default: 0,
-        min: 0,
+      type: Number,
+      default: 0,
+      min: 0,
     },
 
     serves: {
-        type: Number,
-        default: 0,
-        min: 0,
+      type: Number,
+      default: 0,
+      min: 0,
     },
 
     PickupLocation: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
 
     pickupLatitude: {
-        type: Number,
-        default: null,
+      type: Number,
+      default: null,
     },
 
     pickupLongitude: {
-        type: Number,
-        default: null,
+      type: Number,
+      default: null,
     },
 
     ExpiryDate: {
-        type: Date,
-        required: true,
+      type: Date,
+      required: true,
     },
 
     ExpiryTime: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
 
-    Status:{
-        type: String,
-        enum: ["Cancelled", "Accepted", "Completed", "Pending"],
-        default: "Pending",
+    Status: {
+      type: String,
+      enum: ["Cancelled", "Accepted", "Completed", "Pending"],
+      default: "Pending",
     },
 
     typeOfDonor: {
-        type: String,
-        enum: ["Restaurant", "Event", "Store", "Individual"],
-        required: true,
+      type: String,
+      enum: ["Restaurant", "Event", "Store", "Individual"],
+      required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const Donation=mongoose.model("Donation", donationSchema);
+const Donation = mongoose.model("Donation", donationSchema);
 
 export default Donation;

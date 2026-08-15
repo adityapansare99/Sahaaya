@@ -4,7 +4,8 @@ const AdminContext = createContext();
 
 const AdminProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("admintoken") || "");
-  const backendurl = import.meta.env.VITE_BACKEND_URL;
+  const backendurl =
+    (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "") + "/";
 
   const login = useCallback((newToken) => {
     setToken(newToken);

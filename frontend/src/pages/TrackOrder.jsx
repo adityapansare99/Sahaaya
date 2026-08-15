@@ -43,7 +43,6 @@ const TrackOrder = () => {
   const directionsRef = useRef(null);
   const animRef = useRef(null);
 
-  // ── 1. Initial snapshot (last-known positions + status) ───────────────
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -74,7 +73,6 @@ const TrackOrder = () => {
     };
   }, [backendurl, token, rideId]);
 
-  // ── 2. Socket: join the ride room, listen for movement + status ───────
   useEffect(() => {
     if (!socket || !rideId) return;
     socket.emit("joinRide", { rideId });
@@ -101,8 +99,6 @@ const TrackOrder = () => {
     };
   }, [socket, rideId]);
 
-  // ── 3. Rider self-drive: when the rider views this page, this (foreground)
-  //       tab is the source of movement. 8s live emit + ~32s DB persistence. ─
   useEffect(() => {
     if (!snap?.viewerIsRider || !snap?.riderId || !socket) return;
 
@@ -165,7 +161,6 @@ const TrackOrder = () => {
     if (added) map.fitBounds(bounds, 80);
   }, []);
 
-  // ── 4. Init map + static markers + driving route (once) ───────────────
   useEffect(() => {
     if (!snap || mapReady) return;
     let cancelled = false;
@@ -215,7 +210,6 @@ const TrackOrder = () => {
           });
         }
 
-        // Driving route + ETA (billable Directions call, one per page open).
         if (snap.pickup?.lat != null && snap.destination?.lat != null) {
           directionsRef.current = new g.DirectionsRenderer({
             suppressMarkers: true,
@@ -236,7 +230,7 @@ const TrackOrder = () => {
                 const leg = result.routes?.[0]?.legs?.[0];
                 if (leg?.duration?.text) setEta(leg.duration.text);
               } else {
-                setRouteFailed(true); // markers-only fallback
+                setRouteFailed(true); 
               }
             },
           );
@@ -252,7 +246,6 @@ const TrackOrder = () => {
     };
   }, [snap, mapReady, fitToBounds]);
 
-  // ── 5. Rider marker: create on first position, then animate (smoothing) ─
   useEffect(() => {
     if (!mapReady || !rider || rider.lat == null) return;
     const g = window.google.maps;
@@ -267,7 +260,7 @@ const TrackOrder = () => {
         icon: {
           path: g.SymbolPath.CIRCLE,
           scale: 8,
-          fillColor: "var(--color-rider)",
+          fillColor: "#0d9488",
           fillOpacity: 1,
           strokeColor: "#fff",
           strokeWeight: 2,
@@ -277,8 +270,6 @@ const TrackOrder = () => {
       return;
     }
 
-    // Ease the marker from its current spot to the new one (~7.5s) so the
-    // discrete 8s samples read as continuous motion.
     const start = marker.getPosition();
     const sLat = start.lat();
     const sLng = start.lng();
@@ -287,7 +278,7 @@ const TrackOrder = () => {
     if (animRef.current) cancelAnimationFrame(animRef.current);
     const frame = (now) => {
       const p = Math.min(1, (now - t0) / duration);
-      const e = p * (2 - p); // easeOutQuad
+      const e = p * (2 - p); 
       marker.setPosition({
         lat: sLat + (target.lat - sLat) * e,
         lng: sLng + (target.lng - sLng) * e,
@@ -297,9 +288,6 @@ const TrackOrder = () => {
     animRef.current = requestAnimationFrame(frame);
   }, [mapReady, rider, fitToBounds]);
 
-  // ── 6. Tear down map resources on unmount ─────────────────────────────
-  // markersRef.current is never reassigned (only its properties are mutated),
-  // so capturing it once here is safe and keeps cleanup correct.
   useEffect(() => {
     const markers = markersRef.current;
     return () => {

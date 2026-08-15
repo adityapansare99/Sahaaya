@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 import { formatAmount } from '../utils/formatDonation';
 import CountUp from './flow/CountUp';
 
-// Flow status pill — pipeline-stage colours (shared mapping with MyDonations).
 const StatusPill = ({ status }) => {
   if (status === 'Cancelled') {
     return (
@@ -56,7 +55,6 @@ const StatTile = ({ icon: Icon, tint, value, suffix, label, sub }) => {
   );
 };
 
-// Completion-rate ring (completed / total donations), Flow gradient stroke.
 const CompletionRing = ({ completed, total }) => {
   const pct = total > 0 ? Math.min(1, completed / total) : 0;
   const R = 52;

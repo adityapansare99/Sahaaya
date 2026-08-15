@@ -240,11 +240,9 @@ function App() {
         setCompletedDeliveries(response.data.data);
       }
     } catch {
-      // silently ignore
     }
   };
 
-  // Latest fetch fns in a ref so the socket listeners (registered once) always call current closures.
   actions.current = { getAllDonations, acceptedOrdersHandler, fetchCompletedDeliveries };
 
   useEffect(() => {

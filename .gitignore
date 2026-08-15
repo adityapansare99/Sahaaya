@@ -26,7 +26,5 @@ Thumbs.db
 
 # ── Local-only draft (canonical project README is README.md) ──
 readmefinal.md
-
-
-docs/*
-/CLAUDE.md
+final1.md
+docs

@@ -1,15 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAdmin } from "../context/AdminContext.jsx";
-import Sidebar from "../components/Sidebar.jsx";
+import AdminLayout from "../components/AdminLayout.jsx";
+import Reveal from "../components/flow/Reveal.jsx";
+import FlowSelect from "../components/flow/FlowSelect.jsx";
+import StatusPill from "../components/flow/StatusPill.jsx";
+import { SlidersHorizontal, PackageOpen } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Filter } from "lucide-react";
 
-const statusColor = (s) =>
-  s === "Completed" ? "text-green-600 bg-green-100" :
-  s === "Accepted" ? "text-yellow-600 bg-yellow-100" :
-  s === "Pending" ? "text-blue-600 bg-blue-100" :
-  s === "Cancelled" ? "text-red-600 bg-red-100" : "text-gray-600 bg-gray-100";
+const STATUS_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  { value: "Pending", label: "Pending" },
+  { value: "Accepted", label: "Accepted" },
+  { value: "Completed", label: "Completed" },
+  { value: "Cancelled", label: "Cancelled" },
+];
 
 const Donations = () => {
   const { backendurl, token } = useAdmin();
@@ -20,76 +25,129 @@ const Donations = () => {
   const fetch = async (s) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${backendurl}admin/donations${s && s !== "all" ? `?status=${s}` : ""}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `${backendurl}admin/donations${s && s !== "all" ? `?status=${s}` : ""}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
       if (res.data.success) setData(res.data.data);
-    } catch { toast.error("Error fetching donations"); }
-    finally { setLoading(false); }
+    } catch {
+      toast.error("Error fetching donations");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => {
+    fetch();
+  }, []);
+
+  const filterEl = (
+    <div className="flex items-center gap-2" style={{ minWidth: 200 }}>
+      <SlidersHorizontal
+        style={{ width: 16, height: 16, color: "var(--color-mute)" }}
+      />
+      <FlowSelect
+        value={status}
+        onChange={(v) => {
+          setStatus(v);
+          fetch(v);
+        }}
+        options={STATUS_OPTIONS}
+        ariaLabel="Filter by status"
+      />
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      <div className="flex-1 lg:ml-64 p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Donations</h1>
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <select value={status} onChange={(e) => { setStatus(e.target.value); fetch(e.target.value); }}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 cursor-pointer">
-              <option value="all">All</option>
-              <option value="Pending">Pending</option>
-              <option value="Accepted">Accepted</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
+    <AdminLayout
+      title="Donations"
+      sub="Every surplus listing, across all statuses"
+      actions={filterEl}
+    >
+      <Reveal spring className="admin-panel">
+        {loading ? (
+          <div style={{ padding: "6px 0" }}>
+            {[...Array(6)].map((_, r) => (
+              <div
+                key={r}
+                style={{
+                  display: "flex",
+                  gap: 16,
+                  padding: "15px 18px",
+                  borderBottom: "1px solid var(--color-line-2)",
+                }}
+              >
+                {[...Array(7)].map((_, c) => (
+                  <div
+                    key={c}
+                    className="flow-skel skel-line"
+                    style={{ flex: c === 0 ? 1.6 : 1, height: 14 }}
+                  />
+                ))}
+              </div>
+            ))}
           </div>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {loading ? (
-            <div className="p-8 space-y-4">
-              {[...Array(5)].map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded-lg animate-pulse" />)}
+        ) : data.length === 0 ? (
+          <div className="flow-empty" style={{ margin: 18, border: "none" }}>
+            <div className="ei">
+              <PackageOpen />
             </div>
-          ) : data.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">No donations found</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50">
-                    <th className="text-left p-4 font-semibold text-gray-900">Donor</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">NGO</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Food Type</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Quantity</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Weight</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Serves</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Status</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Expiry</th>
+            <div>
+              <div className="et">No donations found</div>
+              <div className="ed">
+                Try a different status filter, or check back once donors post
+                surplus.
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flow-table-scroll">
+            <table className="flow-table">
+              <thead>
+                <tr>
+                  <th>Donor</th>
+                  <th>NGO</th>
+                  <th>Food type</th>
+                  <th>Quantity</th>
+                  <th>Weight</th>
+                  <th>Serves</th>
+                  <th>Status</th>
+                  <th>Expiry</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((item) => (
+                  <tr key={item._id}>
+                    <td style={{ color: "var(--color-ink)", fontWeight: 600 }}>
+                      {item.Donor?.name || "—"}
+                    </td>
+                    <td>{item.Ngo?.name || "—"}</td>
+                    <td>{item.FoodType}</td>
+                    <td style={{ color: "var(--color-mute)" }}>
+                      {item.Quantity}
+                    </td>
+                    <td className="nums" style={{ color: "var(--color-mute)" }}>
+                      {item.weightKg || 0} kg
+                    </td>
+                    <td className="nums" style={{ color: "var(--color-mute)" }}>
+                      {item.serves || 0}
+                    </td>
+                    <td>
+                      <StatusPill status={item.Status} />
+                    </td>
+                    <td style={{ color: "var(--color-mute)" }}>
+                      {item.ExpiryDate
+                        ? new Date(item.ExpiryDate).toLocaleDateString()
+                        : "—"}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {data.map((item) => (
-                    <tr key={item._id} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="p-4 font-medium text-gray-900">{item.Donor?.name || "—"}</td>
-                      <td className="p-4 text-gray-600">{item.Ngo?.name || "—"}</td>
-                      <td className="p-4 text-gray-900">{item.FoodType}</td>
-                      <td className="p-4 text-gray-600">{item.Quantity}</td>
-                      <td className="p-4 text-gray-600">{item.weightKg || 0} kg</td>
-                      <td className="p-4 text-gray-600">{item.serves || 0}</td>
-                      <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor(item.Status)}`}>{item.Status}</span></td>
-                      <td className="p-4 text-gray-500">{new Date(item.ExpiryDate).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Reveal>
+    </AdminLayout>
   );
 };
 

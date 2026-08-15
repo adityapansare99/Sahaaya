@@ -1,7 +1,3 @@
-/**
- * Returns distance in km between two lat/lng points (Haversine formula).
- * Returns null if any coordinate is missing.
- */
 export const haversineDistance = (lat1, lng1, lat2, lng2) => {
   if ([lat1, lng1, lat2, lng2].some((v) => v == null)) return null;
 

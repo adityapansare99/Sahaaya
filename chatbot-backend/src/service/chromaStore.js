@@ -16,7 +16,8 @@ const COLLECTION_CONFIG = { hnsw: { space: "cosine" } };
 // Required by chromadb v3 at collection creation; we always pass explicit embeddings.
 const xenovaEmbeddingFunction = {
   name: "xenova-all-minilm-l6-v2",
-  generate: async (texts) => Promise.all(texts.map((t) => generateEmbedding(t))),
+  generate: async (texts) =>
+    Promise.all(texts.map((t) => generateEmbedding(t))),
 };
 
 let client = null;
@@ -27,7 +28,7 @@ const buildClient = () => {
   if (config.chromaApiKey) {
     if (!config.chromaTenant || !config.chromaDatabase) {
       throw new Error(
-        "Chroma Cloud requires CHROMA_TENANT and CHROMA_DATABASE alongside CHROMA_API_KEY"
+        "Chroma Cloud requires CHROMA_TENANT and CHROMA_DATABASE alongside CHROMA_API_KEY",
       );
     }
     return new CloudClient({
@@ -75,7 +76,7 @@ const resolveCollection = async () => {
     } catch (err) {
       lastErr = err;
       console.warn(
-        `[chromaStore] connect attempt ${attempt}/6 failed: ${err.message}`
+        `[chromaStore] connect attempt ${attempt}/6 failed: ${err.message}`,
       );
       if (attempt < 6) await sleep(5000 * attempt);
     }
@@ -120,7 +121,7 @@ const initializeStore = async ({ force = false } = {}) => {
 
   if (needReingest) {
     console.log(
-      `[chromaStore] Indexing knowledge base into "${config.chromaCollection}" (count=${currentCount})...`
+      `[chromaStore] Indexing knowledge base into "${config.chromaCollection}" (count=${currentCount})...`,
     );
     const chunks = loadKnowledgeBase();
 
@@ -164,7 +165,7 @@ const initializeStore = async ({ force = false } = {}) => {
     console.log(`[chromaStore] Ingested ${chunks.length} chunks`);
   } else {
     console.log(
-      `[chromaStore] Collection "${config.chromaCollection}" up to date (${currentCount} chunks)`
+      `[chromaStore] Collection "${config.chromaCollection}" up to date (${currentCount} chunks)`,
     );
   }
 
@@ -203,7 +204,7 @@ const query = async (question, topK = null) => {
     questionEmbedding,
     candidates,
     config.mmrLambda,
-    k
+    k,
   );
 
   return reranked.map((s) => ({

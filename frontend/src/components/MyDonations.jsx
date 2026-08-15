@@ -6,9 +6,6 @@ import { AppContext } from "../context/AppContext";
 import { formatAmount } from "../utils/formatDonation";
 import FlowSelect from "./flow/FlowSelect";
 
-// Flow status pill — encodes the pipeline stages:
-// Pending(donor-amber/origin) → Accepted(rider-teal/transport) →
-// Completed(ngo-emerald/destination) · Cancelled(urgent-red).
 const StatusPill = ({ status }) => {
   if (status === "Cancelled") {
     return (
@@ -32,12 +29,12 @@ const StatusPill = ({ status }) => {
   );
 };
 
-const MyDonations = ({ donations, onEdit, onCancel }) => {
+const MyDonations = ({ donations, onEdit }) => {
   const { backendurl, token } = useContext(AppContext);
   const navigate = useNavigate();
   const [trackingId, setTrackingId] = useState(null);
+  const [cancelledIds, setCancelledIds] = useState(() => new Set());
 
-  // Donations carry no rideId, so resolve the in-progress ride on click.
   const handleTrack = async (donationId) => {
     setTrackingId(donationId);
     try {
@@ -47,9 +44,35 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
       );
       if (data?.data?.rideId) navigate(`/track/${data.data.rideId}`);
     } catch {
-      /* no active ride — button is gated on "Accepted" so this is unexpected */
     } finally {
       setTrackingId(null);
+    }
+  };
+
+  const handleCancel = async (donation) => {
+    if (!window.confirm("Cancel this donation? This cannot be undone.")) return;
+    try {
+      const { data } = await axios.post(
+        `${backendurl}donation/cancelDonation`,
+        { donationId: donation._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!data?.success) {
+        window.alert(data?.message || "Could not cancel donation");
+        return;
+      }
+      setCancelledIds((prev) => {
+        const next = new Set(prev);
+        next.add(donation._id);
+        return next;
+      });
+    } catch (e) {
+      const msg =
+        e?.response?.status === 409
+          ? e?.response?.data?.message ||
+            "This donation can no longer be cancelled."
+          : "Could not cancel donation. Please try again.";
+      window.alert(msg);
     }
   };
 
@@ -102,7 +125,6 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
     setEditId(null);
   };
 
-  // Latest donations first (newest createdAt on top); never mutate the prop.
   const sortedDonations = [...donations].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   );
@@ -128,8 +150,11 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
         </div>
       ) : (
         <div className="space-y-4">
-          {sortedDonations.map((donation) =>
-            donation._id !== editId ? (
+          {sortedDonations.map((donation) => {
+            const effectiveStatus = cancelledIds.has(donation._id)
+              ? "Cancelled"
+              : donation.Status;
+            return donation._id !== editId ? (
               <div
                 key={donation._id}
                 className="flow-card role-donor p-5 md:p-6"
@@ -153,7 +178,7 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                           </p>
                         ) : null}
                       </div>
-                      <StatusPill status={donation.Status} />
+                      <StatusPill status={effectiveStatus} />
                     </div>
 
                     <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-mute">
@@ -182,8 +207,8 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
 
                     {/* micro route: pickup -> NGO (hover-advances on fine pointers) */}
                     {donation.Ngo?.name &&
-                      (donation.Status === "Accepted" ||
-                        donation.Status === "Completed") && (
+                      (effectiveStatus === "Accepted" ||
+                        effectiveStatus === "Completed") && (
                         <div className="flow-route-mini pt-1">
                           <span className="pt a">
                             A · {donation.PickupLocation?.split(",")[0] || "Pickup"}
@@ -198,7 +223,7 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                   </div>
 
                   {/* actions */}
-                  {donation.Status === "Pending" && (
+                  {effectiveStatus === "Pending" && (
                     <div className="flex shrink-0 gap-2">
                       <button
                         onClick={() => {
@@ -211,7 +236,7 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                         <span>Edit</span>
                       </button>
                       <button
-                        onClick={() => onCancel(donation._id)}
+                        onClick={() => handleCancel(donation)}
                         className="fbtn fbtn-g fbtn-sm"
                         style={{
                           color: "var(--color-urgent)",
@@ -224,7 +249,7 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
                     </div>
                   )}
 
-                  {donation.Status === "Accepted" && (
+                  {effectiveStatus === "Accepted" && (
                     <div className="flex shrink-0">
                       <button
                         onClick={() => handleTrack(donation._id)}
@@ -372,8 +397,8 @@ const MyDonations = ({ donations, onEdit, onCancel }) => {
 
                 {}
               </div>
-            )
-          )}
+            );
+          })}
         </div>
       )}
     </div>

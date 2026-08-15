@@ -1,8 +1,3 @@
-/**
- * Dynamically loads the Google Maps JavaScript API.
- * Uses VITE_GOOGLE_MAPS_API_KEY from environment variables.
- * Ensures the script is only loaded once.
- */
 let loadPromise = null;
 
 const loadGoogleMaps = () => {
@@ -25,7 +20,6 @@ const loadGoogleMaps = () => {
     script.async = true;
     script.defer = true;
 
-    // Global callback for the API
     window.initGoogleMaps = () => resolve();
 
     script.onerror = () => {

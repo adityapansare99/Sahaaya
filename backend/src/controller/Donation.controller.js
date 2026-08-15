@@ -11,7 +11,6 @@ const toNonNegativeNumber = (value) => {
   return Number.isFinite(n) && n > 0 ? n : 0;
 };
 
-//create a donation
 const createDonation = asynchandler(async (req, res) => {
   const {
     donorType,
@@ -29,7 +28,7 @@ const createDonation = asynchandler(async (req, res) => {
 
   if (
     [donorType, foodType, description, pickup, expiryDate, expiryTime].some(
-      (field) => !field || String(field).trim().length === 0
+      (field) => !field || String(field).trim().length === 0,
     )
   ) {
     return res
@@ -67,7 +66,6 @@ const createDonation = asynchandler(async (req, res) => {
       .json(new ApiResponse(400, {}, "Donation creation failed"));
   }
 
-  // Notify only NGOs within 20km of the pickup location
   if (reponse.pickupLatitude != null && reponse.pickupLongitude != null) {
     try {
       const allNgos = await NGO.find({ approved: true });
@@ -76,7 +74,7 @@ const createDonation = asynchandler(async (req, res) => {
           reponse.pickupLatitude,
           reponse.pickupLongitude,
           ngo.latitude,
-          ngo.longitude
+          ngo.longitude,
         );
         if (dist !== null && dist <= 20) {
           sendMessageToSocketId(ngo.socketId, {
@@ -86,11 +84,16 @@ const createDonation = asynchandler(async (req, res) => {
         }
       }
     } catch (err) {
-      console.error("[donation] Error sending proximity notifications:", err.message);
+      console.error(
+        "[donation] Error sending proximity notifications:",
+        err.message,
+      );
     }
   } else {
-    // Fallback: no coordinates — broadcast to all
-    broadcastToUserType("ngo", { event: "newDonation", data: { donation: reponse } });
+    broadcastToUserType("ngo", {
+      event: "newDonation",
+      data: { donation: reponse },
+    });
   }
 
   return res
@@ -98,7 +101,6 @@ const createDonation = asynchandler(async (req, res) => {
     .json(new ApiResponse(201, reponse, "Donation created successfully"));
 });
 
-//get all the donations
 const getAllDonations = asynchandler(async (req, res) => {
   const donor = req.donor;
 
@@ -115,11 +117,10 @@ const getAllDonations = asynchandler(async (req, res) => {
   return res
     .status(200)
     .json(
-      new ApiResponse(200, donations, "All donations fetched successfully")
+      new ApiResponse(200, donations, "All donations fetched successfully"),
     );
 });
 
-//edit the donoation
 const editDonation = asynchandler(async (req, res) => {
   const donor = req.donor;
 
@@ -136,7 +137,7 @@ const editDonation = asynchandler(async (req, res) => {
 
   if (
     [foodType, description, pickup, expiryDate, expiryTime].some(
-      (field) => !field || String(field).trim().length === 0
+      (field) => !field || String(field).trim().length === 0,
     )
   ) {
     return res
@@ -168,12 +169,9 @@ const editDonation = asynchandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(
-      new ApiResponse(200, donation, "Donation updated successfully")
-    );
+    .json(new ApiResponse(200, donation, "Donation updated successfully"));
 });
 
-//delete the donation
 const deleteDonation = asynchandler(async (req, res) => {
   const donor = req.donor;
   const { donationId } = req.body;
@@ -202,4 +200,45 @@ const deleteDonation = asynchandler(async (req, res) => {
     .json(new ApiResponse(200, donation, "Donation deleted successfully"));
 });
 
-export { createDonation, getAllDonations, editDonation, deleteDonation };
+const cancelDonation = asynchandler(async (req, res) => {
+  const donor = req.donor;
+  const { donationId } = req.body;
+
+  if (!donationId || String(donationId).trim().length === 0) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Donation id is required"));
+  }
+
+  const donation = await Donation.findOneAndUpdate(
+    { _id: donationId, Donor: donor._id, Status: "Pending" },
+    { Status: "Cancelled" },
+    { new: true },
+  )
+    .populate("Ngo")
+    .populate("Donor");
+
+  if (!donation) {
+    return res
+      .status(409)
+      .json(
+        new ApiResponse(
+          409,
+          {},
+          "Donation cannot be cancelled — not found, not owned by you, or already accepted",
+        ),
+      );
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, donation, "Donation cancelled successfully"));
+});
+
+export {
+  createDonation,
+  getAllDonations,
+  editDonation,
+  deleteDonation,
+  cancelDonation,
+};

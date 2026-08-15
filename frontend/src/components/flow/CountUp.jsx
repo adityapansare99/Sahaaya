@@ -1,5 +1,3 @@
-// CountUp — animates a number from 0 -> value when scrolled into view.
-// Presentational animation only (no business logic). Respects reduced-motion.
 import { useEffect, useRef, useState } from "react";
 
 const easeOut = (t) => 1 - Math.pow(1 - t, 3);

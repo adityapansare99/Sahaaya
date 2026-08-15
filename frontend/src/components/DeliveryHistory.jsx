@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import FlowSelect from "./flow/FlowSelect";
 
-// Flow status badge for the rider history.
 const getStatusBadge = (status) => {
   if (status === "completed") {
     return (

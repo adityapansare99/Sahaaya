@@ -5,7 +5,6 @@ import { AppContext } from '../context/AppContext';
 import { toast } from 'react-toastify';
 import CountUp from './flow/CountUp';
 
-// Role-tinted stat tile (Flow).
 const TINT = {
   people: { bg: 'rgba(var(--people-rgb),.12)', fg: 'var(--color-people)' },
   ngo: { bg: 'var(--color-ngo-soft)', fg: 'var(--color-ngo-2)' },
@@ -35,7 +34,6 @@ const StatTile = ({ icon: Icon, tint, value, suffix, label, sub, footer }) => {
   );
 };
 
-// Completion-rate ring (Flow gradient stroke) — reused for the success rate.
 const SuccessRing = ({ completed, total }) => {
   const pct = total > 0 ? Math.min(1, completed / total) : 0;
   const R = 52;

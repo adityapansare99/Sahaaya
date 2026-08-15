@@ -8,8 +8,6 @@ import {
   Truck,
 } from "lucide-react";
 
-// Flow accent per status. The whole active ride is "transport" (rider-teal);
-// completion flips to NGO-emerald (destination reached / success).
 const STATUS_CONFIG = {
   accepted: {
     title: "Delivery Accepted",
@@ -31,9 +29,6 @@ const STATUS_CONFIG = {
   },
 };
 
-// accent → Flow tints. The active ride walks the pipeline:
-// accepted = donor-amber (origin) → picked up = rider-teal (transport) →
-// completed = ngo-emerald (destination).
 const ACCENT = {
   donor: { bg: "rgba(var(--donor-rgb),.08)", fg: "var(--color-donor-2)" },
   rider: { bg: "rgba(var(--rider-rgb),.08)", fg: "var(--color-rider-2)" },

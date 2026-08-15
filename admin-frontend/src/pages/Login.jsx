@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdmin } from "../context/AdminContext.jsx";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { ShieldAlert, Lock, Mail } from "lucide-react";
+import { ShieldCheck, Lock, Mail, ArrowRight } from "lucide-react";
+import Logo from "../components/flow/Logo.jsx";
+import FlowButton from "../components/flow/FlowButton.jsx";
+import FlowRibbon from "../components/flow/FlowRibbon.jsx";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,11 +19,14 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(`${backendurl}admin/login`, { email, password });
+      const res = await axios.post(`${backendurl}admin/login`, {
+        email,
+        password,
+      });
       if (res.data.success) {
         login(res.data.data.token);
         toast.success("Welcome, Admin!");
-        navigate("/");
+        navigate("/home");
       } else {
         toast.error(res.data.message || "Login failed");
       }
@@ -32,35 +38,86 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <ShieldAlert className="w-8 h-8 text-white" />
+    <div className="flow-hero login-hero">
+      <div className="login-grid">
+        <div className="login-stmt-col">
+          <Logo size="md" light subtitle={false} />
+          <div className="login-eyebrow">Operations Console</div>
+          <h1 className="login-stmt">
+            Oversight of the entire{" "}
+            <span className="flow-grad-text">surplus-to-plate</span> pipeline.
+          </h1>
+          <p className="login-sub">
+            Approve partners, track every donation from donor to NGO to rider,
+            and keep the city&apos;s food moving — all from one console.
+          </p>
+          <div className="login-ribbon">
+            <FlowRibbon />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Admin Login</h1>
-          <p className="text-gray-500 mt-1">Sahaaya Management Panel</p>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Mail className="w-4 h-4 inline mr-2" />Email
+
+        <div className="login-card-col">
+          <form className="flow-panel login-card" onSubmit={handleSubmit}>
+            <div className="login-card-head">
+              <div className="login-badge">
+                <ShieldCheck />
+              </div>
+              <div>
+                <div className="login-card-title">Admin sign in</div>
+                <div className="login-card-sub">Sahaaya management panel</div>
+              </div>
+            </div>
+
+            <label className="login-field">
+              <span className="login-label">
+                <Mail /> Email
+              </span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                placeholder="admin@sahaaya.org"
+                className="flow-input"
+              />
             </label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Lock className="w-4 h-4 inline mr-2" />Password
+
+            <label className="login-field">
+              <span className="login-label">
+                <Lock /> Password
+              </span>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                placeholder="••••••••"
+                className="flow-input"
+              />
             </label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent" />
-          </div>
-          <button type="submit" disabled={loading}
-            className="w-full bg-red-500 cursor-pointer text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition disabled:opacity-50">
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
+
+            <FlowButton
+              variant="flow"
+              type="submit"
+              disabled={loading}
+              className="login-submit"
+            >
+              {loading ? (
+                "Signing in…"
+              ) : (
+                <>
+                  Sign in <ArrowRight />
+                </>
+              )}
+            </FlowButton>
+
+            <p className="login-foot">
+              Authorized personnel only · access is audited
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -1,16 +1,6 @@
 import React from "react";
 import { MapPin, Clock, Navigation, Check, X } from "lucide-react";
 
-// Compact in-flow donation card shared by the NGO (FoodRequests) and rider
-// (AvailableDeliveries) accept/reject screens. Each screen passes only the
-// stats relevant to its role via `meta`, so the card stays short and the two
-// views can't drift apart.
-//
-// Flow styling: surface card + role left-bar (`tone`), tabular figures,
-// Flow status time-chip (urgency = the only red), `.fbtn` actions.
-
-// timeLeft is "H:M" (from getRemainingTime). Map to an urgency tier that
-// drives the time-chip colour. Urgency is the ONLY red in Flow.
 const urgencyTier = (timeLeft) => {
   if (!timeLeft || typeof timeLeft !== "string") return null;
   const h = Number(timeLeft.split(":")[0]);
@@ -20,14 +10,12 @@ const urgencyTier = (timeLeft) => {
   return "fresh";
 };
 
-// Role → left-bar class (the donor→ngo→rider pipeline identity per card).
 const ROLE_CLASS = {
   donor: "role-donor",
   rider: "role-rider",
   ngo: "role-ngo",
 };
 
-// Donor-type pill colours, Flow-tinted. Model enum is "Store" (not "Grocery Store").
 const toneFor = (badge) =>
   (
     {
@@ -38,7 +26,6 @@ const toneFor = (badge) =>
     }
   )[badge] || "bg-surface-2 text-mute";
 
-// Urgency time-chip styling. Urgent is the ONLY red.
 const URGENCY_CHIP = {
   urgent: { bg: "rgba(var(--urgent-rgb),.12)", fg: "var(--color-urgent)", dot: "var(--color-urgent)" },
   soon: { bg: "rgba(var(--donor-rgb),.12)", fg: "var(--color-donor-2)", dot: "var(--color-donor)" },

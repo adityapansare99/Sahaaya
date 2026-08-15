@@ -1,3 +1,3 @@
-const dbname="sahaaya";
+const dbname = "sahaaya";
 
-export {dbname};
+export { dbname };

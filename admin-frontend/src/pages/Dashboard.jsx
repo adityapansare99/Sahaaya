@@ -1,25 +1,80 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAdmin } from "../context/AdminContext.jsx";
-import Sidebar from "../components/Sidebar.jsx";
+import AdminLayout from "../components/AdminLayout.jsx";
+import CountUp from "../components/flow/CountUp.jsx";
+import FlowRibbon from "../components/flow/FlowRibbon.jsx";
+import Reveal from "../components/flow/Reveal.jsx";
+import StatusPill from "../components/flow/StatusPill.jsx";
+import FlowLoader from "../components/flow/FlowLoader.jsx";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Heart, Users, Bike, Store, Package, Truck, TrendingUp } from "lucide-react";
+import {
+  Heart,
+  Users,
+  Bike,
+  Store,
+  Package,
+  Truck,
+  ArrowRight,
+  PackageOpen,
+} from "lucide-react";
 
-const StatCard = ({ title, icon: Icon, data, color }) => (
-  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-    <div className="flex items-center justify-between mb-4">
-      <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center`}>
-        <Icon className="w-6 h-6 text-white" />
+const ROLE_GRAD = {
+  ngo: "linear-gradient(140deg,var(--color-ngo),var(--color-ngo-2))",
+  donor: "linear-gradient(140deg,var(--color-donor),var(--color-donor-2))",
+  rider: "linear-gradient(140deg,var(--color-rider),var(--color-rider-2))",
+  partner:
+    "linear-gradient(140deg,var(--color-partner),var(--color-partner-2))",
+};
+
+const StatTile = ({ card, index }) => {
+  const Icon = card.icon;
+  return (
+    <Reveal spring delay={index * 0.05}>
+      <div className={"stat-tile role-" + card.role}>
+        <div className="st-top">
+          <div className="st-icon" style={{ background: ROLE_GRAD[card.role] }}>
+            <Icon />
+          </div>
+        </div>
+        <div className="st-value">
+          <CountUp value={card.value} />
+        </div>
+        <div className="st-label">{card.title}</div>
+        {card.split ? (
+          <div className="st-split">
+            <span className="ok">{card.split.ok} approved</span>
+            {card.split.pend != null && (
+              <span className="pend">{card.split.pend} pending</span>
+            )}
+          </div>
+        ) : null}
       </div>
-      <TrendingUp className="w-5 h-5 text-gray-400" />
+    </Reveal>
+  );
+};
+
+const SkeletonTile = () => (
+  <div className="stat-tile">
+    <div className="st-top">
+      <div
+        className="flow-skel"
+        style={{ width: 40, height: 40, borderRadius: 12 }}
+      />
     </div>
-    <div className="text-3xl font-bold text-gray-900 mb-1">{data?.total || 0}</div>
-    <div className="text-sm font-medium text-gray-700 mb-2">{title}</div>
-    <div className="flex items-center gap-3 text-xs">
-      <span className="text-green-600 font-medium">{data?.approved || 0} approved</span>
-      <span className="text-gray-300">|</span>
-      <span className="text-yellow-600 font-medium">{data?.pending || 0} pending</span>
-    </div>
+    <div
+      className="flow-skel skel-line"
+      style={{ height: 30, width: "55%", marginTop: 4 }}
+    />
+    <div
+      className="flow-skel skel-line"
+      style={{ height: 13, width: "40%", marginTop: 12 }}
+    />
+    <div
+      className="flow-skel skel-line"
+      style={{ height: 11, width: "60%", marginTop: 14 }}
+    />
   </div>
 );
 
@@ -36,86 +91,179 @@ const Dashboard = () => {
         });
         if (res.data.success) setData(res.data.data);
         else toast.error("Failed to load dashboard");
-      } catch { toast.error("Error loading dashboard"); }
-      finally { setLoading(false); }
+      } catch {
+        toast.error("Error loading dashboard");
+      } finally {
+        setLoading(false);
+      }
     };
     fetch();
-  }, []);
-
-  if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      <div className="flex-1 lg:ml-64 p-8">
-        <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm animate-pulse">
-              <div className="h-12 w-12 bg-gray-200 rounded-xl mb-4" />
-              <div className="h-8 bg-gray-200 rounded w-20 mb-2" />
-              <div className="h-4 bg-gray-200 rounded w-32" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  }, [backendurl, token]);
 
   const cards = [
-    { title: "NGOs", icon: Heart, data: data?.ngos, color: "bg-red-500" },
-    { title: "Donors", icon: Users, data: data?.donors, color: "bg-blue-500" },
-    { title: "Delivery Partners", icon: Bike, data: data?.delivery, color: "bg-green-500" },
-    { title: "Restaurant Partners", icon: Store, data: data?.partners, color: "bg-purple-500" },
-    { title: "Donations", icon: Package, data: data?.donations, color: "bg-orange-500" },
-    { title: "Rides", icon: Truck, data: { total: data?.rides?.total || 0 }, color: "bg-teal-500" },
+    {
+      title: "NGOs",
+      icon: Heart,
+      role: "ngo",
+      value: data?.ngos?.total,
+      split: { ok: data?.ngos?.approved || 0, pend: data?.ngos?.pending },
+    },
+    {
+      title: "Donors",
+      icon: Users,
+      role: "donor",
+      value: data?.donors?.total,
+      split: { ok: data?.donors?.approved || 0, pend: data?.donors?.pending },
+    },
+    {
+      title: "Delivery Partners",
+      icon: Bike,
+      role: "rider",
+      value: data?.delivery?.total,
+      split: {
+        ok: data?.delivery?.approved || 0,
+        pend: data?.delivery?.pending,
+      },
+    },
+    {
+      title: "Restaurant Partners",
+      icon: Store,
+      role: "partner",
+      value: data?.partners?.total,
+      split: {
+        ok: data?.partners?.approved || 0,
+        pend: data?.partners?.pending,
+      },
+    },
+    {
+      title: "Donations",
+      icon: Package,
+      role: "donor",
+      value: data?.donations?.total,
+      split: {
+        ok: data?.donations?.approved || 0,
+        pend: data?.donations?.pending,
+      },
+    },
+    { title: "Rides", icon: Truck, role: "rider", value: data?.rides?.total },
   ];
 
-  const statusColor = (s) =>
-    s === "Completed" ? "text-green-600 bg-green-100" :
-    s === "Accepted" ? "text-yellow-600 bg-yellow-100" :
-    s === "Pending" ? "text-blue-600 bg-blue-100" :
-    s === "Cancelled" ? "text-red-600 bg-red-100" : "text-gray-600 bg-gray-100";
+  const impact = [
+    { v: data?.donors?.total, l: "Donors" },
+    { v: data?.ngos?.total, l: "NGOs" },
+    { v: data?.delivery?.total, l: "Delivery partners" },
+    { v: data?.partners?.total, l: "Restaurant partners" },
+    { v: data?.rides?.total, l: "Rides" },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      <div className="flex-1 lg:ml-64 p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-8">Dashboard</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {cards.map((c) => <StatCard key={c.title} {...c} />)}
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Donations</h3>
-          {data?.recentDonations?.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left p-3 font-semibold text-gray-900">Donor</th>
-                    <th className="text-left p-3 font-semibold text-gray-900">NGO</th>
-                    <th className="text-left p-3 font-semibold text-gray-900">Food Type</th>
-                    <th className="text-left p-3 font-semibold text-gray-900">Status</th>
-                    <th className="text-left p-3 font-semibold text-gray-900">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.recentDonations.map((d) => (
-                    <tr key={d._id} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="p-3 text-gray-900">{d.Donor?.name || "—"}</td>
-                      <td className="p-3 text-gray-600">{d.Ngo?.name || "—"}</td>
-                      <td className="p-3 text-gray-900">{d.FoodType}</td>
-                      <td className="p-3"><span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor(d.Status)}`}>{d.Status}</span></td>
-                      <td className="p-3 text-gray-500">{new Date(d.createdAt).toLocaleDateString()}</td>
-                    </tr>
+    <AdminLayout title="Dashboard" sub="Platform-wide overview at a glance">
+      {/* Hero — dark pipeline band */}
+      <Reveal spring className="admin-hero-reveal">
+        <section className="flow-hero admin-hero">
+          <div className="admin-hero-inner">
+            <div className="admin-hero-grid">
+              <div>
+                <div className="ah-greet">Operations overview</div>
+                <h1 className="ah-stmt">
+                  <CountUp value={data?.donations?.total} />
+                  <span className="flow-grad-text">donations</span> routed
+                  across the platform.
+                </h1>
+                <div className="admin-impact">
+                  {impact.map((it) => (
+                    <div className="ai" key={it.l}>
+                      <div className="aiv">
+                        <CountUp value={it.v} />
+                      </div>
+                      <div className="ail">{it.l}</div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </div>
+              <div className="admin-hero-ribbon">
+                <FlowRibbon />
+              </div>
             </div>
-          ) : (
-            <p className="text-gray-400 text-center py-6">No donations yet</p>
-          )}
-        </div>
+          </div>
+        </section>
+      </Reveal>
+
+      {/* Bento — one role-accented tile per entity */}
+      <div className="admin-bento">
+        {loading
+          ? [...Array(6)].map((_, i) => <SkeletonTile key={i} />)
+          : cards.map((c, i) => <StatTile key={c.title} card={c} index={i} />)}
       </div>
-    </div>
+
+      {/* Recent donations */}
+      <Reveal spring className="admin-panel" delay={0.05}>
+        <div className="admin-panel-head">
+          <span className="aph-title">Recent donations</span>
+          <Link to="/donations" className="fbtn fbtn-g fbtn-sm">
+            View all <ArrowRight />
+          </Link>
+        </div>
+
+        {loading ? (
+          <div style={{ padding: 24 }}>
+            {[...Array(4)].map((_, i) => (
+              <div
+                className="flow-skel skel-line"
+                key={i}
+                style={{ height: 16, marginBottom: 16 }}
+              />
+            ))}
+          </div>
+        ) : data?.recentDonations?.length > 0 ? (
+          <div className="flow-table-scroll">
+            <table className="flow-table">
+              <thead>
+                <tr>
+                  <th>Donor</th>
+                  <th>NGO</th>
+                  <th>Food type</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.recentDonations.map((d) => (
+                  <tr key={d._id}>
+                    <td style={{ color: "var(--color-ink)", fontWeight: 600 }}>
+                      {d.Donor?.name || "—"}
+                    </td>
+                    <td>{d.Ngo?.name || "—"}</td>
+                    <td>{d.FoodType}</td>
+                    <td>
+                      <StatusPill status={d.Status} />
+                    </td>
+                    <td style={{ color: "var(--color-mute)" }}>
+                      {d.createdAt
+                        ? new Date(d.createdAt).toLocaleDateString()
+                        : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="flow-empty" style={{ margin: 16, border: "none" }}>
+            <div className="ei">
+              <PackageOpen />
+            </div>
+            <div>
+              <div className="et">No donations yet</div>
+              <div className="ed">
+                Donations will appear here as soon as donors start posting
+                surplus.
+              </div>
+            </div>
+          </div>
+        )}
+      </Reveal>
+    </AdminLayout>
   );
 };
 

@@ -5,14 +5,15 @@ import { io } from "socket.io-client";
 export const SocketContext = createContext();
 
 const SocketProvider = (props) => {
-  const { backendurl, token } = useContext(AppContext);
+  const { backendurl, token, logout } = useContext(AppContext);
   const socketRef = useRef(null);
   const [socket, setSocket] = useState(null);
 
+  const logoutRef = useRef(logout);
+  logoutRef.current = logout;
+
   useEffect(() => {
-    // Only connect socket when user is authenticated
     if (!token) {
-      // Clean up any existing connection when token becomes falsy
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;
@@ -21,7 +22,7 @@ const SocketProvider = (props) => {
       return;
     }
 
-    const newSocket = io(backendurl);
+    const newSocket = io(backendurl, { auth: { token } });
 
     socketRef.current = newSocket;
     setSocket(newSocket);
@@ -29,6 +30,10 @@ const SocketProvider = (props) => {
     newSocket.on("connect", () => {});
 
     newSocket.on("disconnect", () => {});
+
+    newSocket.on("connect_error", (err) => {
+      if (err?.message === "unauthorized") logoutRef.current?.();
+    });
 
     return () => newSocket.disconnect();
   }, [backendurl, token]);

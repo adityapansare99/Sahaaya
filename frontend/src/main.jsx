@@ -20,7 +20,6 @@ if (!toast.__flowSingleToast) {
   });
   toast.__flowSingleToast = true;
 }
-// ─────────────────────────────────────────────────────────────────────────────
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

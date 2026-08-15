@@ -1,17 +1,28 @@
 import Router from "express";
 import {
-  login, getDashboard,
-  getNGOs, toggleNGOApproval, deleteNGO,
-  getDonors, toggleDonorApproval, deleteDonor,
-  getDelivery, toggleDeliveryApproval, deleteDelivery,
-  getPartners, togglePartnerApproval, deletePartner,
-  getDonations, getRides,
+  login,
+  getDashboard,
+  getNGOs,
+  toggleNGOApproval,
+  deleteNGO,
+  getDonors,
+  toggleDonorApproval,
+  deleteDonor,
+  getDelivery,
+  toggleDeliveryApproval,
+  deleteDelivery,
+  getPartners,
+  togglePartnerApproval,
+  deletePartner,
+  getDonations,
+  getRides,
 } from "../controller/admin.controller.js";
 import adminAuth from "../middleware/adminAuth.middleware.js";
+import { authLimiter } from "../middleware/rateLimiters.js";
 
 const adminRoute = Router();
 
-adminRoute.route("/login").post(login);
+adminRoute.route("/login").post(authLimiter, login);
 adminRoute.route("/dashboard").get(adminAuth, getDashboard);
 adminRoute.route("/ngos").get(adminAuth, getNGOs);
 adminRoute.route("/ngos/:id/approve").put(adminAuth, toggleNGOApproval);
@@ -20,7 +31,9 @@ adminRoute.route("/donors").get(adminAuth, getDonors);
 adminRoute.route("/donors/:id/approve").put(adminAuth, toggleDonorApproval);
 adminRoute.route("/donors/:id").delete(adminAuth, deleteDonor);
 adminRoute.route("/delivery").get(adminAuth, getDelivery);
-adminRoute.route("/delivery/:id/approve").put(adminAuth, toggleDeliveryApproval);
+adminRoute
+  .route("/delivery/:id/approve")
+  .put(adminAuth, toggleDeliveryApproval);
 adminRoute.route("/delivery/:id").delete(adminAuth, deleteDelivery);
 adminRoute.route("/partners").get(adminAuth, getPartners);
 adminRoute.route("/partners/:id/approve").put(adminAuth, togglePartnerApproval);

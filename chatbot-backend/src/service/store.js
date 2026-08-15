@@ -5,7 +5,7 @@ import * as chromaStore from "./chromaStore.js";
 const active = config.vectorStore === "chroma" ? chromaStore : jsonStore;
 
 console.log(
-  `[store] Active vector store: ${config.vectorStore === "chroma" ? "Chroma" : "JSON file"}`
+  `[store] Active vector store: ${config.vectorStore === "chroma" ? "Chroma" : "JSON file"}`,
 );
 
 const initializeStore = (...args) => active.initializeStore(...args);

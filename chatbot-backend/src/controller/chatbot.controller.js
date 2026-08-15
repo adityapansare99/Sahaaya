@@ -1,9 +1,6 @@
 import crypto from "crypto";
 import { query, getStoreStats } from "../service/store.js";
-import {
-  isAvailable as llmAvailable,
-  generateAnswer,
-} from "../service/llm.js";
+import { isAvailable as llmAvailable, generateAnswer } from "../service/llm.js";
 import config from "../config.js";
 
 const sessions = new Map();
@@ -21,7 +18,7 @@ const getOrCreateSession = (sessionId) => {
 const saveToHistory = (session, userText, assistantText) => {
   session.messages.push(
     { role: "user", text: userText },
-    { role: "assistant", text: assistantText }
+    { role: "assistant", text: assistantText },
   );
   if (session.messages.length > config.maxHistory * 2) {
     session.messages = session.messages.slice(-config.maxHistory * 2);
@@ -44,7 +41,11 @@ const fetchPlatformContext = async () => {
       signal: AbortSignal.timeout(2000),
     });
     if (!res.ok) return null;
-    return { platform: "Sahaaya", status: "online", timestamp: new Date().toISOString() };
+    return {
+      platform: "Sahaaya",
+      status: "online",
+      timestamp: new Date().toISOString(),
+    };
   } catch {
     return null;
   }
@@ -71,7 +72,10 @@ const formatChunksAsAnswer = (chunks) => {
     answer += "\n";
   }
 
-  answer += "---\n*Sources: " + [...new Set(chunks.map((c) => c.source))].join(", ") + "*";
+  answer +=
+    "---\n*Sources: " +
+    [...new Set(chunks.map((c) => c.source))].join(", ") +
+    "*";
   return answer.trim();
 };
 
@@ -124,7 +128,7 @@ const chat = async (req, res) => {
           })),
           llm_used: llmReady,
           session_id: sid,
-        })}\n\n`
+        })}\n\n`,
       );
 
       let answer;
@@ -142,13 +146,13 @@ const chat = async (req, res) => {
       } else if (chunks.length > 0) {
         answer = formatChunksAsAnswer(chunks);
         res.write(
-          `event: token\ndata: ${JSON.stringify({ token: answer })}\n\n`
+          `event: token\ndata: ${JSON.stringify({ token: answer })}\n\n`,
         );
       } else {
         answer =
           "I'm not sure about that. Try asking about donations, NGO registration, rider points, food safety, or how the platform works.";
         res.write(
-          `event: token\ndata: ${JSON.stringify({ token: answer })}\n\n`
+          `event: token\ndata: ${JSON.stringify({ token: answer })}\n\n`,
         );
       }
 
@@ -197,7 +201,9 @@ const chat = async (req, res) => {
 
     if (res.headersSent) {
       try {
-        res.write(`event: error\ndata: ${JSON.stringify({ message: "Something went wrong" })}\n\n`);
+        res.write(
+          `event: error\ndata: ${JSON.stringify({ message: "Something went wrong" })}\n\n`,
+        );
         res.end();
       } catch {
         // client already gone

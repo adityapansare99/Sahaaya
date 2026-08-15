@@ -1,14 +1,26 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAdmin } from "../context/AdminContext.jsx";
-import Sidebar from "../components/Sidebar.jsx";
+import AdminLayout from "../components/AdminLayout.jsx";
+import Reveal from "../components/flow/Reveal.jsx";
+import StatusPill from "../components/flow/StatusPill.jsx";
+import { Bike, Route } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const statusColor = (s) =>
-  s === "completed" ? "text-green-600 bg-green-100" :
-  s === "accepted" ? "text-yellow-600 bg-yellow-100" :
-  s === "picked up" ? "text-blue-600 bg-blue-100" :
-  s === "pending" ? "text-purple-600 bg-purple-100" : "text-gray-600 bg-gray-100";
+const RouteMini = ({ pickup, destination }) => (
+  <div className="flow-route-mini">
+    <span className="pt a" title={pickup}>
+      {pickup || "—"}
+    </span>
+    <span className="lane">
+      <span className="flow" />
+      <span className="bead" />
+    </span>
+    <span className="pt b" title={destination}>
+      {destination || "—"}
+    </span>
+  </div>
+);
 
 const Rides = () => {
   const { backendurl, token } = useAdmin();
@@ -22,57 +34,108 @@ const Rides = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.data.success) setData(res.data.data);
-      } catch { toast.error("Error fetching rides"); }
-      finally { setLoading(false); }
+      } catch {
+        toast.error("Error fetching rides");
+      } finally {
+        setLoading(false);
+      }
     };
     fetch();
-  }, []);
+  }, [backendurl, token]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
-      <div className="flex-1 lg:ml-64 p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Rides</h1>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {loading ? (
-            <div className="p-8 space-y-4">
-              {[...Array(5)].map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded-lg animate-pulse" />)}
+    <AdminLayout
+      title="Rides"
+      sub="Delivery runs from donor pickup to NGO drop-off"
+    >
+      <Reveal spring className="admin-panel">
+        {loading ? (
+          <div style={{ padding: "6px 0" }}>
+            {[...Array(6)].map((_, r) => (
+              <div
+                key={r}
+                style={{
+                  display: "flex",
+                  gap: 16,
+                  padding: "15px 18px",
+                  borderBottom: "1px solid var(--color-line-2)",
+                }}
+              >
+                {[...Array(6)].map((_, c) => (
+                  <div
+                    key={c}
+                    className="flow-skel skel-line"
+                    style={{ flex: c === 3 ? 2 : 1, height: 14 }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : data.length === 0 ? (
+          <div className="flow-empty" style={{ margin: 18, border: "none" }}>
+            <div className="ei">
+              <Route />
             </div>
-          ) : data.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">No rides found</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50">
-                    <th className="text-left p-4 font-semibold text-gray-900">Donor</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">NGO</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Rider</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Pickup</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Destination</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Status</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Distance</th>
+            <div>
+              <div className="et">No rides found</div>
+              <div className="ed">
+                Rides are created when a rider accepts a delivery for an
+                accepted donation.
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flow-table-scroll">
+            <table className="flow-table">
+              <thead>
+                <tr>
+                  <th>Donor</th>
+                  <th>NGO</th>
+                  <th>Rider</th>
+                  <th>Route</th>
+                  <th>Status</th>
+                  <th>Distance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((item) => (
+                  <tr key={item._id}>
+                    <td style={{ color: "var(--color-ink)", fontWeight: 600 }}>
+                      {item.donor?.name || "—"}
+                    </td>
+                    <td>{item.receiver?.name || "—"}</td>
+                    <td>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Bike
+                          style={{
+                            width: 14,
+                            height: 14,
+                            color: "var(--color-rider)",
+                          }}
+                        />
+                        {item.rider?.name || "—"}
+                      </span>
+                    </td>
+                    <td>
+                      <RouteMini
+                        pickup={item.pickup}
+                        destination={item.destination}
+                      />
+                    </td>
+                    <td>
+                      <StatusPill status={item.status} />
+                    </td>
+                    <td className="nums" style={{ color: "var(--color-mute)" }}>
+                      {item.distance || "—"}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {data.map((item) => (
-                    <tr key={item._id} className="border-b border-gray-50 hover:bg-gray-50">
-                      <td className="p-4 font-medium text-gray-900">{item.donor?.name || "—"}</td>
-                      <td className="p-4 text-gray-600">{item.receiver?.name || "—"}</td>
-                      <td className="p-4 text-gray-600">{item.rider?.name || "—"}</td>
-                      <td className="p-4 text-gray-600">{item.pickup}</td>
-                      <td className="p-4 text-gray-600">{item.destination}</td>
-                      <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${statusColor(item.status)}`}>{item.status}</span></td>
-                      <td className="p-4 text-gray-600">{item.distance || "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Reveal>
+    </AdminLayout>
   );
 };
 

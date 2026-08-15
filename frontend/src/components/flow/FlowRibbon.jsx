@@ -1,5 +1,3 @@
-// FlowRibbon — the signature donor -> NGO -> rider -> people pipeline.
-// Presentational only. Decorative (aria-hidden).
 import { Utensils, Heart, Bike, Users } from "lucide-react";
 
 const FlowRibbon = ({ className = "" }) => {

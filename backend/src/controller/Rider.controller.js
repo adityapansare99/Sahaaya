@@ -86,10 +86,14 @@ const allRides = asynchandler(async (req, res) => {
         const pickupLng = ride.donation?.pickupLongitude;
         if (pickupLat == null || pickupLng == null) {
           ride.distanceKm = null;
-          return ride; 
+          return ride;
         }
-        const dCurrent = hasCurrent ? haversineDistance(curLat, curLng, pickupLat, pickupLng) : null;
-        const dHome = hasHome ? haversineDistance(homeLat, homeLng, pickupLat, pickupLng) : null;
+        const dCurrent = hasCurrent
+          ? haversineDistance(curLat, curLng, pickupLat, pickupLng)
+          : null;
+        const dHome = hasHome
+          ? haversineDistance(homeLat, homeLng, pickupLat, pickupLng)
+          : null;
         const inRange =
           (dCurrent !== null && dCurrent <= 20) ||
           (dHome !== null && dHome <= 20);
@@ -320,7 +324,8 @@ const getAllRides = asynchandler(async (req, res) => {
   const response = await Ride.find({ rider: partner._id })
     .populate("donor")
     .populate("receiver")
-    .populate("donation").sort({ createdAt: -1 });
+    .populate("donation")
+    .sort({ createdAt: -1 });
 
   if (!response) {
     return res.status(401).json(new ApiResponse(401, {}, "No rides found"));
@@ -335,13 +340,17 @@ const updateLocation = asynchandler(async (req, res) => {
   const partner = req.partner;
 
   if (!partner) {
-    return res.status(401).json(new ApiResponse(401, {}, "Please login to continue"));
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
   }
 
   const { latitude, longitude } = req.body;
 
   if (latitude == null || longitude == null) {
-    return res.status(400).json(new ApiResponse(400, {}, "Latitude and longitude are required"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, {}, "Latitude and longitude are required"));
   }
 
   await Delivery.findByIdAndUpdate(partner._id, {
@@ -463,8 +472,6 @@ const redeemPoints = asynchandler(async (req, res) => {
       .json(new ApiResponse(400, {}, "Insufficient points to redeem"));
   }
 
-  console.log("booking code:", await generateBookingCode());
-
   let redemption;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -473,7 +480,7 @@ const redeemPoints = asynchandler(async (req, res) => {
         partner: partner._id,
         pointsUsed: pointsRequired,
         discountPercentage: partner.discountPercentage,
-        bookingCode:await generateBookingCode(),
+        bookingCode: await generateBookingCode(),
       });
       break;
     } catch (error) {
@@ -484,10 +491,9 @@ const redeemPoints = asynchandler(async (req, res) => {
       await Delivery.findByIdAndUpdate(rider._id, {
         $inc: { points: pointsRequired, redeemedPoints: -pointsRequired },
       });
-      console.log(error);
       return res
         .status(500)
-        .json(new ApiResponse(500, {}, "Unable to create redemption"));
+        .json(new ApiResponse(500, { error }, "Unable to create redemption"));
     }
   }
 
@@ -517,14 +523,21 @@ const myRedemptions = asynchandler(async (req, res) => {
   const rider = req.partner;
 
   if (!rider) {
-    return res.status(401).json(new ApiResponse(401, {}, "Please login to continue"));
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Please login to continue"));
   }
 
   const redemptions = await Redemption.find({ rider: rider._id })
     .populate("partner", "name logo address discountPercentage")
-    .sort({ createdAt: -1 }).limit(5);
+    .sort({ createdAt: -1 })
+    .limit(5);
 
-  res.status(200).json(new ApiResponse(200, redemptions, "Redemptions fetched successfully"));
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, redemptions, "Redemptions fetched successfully"),
+    );
 });
 
 export {
