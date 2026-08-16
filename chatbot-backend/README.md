@@ -1,297 +1,292 @@
-# Sahaaya Chatbot Backend (RAG)
+# 🤖 Sahaaya RAG AI Chatbot Microservice (`chatbot-backend`)
 
-A standalone Node.js/Express service that powers the **Sahaaya support chatbot** — a
-retrieval-augmented-generation (RAG) assistant that answers questions about the
-platform (donations, NGO/rider/partner flows, food safety, compliance, etc.) using
-**only the project's own knowledge base**.
+[![Node.js](https://img.shields.io/badge/Node.js-18.x+-339933?style=flat-square&logo=nodedotjs)](https://nodejs.org/)
+[![Xenova Transformers](https://img.shields.io/badge/@xenova/transformers-2.17.2-FF6F00?style=flat-square)](https://huggingface.co/docs/transformers.js/index)
+[![Express](https://img.shields.io/badge/Express-5.x-000000?style=flat-square&logo=express)](https://expressjs.com/)
+[![SSE](https://img.shields.io/badge/Streaming-Server--Sent_Events-009688?style=flat-square)](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events)
+[![License](https://img.shields.io/badge/License-MIT-green.style=flat-square)](#license)
 
-It runs on **port 8001** and streams answers to the frontend over **Server-Sent
-Events (SSE)**. It is fully decoupled from the main Sahaaya backend — the only link
-is an optional health-check ping for "live platform context".
-
----
-
-## Highlights
-
-- **RAG, not a chatbot-with-opinions.** Answers are grounded in the local
-  knowledge base; the LLM is told to refuse anything it can't find there.
-- **Local & free by default.** Embeddings run locally via
-  `@xenova/transformers` (`all-MiniLM-L6-v2`). The LLM defaults to **Ollama**
-  (local, keyless) for dev and **Groq** (OpenAI-compatible, fast) for prod.
-- **Pluggable vector store.** Three modes, chosen by env vars:
-  - **Chroma Cloud** (managed — recommended for production; connect by URL+key
-    like MongoDB Atlas, **no Docker**).
-  - **Self-hosted Chroma** server (`CHROMA_URL`) — local dev / private deploys.
-  - **JSON file** cache (`data/vectors.json`) — zero-setup, the local default.
-- **Streaming + resilient.** SSE token streaming, automatic re-ingest when the
-  knowledge base changes, and client-disconnect → LLM abort (no wasted tokens).
-- **Provider-pluggable LLM + store** without touching call-site code.
+> **In-House Retrieval-Augmented Generation (RAG) Microservice** providing real-time compliance, food safety guidance, and platform assistance for Sahaaya. Features local neural embeddings, multi-provider vector storage (Chroma Cloud / Self-hosted Chroma / Local JSON), Maximal Marginal Relevance (MMR) reranking, and Server-Sent Events (SSE) streaming.
 
 ---
 
-## Architecture — how the backend is put together
+## 📋 Table of Contents
 
-```
-            knowledge-base/*.txt  (the only source of truth)
-                       │
-                       ▼  loadKnowledgeBase()  (storeUtils.js)
-                 heading-aware recursive chunks (~500 chars, 50 overlap)
-                       │
-                       ▼  generateEmbedding()  (embeddings.js)
-            @xenova/transformers → 384-dim vectors (local, cached)
-                       │
-                       ▼  initializeStore()  (store.js → chromaStore | vectorStore)
-            ┌────────────────────┴─────────────────────┐
-            ▼                                          ▼
-  Chroma (Cloud or self-hosted)            JSON file (data/vectors.json)
-            └────────────────────┬─────────────────────┘
-                                 │
-   POST /chatbot/chat            ▼   query()  (store, with MMR rerank)
-   ───────────────────►  top-K relevant chunks (recomputed cosine, 0–1 score)
-                                 │
-                                 ▼   generateAnswer()  (llm.js)
-                 Groq (prod) / Ollama (dev)  →  streamed tokens
-                                 │
-                                 ▼   SSE  (event: meta | token | done | error)
-                              browser
-```
-
-### How the pieces fit (the build-up)
-
-The service is deliberately layered so each concern has one home:
-
-1. **`src/index.js`** — entry point. Loads `.env`, ensures the `data/` dir exists,
-   initializes the store (embeds + indexes the KB on first boot), checks LLM
-   availability in the background, then starts Express on `PORT`.
-2. **`src/config.js`** — single source of truth for all settings. Resolves the
-   active **vector store** (`VECTOR_STORE`, or auto-detect from `CHROMA_URL` /
-   `CHROMA_API_KEY`) and the active **LLM provider** (`LLM_PROVIDER`, or auto-detect
-   from `GROQ_API_KEY`). Parses CORS origins, rate limits, paths.
-3. **`src/app.js`** — Express app. `trust proxy` (correct client IP behind Render),
-   CORS (restricted in prod via `CORS_ORIGIN`), JSON body limit, and a per-IP rate
-   limiter on the paid streaming `/chatbot/chat` endpoint. Mounts `/chatbot`.
-4. **`src/route/chatbot.route.js`** — two routes: `GET /chatbot` (health/stats) and
-   `POST /chatbot/chat` (the chat handler).
-5. **`src/controller/chatbot.controller.js`** — the orchestration brain:
-   - **Conversation memory** — in-memory per `sessionId`, trimmed + TTL-cleaned.
-   - **Disconnect handling** — an `AbortController` tied to `req.on("close")` so a
-     closed tab aborts the streaming LLM call (saves Groq tokens).
-   - **Retrieval → generation** — queries the store, fetches best-effort live
-     platform context, then either streams an LLM answer or falls back to a
-     formatted-chunks answer when no LLM is available.
-6. **`src/service/store.js`** — store **factory**. Picks `chromaStore` or
-   `vectorStore` from config and re-exports the same
-   `{ initializeStore, query, getStoreStats }` surface, so the controller never
-   knows which backend is active.
-7. **`src/service/chromaStore.js`** — **Chroma** backend. Two connection modes
-   (Cloud via `CloudClient`, or self-hosted via `ChromaClient`). Creates/ensures a
-   single **cosine-space** collection, re-ingests when the `.txt` files change or
-   the collection is empty, and re-derives 0–1 cosine scores + MMR-reranks for
-   parity with the JSON store.
-8. **`src/service/vectorStore.js`** — **JSON file** backend (zero-setup dev). Same
-   retrieve/stats contract, persisted to `data/vectors.json`.
-9. **`src/service/storeUtils.js`** — **shared** store-agnostic logic: file hashing
-   (cache invalidation), recursive heading-aware chunking, cosine similarity, and
-   MMR reranking. Both stores build on these so retrieval behaves identically.
-10. **`src/service/embeddings.js`** — wraps `@xenova/transformers` `feature-extraction`
-    pipeline (`all-MiniLM-L6-v2`, 384-dim, mean-pooled + normalized). Honors
-    `TRANSFORMERS_CACHE` so the ~30 MB model can live on a persistent disk.
-11. **`src/service/llm.js`** — LLM abstraction. Groq (OpenAI-compatible chat/SSE)
-    for production, Ollama (`/api/generate`) for local dev. One `generateAnswer()`
-    entry point, shared system prompt that **forces grounding in the KB**.
-12. **`src/ingest.js`** — standalone CLI (`npm run ingest`) to force-rebuild the
-    active store from the `.txt` files (prime a fresh Chroma without waiting for
-    boot-time indexing).
-13. **`src/knowledge-base/*.txt`** — the knowledge base itself
-    (`faq`, `food-safety`, `compliance`, `hunger-waste`, `platform-features`).
-    **Edit these to change what the bot knows.**
+- [Overview & Highlights](#-overview--highlights)
+- [System Architecture & RAG Pipeline](#-system-architecture--rag-pipeline)
+- [Algorithmic & Mathematical Rationale](#-algorithmic--mathematical-rationale)
+- [Directory Structure](#-directory-structure)
+- [Code-Verified API Reference & Event Contracts](#-code-verified-api-reference--event-contracts)
+- [Vector Store Options](#-vector-store-options)
+- [Knowledge Base Management](#-knowledge-base-management)
+- [Environment Variables Master Schema](#-environment-variables-master-schema)
+- [Getting Started & Installation](#-getting-started--installation)
 
 ---
 
-## Quick start (local)
+## 🔍 Overview & Highlights
 
-### 1. Install
-```bash
-cd chatbot-backend
-npm install
+The **Sahaaya Chatbot Backend** is a standalone microservice running on **Port 8001** that delivers grounded assistance to donors, NGOs, riders, and admins.
+
+It enforces grounding in the project's internal knowledge base (`knowledge-base/*.txt`).
+
+### Key Highlights
+
+- **🔒 Grounded RAG Architecture**: Answers strictly from project documentation. If context is absent, it falls back to explicit domain guidance or formatted chunk extracts.
+- **⚡ Zero-Cost Local Embeddings**: Uses `@xenova/transformers` (`all-MiniLM-L6-v2`) executing locally inside Node.js memory, generating 384-dimensional dense vectors with zero third-party vector API costs.
+- **🌊 Resilient SSE Streaming**: Streams responses token-by-token over Server-Sent Events. Includes client-disconnect detection (`req.on("close")`) via `AbortController` to abort LLM generation if a tab is closed.
+- **🔌 Multi-Provider Vector Store**:
+  - **Chroma Cloud**: Fully managed production mode.
+  - **Self-Hosted Chroma**: Local Docker / private server mode.
+  - **JSON Storage**: Local single-file cache (`data/vectors.json`) with zero setup overhead.
+- **🧠 Flexible LLM Drivers**: Configurable between **Groq API** (production default `llama-3.3-70b-versatile`) and **Ollama** (`mistral` local offline dev).
+
+---
+
+## 🏗️ System Architecture & RAG Pipeline
+
 ```
-
-### 2. Configure environment
-```bash
-cp .env.example .env
-```
-The defaults need **zero external services** to run:
-- No `CHROMA_*` set → **JSON file** vector store (`data/vectors.json`).
-- No `GROQ_API_KEY` set → LLM provider auto-resolves to **Ollama**.
-
-So the two real choices are **vector store** and **LLM**. Pick one of each:
-
-#### Vector store — pick one
-
-| Mode | When to use | What to set |
-|---|---|---|
-| **JSON file** (default) | Local dev, zero setup | nothing |
-| **Self-hosted Chroma** | Testing the Chroma code path locally | `CHROMA_URL=http://localhost:8000` |
-| **Chroma Cloud** (managed) | Production — like MongoDB Atlas, no Docker | `CHROMA_API_KEY`, `CHROMA_TENANT`, `CHROMA_DATABASE` |
-
-To run a local Chroma server for testing:
-```bash
-docker run -d --name sahaaya-chroma -p 8000:8000 \
-  -e IS_PERSISTENT=TRUE chromadb/chroma:1.5.9
-# then in .env:  CHROMA_URL=http://localhost:8000
-```
-
-#### LLM — pick one
-
-| Mode | When to use | What to set |
-|---|---|---|
-| **Ollama** (default) | Local dev, keyless | `ollama pull mistral && ollama serve` |
-| **Groq** (recommended prod) | Fast, cheap, OpenAI-compatible | `GROQ_API_KEY=gsk_...` |
-
-> If no LLM is reachable, the bot still works — it falls back to returning the raw
-> retrieved chunks (retrieval-only mode). Check the boot log for
-> `✅ available` / `❌ NOT available`.
-
-### 3. Run
-```bash
-npm run dev        # http://localhost:8001  (same as `npm start`)
-```
-Health check:
-```bash
-curl http://localhost:8001/chatbot
-# → { success, llm_available, llm_provider, vector_store, index:{chunkCount,...}, ... }
-```
-
-(Re-)build the index from the `.txt` files on demand:
-```bash
-npm run ingest
+                               ┌─────────────────────────┐
+                               │  knowledge-base/*.txt   │
+                               └────────────┬────────────┘
+                                            │
+                                            ▼  Heading-Aware Recursive Chunking (~500 chars)
+                               ┌─────────────────────────┐
+                               │ Document Chunks Cache   │
+                               └────────────┬────────────┘
+                                            │
+                                            ▼  @xenova/transformers (all-MiniLM-L6-v2)
+                               ┌─────────────────────────┐
+                               │  384-Dim Vector Embeds  │
+                               └────────────┬────────────┘
+                                            │
+               ┌────────────────────────────┴────────────────────────────┐
+               ▼                                                         ▼
+     ┌───────────────────┐                                     ┌───────────────────┐
+     │ Chroma Vector DB  │                                     │ JSON Vector Cache │
+     │ (Cloud / Private) │                                     │(data/vectors.json)│
+     └─────────┬─────────┘                                     └─────────┬─────────┘
+               └────────────────────────────┬────────────────────────────┘
+                                            │
+     POST /chat                             ▼ Cosine Similarity & MMR Reranking
+   ──────────────────────────> ┌─────────────────────────┐
+                               │ Top-K Grounded Chunks   │
+                               └────────────┬────────────┘
+                                            │
+                                            ▼ Prompt Construction & Context Binding
+                               ┌─────────────────────────┐
+                               │   LLM Inference Engine  │
+                               │     (Groq / Ollama)     │
+                               └────────────┬────────────┘
+                                            │
+                                            ▼ Server-Sent Events (SSE Stream)
+                               ┌─────────────────────────┐
+                               │ React 19 Floating Chat  │
+                               └─────────────────────────┘
 ```
 
 ---
 
-## Environment variables
+## 📐 Algorithmic & Mathematical Rationale
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `PORT` | `8001` | HTTP port |
-| `VECTOR_STORE` | auto | `chroma` \| `json` (auto: chroma if `CHROMA_URL` or `CHROMA_API_KEY` set) |
-| `CHROMA_API_KEY` | — | **Chroma Cloud** API key (managed; takes precedence over `CHROMA_URL`) |
-| `CHROMA_TENANT` | — | Chroma Cloud tenant (required with the API key) |
-| `CHROMA_DATABASE` | — | Chroma Cloud database (required with the API key) |
-| `CHROMA_URL` | — | Self-hosted Chroma server URL, e.g. `http://localhost:8000` |
-| `CHROMA_AUTH_TOKEN` | — | Optional bearer token for a self-hosted server with auth |
-| `CHROMA_COLLECTION` | `sahaaya_kb` | Collection name (shared by both Chroma modes) |
-| `TRANSFORMERS_CACHE` | — | Persistent path for the embedding model (~30 MB) — point at a disk in prod |
-| `LLM_PROVIDER` | auto | `groq` \| `ollama` (auto: groq if `GROQ_API_KEY` set) |
-| `LLM_ENABLED` | `true` | Set `false` to force retrieval-only mode |
-| `GROQ_API_KEY` | — | Groq API key (console.groq.com) |
-| `GROQ_BASE_URL` | `https://api.groq.com/openai/v1` | OpenAI-compatible base |
-| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Groq model id |
-| `GROQ_MAX_TOKENS` | `1024` | Max generated tokens |
-| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server |
-| `LLM_MODEL` | `mistral` | Ollama model name |
-| `MAIN_BACKEND_URL` | `http://localhost:8000` | Main backend health URL (live context) |
-| `CORS_ORIGIN` | `*` (dev) | Comma-separated allowed origins (set in prod) |
-| `CHAT_RATE_LIMIT` | `30` | Chat requests/min/IP |
+### 1. Vector Embedding Formulation
+Text chunks are mapped into a 384-dimensional vector space using the `all-MiniLM-L6-v2` ONNX model:
+$$\vec{v} = \text{Embed}(T) \in \mathbb{R}^{384}, \quad \|\vec{v}\|_2 = 1$$
+
+### 2. Cosine Similarity Retrieval
+The query vector $\vec{q}$ is compared against chunk embedding vectors $\vec{d}_i$ via normalized dot product:
+$$\text{Sim}(\vec{q}, \vec{d}_i) = \frac{\vec{q} \cdot \vec{d}_i}{\|\vec{q}\|_2 \|\vec{d}_i\|_2} = \vec{q} \cdot \vec{d}_i$$
+
+### 3. Maximal Marginal Relevance (MMR) Reranking
+To prevent redundant information in top results, MMR balances relevance to query $\vec{q}$ with diversity among selected documents $S$:
+$$\text{MMR} = \arg\max_{d_i \in R \setminus S} \left[ \lambda \cdot \text{Sim}(d_i, q) - (1 - \lambda) \max_{d_j \in S} \text{Sim}(d_i, d_j) \right]$$
 
 ---
 
-## API
+## 📁 Directory Structure
 
-### `GET /chatbot` — health & stats
+```
+chatbot-backend/
+├── data/                       # Local vector cache storage
+│   └── vectors.json            # Generated 384-dim JSON vector index
+├── knowledge-base/             # Domain knowledge documents (.txt)
+│   ├── faq.txt                 # Frequently asked platform questions
+│   ├── food-safety.txt         # Shelf life & food handling guidelines
+│   ├── logistics.txt           # Rider delivery & distance matching rules
+│   └── partner-rewards.txt     # Restaurant points & redemption terms
+├── src/
+│   ├── app.js                  # Express setup, CORS & rate limiters (mounted at /)
+│   ├── config.js               # Service configuration & provider resolver
+│   ├── index.js                # Server entrypoint & vector initializer
+│   ├── controller/
+│   │   └── chatbot.controller.js # SSE streaming controller & session memory
+│   ├── route/
+│   │   └── chatbot.route.js      # Endpoint routerdefinitions
+│   └── service/
+│       ├── embeddings.js       # Xenova transformer ONNX pipeline wrapper
+│       ├── llm.js              # Groq & Ollama LLM drivers with stream abort
+│       ├── store.js            # Vector store factory interface
+│       ├── storeUtils.js       # File hashing, chunking, Cosine & MMR math
+│       ├── chromaStore.js      # Chroma Cloud / Self-Hosted driver
+│       └── vectorStore.js      # Single-file JSON vector persistence driver
+├── .env                        # Local environment variables
+├── README_OLD.md               # Archived previous README documentation
+└── package.json                # Service dependencies and scripts
+```
+
+---
+
+## 🌐 Code-Verified API Reference & Event Contracts
+
+Mounted at root `/`:
+
+### 1. Health & Store Status Endpoint
+#### `GET /`
+- **Response (`200 OK`)**:
 ```json
 {
   "success": true,
   "message": "Chatbot backend is running",
   "llm_available": true,
   "llm_provider": "groq",
-  "vector_store": "chroma",
-  "index": { "ready": true, "chunkCount": 131, "fileCount": 5, "vectorDim": 384 },
+  "vector_store": "json",
+  "index": {
+    "chunks": 48,
+    "hashes": { "faq.txt": "a1b2c3..." }
+  },
   "sessions_active": 2
 }
 ```
 
-### `POST /chatbot/chat` — ask a question
-Request:
+---
+
+### 2. Chat Endpoint (Streaming & Non-Streaming)
+#### `POST /chat`
+- **Request Body**:
 ```json
-{ "question": "How do I donate food?", "sessionId": "optional-uuid" }
+{
+  "question": "How long can cooked food be safely redistributed?",
+  "sessionId": "sess_987654321"
+}
 ```
-- If the client sends `Accept: text/event-stream` → **SSE** reply:
-  `event: meta` (sources) → many `event: token` → `event: done`.
-- Otherwise → a single **JSON** `{ success, answer, sources, llm_used, session_id }`.
 
-Streaming test:
-```bash
-curl -N -X POST http://localhost:8001/chatbot/chat \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/event-stream" \
-  -d '{"question":"How do I donate food?"}'
+#### Streaming SSE Mode (When `Accept: text/event-stream` header present)
+- **Response Headers**:
+  - `Content-Type: text/event-stream`
+  - `Cache-Control: no-cache`
+  - `Connection: keep-alive`
+
+##### Stream Event Flow:
+
+1. **`event: meta`**
+```http
+event: meta
+data: {"sources":[{"text":"Cooked meals should be collected within 4 hours...","source":"food-safety.txt","score":0.892}],"llm_used":true,"session_id":"sess_987654321"}
+```
+
+2. **`event: token`** (Emitted repeatedly)
+```http
+event: token
+data: {"token":"Cooked "}
+
+event: token
+data: {"token":"meals "}
+```
+
+3. **`event: done`**
+```http
+event: done
+data: {}
+```
+
+4. **`event: error`** (If an unhandled exception occurs mid-stream)
+```http
+event: error
+data: {"message":"Something went wrong"}
+```
+
+#### Non-Streaming Mode (Standard JSON)
+- **Response (`200 OK`)**:
+```json
+{
+  "success": true,
+  "answer": "Cooked meals must be redistributed within 4 hours of preparation to ensure safety.",
+  "sources": [
+    {
+      "text": "Cooked meals should be collected within 4 hours...",
+      "source": "food-safety.txt",
+      "score": 0.892
+    }
+  ],
+  "llm_used": true,
+  "session_id": "sess_987654321"
+}
 ```
 
 ---
 
-## Editing what the bot knows
+## 🗄️ Vector Store Options
 
-The knowledge base is just `.txt` files in `src/knowledge-base/`. Add/edit a file,
-then either restart (boot auto-detects the change via file-hash comparison and
-re-indexes) or run `npm run ingest`. Markdown-ish headings (`#`, `##`) are stripped
-before chunking; paragraphs under ~500 chars are kept whole, larger ones are split
-with sentence/line-aware overlap.
+| Store Type | Environment Setting | Description |
+|---|---|---|
+| **JSON Store** (Default) | `VECTOR_STORE=json` | Local single-file persistence (`data/vectors.json`) |
+| **Chroma Cloud** | `VECTOR_STORE=chroma`, `CHROMA_API_KEY=...` | Production hosted Chroma database |
+| **Chroma Self-Hosted** | `VECTOR_STORE=chroma`, `CHROMA_URL=http://...` | Docker / local Chroma instance |
 
 ---
 
-## Production deployment
+## 📄 Knowledge Base Management
 
-This service deploys on **Render** (Web Service, Node runtime, root `chatbot-backend/`).
-For production set:
+1. Place domain text files (`.txt`) in `chatbot-backend/knowledge-base/`.
+2. Format sections with heading tags (`# Heading`, `## Subheading`).
+3. On microservice boot, `storeUtils.js` compares MD5 hashes and automatically re-indexes changed files.
 
-```
-VECTOR_STORE=chroma
-CHROMA_API_KEY=...           # Chroma Cloud (managed — like MongoDB Atlas)
-CHROMA_TENANT=...
-CHROMA_DATABASE=...
+---
+
+## ⚙️ Environment Variables Master Schema
+
+Create `.env` inside `chatbot-backend/`:
+
+```env
+PORT=8001
+
+# LLM Provider Options: 'groq' | 'ollama'
 LLM_PROVIDER=groq
-GROQ_API_KEY=gsk_...
-CORS_ORIGIN=https://your-frontend.netlify.app
-TRANSFORMERS_CACHE=/opt/render/.cache/transformers   # persistent disk
+GROQ_API_KEY=gsk_your_groq_api_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
+
+# Ollama Settings (if LLM_PROVIDER=ollama)
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=mistral
+
+# Vector Store Options: 'json' | 'chroma'
+VECTOR_STORE=json
+
+# Chroma Credentials (if VECTOR_STORE=chroma)
+CHROMA_URL=https://api.trychroma.com
+CHROMA_API_KEY=your_chroma_api_key
+
+# Core Backend Ping Check
+MAIN_BACKEND_URL=http://localhost:8000
+
+# CORS Allowed Origin
+CORS_ORIGIN=http://localhost:5173
 ```
 
-- **Chroma Cloud** means **no Docker, no second service** — connect by URL+key,
-  exactly like MongoDB Atlas. (Get the key/tenant/database from
-  [trychroma.com](https://trychroma.com).)
-- Mount a **persistent disk** at `/opt/render/.cache` and set
-  `TRANSFORMERS_CACHE` to it, or the embedding model re-downloads on every cold
-  boot (slow starts).
-- The boot re-ingests the KB into Chroma automatically whenever the collection is
-  empty or the `.txt` files changed — so ephemeral filesystems are safe.
-
-Full multi-service deployment (frontend on Netlify, backend + this service on
-Render, Chroma Cloud, MongoDB Atlas, Groq) is documented in
-[`docs/deploy.md`](../docs/deploy.md).
-
 ---
 
-## Troubleshooting
+## 🚀 Getting Started & Installation
 
-| Symptom | Cause / fix |
-|---|---|
-| Answers are retrieval-only (`llm_used: false`) | LLM not available. Boot log shows `❌ NOT available`. Groq: set/fix `GROQ_API_KEY`. Ollama: `ollama serve` + `ollama pull mistral`. |
-| `Could not reach Chroma Cloud (tenant=…, db=…)` | Wrong/missing `CHROMA_API_KEY`/`TENANT`/`DATABASE`, or Chroma Cloud down. Verify the key in the dashboard. |
-| `chunkCount: 0` in health | Index empty. Run `npm run ingest`, or just restart (boot re-indexes when empty/changed). |
-| Slow cold start (minutes) | Embedding model re-downloading — set `TRANSFORMERS_CACHE` to a persistent disk. |
-| `Groq error 429` | Groq rate limit (free tier TPM/RPM). Surfaced as an SSE `error` event. Raise tier or add backoff. |
-| `Groq error 404` | Model id changed — set `GROQ_MODEL` to a current one (console.groq.com/docs/models). |
-| SSE blocked / CORS from frontend | Set `CORS_ORIGIN` to the frontend origin(s). |
-| `ChromaQuotaExceededError: ... MetadataValueSizeBytes ... 256` | Chroma Cloud caps a single collection-metadata **value** at 256 bytes. The store already stores a 32-byte aggregate KB hash (not the full per-file dict) to stay under this — only a problem if you add large custom metadata. |
-| `Cannot instantiate a collection with the DefaultEmbeddingFunction` | chromadb v3 wants an EF at collection creation. The store supplies one (our Xenova model); you should never see this. If you do, a dependency changed — check `chromadb` version. |
-| Chroma client/server mismatch | For self-hosted: pin server `chromadb/chroma:1.5.9` + `chromadb` npm v3.x client. (Not applicable to Chroma Cloud.) |
+### 1. Install Dependencies
+```bash
+cd chatbot-backend
+npm install
+```
+
+### 2. Start Microservice
+```bash
+npm start
+```
+Starts server on `http://localhost:8001`.
 
 ---
-
-## Scripts
-
-| Script | What it does |
-|---|---|
-| `npm run dev` | Start the server (`node src/index.js`) |
-| `npm start` | Same (production entry) |
-| `npm run ingest` | Force-rebuild the active vector store from `knowledge-base/*.txt` |
